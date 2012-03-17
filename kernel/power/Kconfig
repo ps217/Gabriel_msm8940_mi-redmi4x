@@ -27,6 +27,10 @@ config WAKELOCK
 
 	  Say Y if you are running an android userspace.
 
+config WAKELOCK
+	bool
+	default y
+
 config HIBERNATE_CALLBACKS
 	bool
 
