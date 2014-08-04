@@ -12,7 +12,7 @@ obj-$(CONFIG_GENERIC_SCHED_CLOCK)		+= sched_clock.o
 obj-$(CONFIG_TICK_ONESHOT)			+= tick-oneshot.o
 obj-$(CONFIG_TICK_ONESHOT)			+= tick-sched.o
 obj-$(CONFIG_DEBUG_FS)				+= timekeeping_debug.o
-obj-$(CONFIG_TEST_UDELAY)			+= udelay_test.o
+obj-$(CONFIG_TEST_UDELAY)			+= test_udelay.o
 
 $(obj)/time.o: $(obj)/timeconst.h
 
