@@ -3081,7 +3081,7 @@ static inline void set_window_start(struct rq *rq)
 		return;
 
 	if (cpu == sync_cpu) {
-		rq->window_start = sched_ktime_clock();
+		rq->window_start = sched_clock();
 	} else {
 		raw_spin_unlock(&rq->lock);
 		double_rq_lock(rq, sync_rq);
@@ -3458,7 +3458,7 @@ void sched_set_io_is_busy(int val)
 
 int sched_set_window(u64 window_start, unsigned int window_size)
 {
-	u64 now, cur_jiffies, jiffy_ktime_ns;
+	u64 now, cur_jiffies, jiffy_sched_clock;
 	s64 ws;
 	unsigned long flags;
 
@@ -3468,18 +3468,16 @@ int sched_set_window(u64 window_start, unsigned int window_size)
 
 	mutex_lock(&policy_mutex);
 
-	/*
-	 * Get a consistent view of ktime, jiffies, and the time
-	 * since the last jiffy (based on last_jiffies_update).
-	 */
+	/* Get a consistent view of sched_clock, jiffies, and the time
+	 * since the last jiffy (based on last_jiffies_update). */
 	local_irq_save(flags);
-	cur_jiffies = jiffy_to_ktime_ns(&now, &jiffy_ktime_ns);
+	cur_jiffies = jiffy_to_sched_clock(&now, &jiffy_sched_clock);
 	local_irq_restore(flags);
 
 	/* translate window_start from jiffies to nanoseconds */
 	ws = (window_start - cur_jiffies); /* jiffy difference */
 	ws *= TICK_NSEC;
-	ws += jiffy_ktime_ns;
+	ws += jiffy_sched_clock;
 
 	/* roll back calculated window start so that it is in
 	 * the past (window stats must have a current window) */
