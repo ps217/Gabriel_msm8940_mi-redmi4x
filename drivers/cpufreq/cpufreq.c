@@ -73,7 +73,7 @@ static DECLARE_RWSEM(cpufreq_rwsem);
 /* internal prototypes */
 static int __cpufreq_governor(struct cpufreq_policy *policy,
 		unsigned int event);
-static unsigned int __cpufreq_get(unsigned int cpu);
+static unsigned int __cpufreq_get(struct cpufreq_policy *policy);
 static void handle_update(struct work_struct *work);
 
 /**
@@ -660,7 +660,7 @@ store_one(scaling_max_freq, max);
 static ssize_t show_cpuinfo_cur_freq(struct cpufreq_policy *policy,
 					char *buf)
 {
-	unsigned int cur_freq = __cpufreq_get(policy->cpu);
+	unsigned int cur_freq = __cpufreq_get(policy);
 	if (!cur_freq)
 		return sprintf(buf, "<unknown>");
 	return sprintf(buf, "%u\n", cur_freq);
@@ -1702,16 +1702,15 @@ unsigned int cpufreq_quick_get_max(unsigned int cpu)
 }
 EXPORT_SYMBOL(cpufreq_quick_get_max);
 
-static unsigned int __cpufreq_get(unsigned int cpu)
+static unsigned int __cpufreq_get(struct cpufreq_policy *policy)
 {
-	struct cpufreq_policy *policy;
 	unsigned int ret_freq = 0;
 	unsigned long flags;
 
 	if (!cpufreq_driver->get)
 		return ret_freq;
 
-	ret_freq = cpufreq_driver->get(cpu);
+	ret_freq = cpufreq_driver->get(policy->cpu);
 
 	if (!policy)
 		return ret_freq;
@@ -1742,7 +1741,7 @@ unsigned int cpufreq_get(unsigned int cpu)
 
 	if (policy) {
 		down_read(&policy->rwsem);
-		ret_freq = __cpufreq_get(cpu);
+		ret_freq = __cpufreq_get(policy);
 		up_read(&policy->rwsem);
 
 		cpufreq_cpu_put(policy);
