@@ -504,7 +504,7 @@ static ssize_t store_boost(struct kobject *kobj, struct attribute *attr,
 }
 define_one_global_rw(boost);
 
-static struct cpufreq_governor *__find_governor(const char *str_governor)
+static struct cpufreq_governor *find_governor(const char *str_governor)
 {
 	struct cpufreq_governor *t;
 
@@ -540,7 +540,7 @@ static int cpufreq_parse_governor(char *str_governor, unsigned int *policy,
 
 		mutex_lock(&cpufreq_governor_mutex);
 
-		t = __find_governor(str_governor);
+		t = find_governor(str_governor);
 
 		if (t == NULL) {
 			int ret;
@@ -565,9 +565,9 @@ static int cpufreq_parse_governor(char *str_governor, unsigned int *policy,
 			 * falling back to interactive before falling out.
 			 */
 			if (ret == 0)
-				t = __find_governor(str_governor);
+				t = find_governor(str_governor);
 			else
-				t = __find_governor("interactive");
+				t = find_governor("interactive");
 		}
 
 		if (t != NULL) {
@@ -1053,7 +1053,7 @@ static void cpufreq_init_policy(struct cpufreq_policy *policy)
 	memcpy(&new_policy, policy, sizeof(*policy));
 
 	/* Update governor of new_policy to the governor used before hotplug */
-	gov = __find_governor(per_cpu(cpufreq_policy_save, policy->cpu).gov);
+	gov = find_governor(per_cpu(cpufreq_policy_save, policy->cpu).gov);
 	if (gov)
 		pr_debug("Restoring governor %s for cpu %d\n",
 				policy->governor->name, policy->cpu);
@@ -2233,7 +2233,7 @@ int cpufreq_register_governor(struct cpufreq_governor *governor)
 
 	governor->initialized = 0;
 	err = -EBUSY;
-	if (__find_governor(governor->name) == NULL) {
+	if (!find_governor(governor->name)) {
 		err = 0;
 		list_add(&governor->governor_list, &cpufreq_governor_list);
 	}
