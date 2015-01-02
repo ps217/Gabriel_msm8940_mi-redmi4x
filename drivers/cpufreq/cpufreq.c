@@ -1454,9 +1454,8 @@ static void update_related_cpus(struct cpufreq_policy *policy)
 	unsigned int j;
 
 	for_each_cpu(j, policy->related_cpus) {
-		if (!cpufreq_driver->setpolicy)
-			strlcpy(per_cpu(cpufreq_policy_save, j).gov,
-				policy->governor->name, CPUFREQ_NAME_LEN);
+		strlcpy(per_cpu(cpufreq_policy_save, j).gov,
+			policy->governor->name, CPUFREQ_NAME_LEN);
 		per_cpu(cpufreq_policy_save, j).min = policy->user_policy.min;
 		per_cpu(cpufreq_policy_save, j).max = policy->user_policy.max;
 		pr_debug("Saving CPU%d user policy min %d and max %d\n",
