@@ -930,6 +930,8 @@ int subsys_cgroup_allow_attach(struct cgroup_subsys_state *css,
 
 #else /* !CONFIG_CGROUPS */
 
+struct cgroup_subsys_state;
+
 static inline int cgroup_init_early(void) { return 0; }
 static inline int cgroup_init(void) { return 0; }
 static inline void cgroup_fork(struct task_struct *p) {}
@@ -941,6 +943,8 @@ static inline int cgroupstats_build(struct cgroupstats *stats,
 {
 	return -EINVAL;
 }
+
+static inline void css_put(struct cgroup_subsys_state *css) {}
 
 /* No cgroups - nothing to do */
 static inline int cgroup_attach_task_all(struct task_struct *from,
