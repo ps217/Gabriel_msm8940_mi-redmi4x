@@ -1,10 +1,20 @@
 #
 # ARM CPU Idle drivers
 #
+config ARM_CPUIDLE
+        bool "Generic ARM/ARM64 CPU idle Driver"
+        select DT_IDLE_STATES
+        help
+          Select this to enable generic cpuidle driver for ARM.
+          It provides a generic idle driver whose idle states are configured
+          at run-time through DT nodes. The CPUidle suspend backend is
+          initialized by calling the CPU operations init idle hook
+          provided by architecture code.
+
 config ARM_BIG_LITTLE_CPUIDLE
 	bool "Support for ARM big.LITTLE processors"
 	depends on ARCH_VEXPRESS_TC2_PM || ARCH_EXYNOS
-	depends on MCPM
+	depends on MCPM && !ARM64
 	select ARM_CPU_SUSPEND
 	select CPU_IDLE_MULTIPLE_DRIVERS
 	select DT_IDLE_STATES
