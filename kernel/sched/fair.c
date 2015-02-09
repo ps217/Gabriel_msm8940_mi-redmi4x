@@ -1799,6 +1799,8 @@ static int preferred_group_nid(struct task_struct *p, int nid)
 			}
 		}
 		/* Next round, evaluate the nodes within max_group. */
+		if (!max_faults)
+			break;
 		nodes = max_group;
 	}
 	return nid;
