@@ -50,6 +50,7 @@ struct tk_read_base {
  * @offs_tai:		Offset clock monotonic -> clock tai
  * @tai_offset:		The current UTC to TAI offset in seconds
  * @raw_sec:		CLOCK_MONOTONIC_RAW  time in seconds
+ * @raw_time:		Monotonic raw base time in timespec64 format
  * @cycle_interval:	Number of clock cycles in one NTP interval
  * @xtime_interval:	Number of clock shifted nano seconds in one NTP
  *			interval.
@@ -86,6 +87,7 @@ struct timekeeper {
 	ktime_t			offs_tai;
 	s32			tai_offset;
 	u64			raw_sec;
+	struct timespec64	raw_time;
 
 	/* The following members are for timekeeping internal use */
 	cycle_t			cycle_interval;
