@@ -1124,6 +1124,14 @@ void __weak read_persistent_clock(struct timespec *ts)
 	ts->tv_nsec = 0;
 }
 
+void __weak read_persistent_clock64(struct timespec64 *ts64)
+{
+	struct timespec ts;
+
+	read_persistent_clock(&ts);
+	*ts64 = timespec_to_timespec64(ts);
+}
+
 /**
  * read_boot_clock -  Return time of the system start.
  *
@@ -1156,10 +1164,8 @@ void __init timekeeping_init(void)
 	struct clocksource *clock;
 	unsigned long flags;
 	struct timespec64 now, boot, tmp;
-	struct timespec ts;
 
-	read_persistent_clock(&ts);
-	now = timespec_to_timespec64(ts);
+	read_persistent_clock64(&now);
 	if (!timespec64_valid_strict(&now)) {
 		pr_warn("WARNING: Persistent clock returned invalid value!\n"
 			"         Check your CMOS/BIOS settings.\n");
@@ -1229,7 +1235,7 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
  * timekeeping_inject_sleeptime64 - Adds suspend interval to timeekeeping values
  * @delta: pointer to a timespec64 delta value
  *
- * This hook is for architectures that cannot support read_persistent_clock
+ * This hook is for architectures that cannot support read_persistent_clock64
  * because their RTC/persistent clock is only accessible when irqs are enabled.
  *
  * This function should only be called by rtc_resume(), and allows
@@ -1276,12 +1282,10 @@ static void timekeeping_resume(void)
 	struct clocksource *clock = tk->tkr_mono.clock;
 	unsigned long flags;
 	struct timespec64 ts_new, ts_delta;
-	struct timespec tmp;
 	cycle_t cycle_now, cycle_delta;
 	bool suspendtime_found = false;
 
-	read_persistent_clock(&tmp);
-	ts_new = timespec_to_timespec64(tmp);
+	read_persistent_clock64(&ts_new);
 
 	clockevents_resume();
 	clocksource_resume();
@@ -1357,10 +1361,8 @@ static int timekeeping_suspend(void)
 	unsigned long flags;
 	struct timespec64		delta, delta_delta;
 	static struct timespec64	old_delta;
-	struct timespec tmp;
 
-	read_persistent_clock(&tmp);
-	timekeeping_suspend_time = timespec_to_timespec64(tmp);
+	read_persistent_clock64(&timekeeping_suspend_time);
 
 	/*
 	 * On some systems the persistent_clock can not be detected at
