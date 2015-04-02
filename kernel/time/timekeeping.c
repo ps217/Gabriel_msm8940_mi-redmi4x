@@ -1231,6 +1231,7 @@ static void __timekeeping_inject_sleeptime(struct timekeeper *tk,
 	tk_debug_account_sleep_time(delta);
 }
 
+#if defined(CONFIG_PM_SLEEP) && defined(CONFIG_RTC_HCTOSYS_DEVICE)
 /**
  * timekeeping_inject_sleeptime64 - Adds suspend interval to timeekeeping values
  * @delta: pointer to a timespec64 delta value
@@ -1268,6 +1269,7 @@ void timekeeping_inject_sleeptime64(struct timespec64 *delta)
 	/* signal hrtimers about time change */
 	clock_was_set();
 }
+#endif
 
 /**
  * timekeeping_resume - Resumes the generic timekeeping subsystem.
