@@ -1305,10 +1305,6 @@ void timekeeping_inject_sleeptime64(struct timespec64 *delta)
 
 /**
  * timekeeping_resume - Resumes the generic timekeeping subsystem.
- *
- * This is for the generic clocksource timekeeping.
- * xtime/wall_to_monotonic/jiffies/etc are
- * still managed by arch specific suspend/resume code.
  */
 static void timekeeping_resume(void)
 {
