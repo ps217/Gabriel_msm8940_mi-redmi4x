@@ -355,6 +355,8 @@ static int take_cpu_down(void *_param)
 		return err;
 
 	cpu_notify(CPU_DYING | param->mod, param->hcpu);
+	/* Give up timekeeping duties */
+	tick_handover_do_timer();
 	/* Park the stopper thread */
 	stop_machine_park((long)param->hcpu);
 	return 0;
