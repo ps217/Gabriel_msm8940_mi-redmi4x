@@ -176,7 +176,7 @@ static void pv_wait_node(struct mcs_spinlock *node)
 		 *
 		 * Matches the xchg() from pv_kick_node().
 		 */
-		(void)xchg(&pn->state, vcpu_halted);
+		smp_store_mb(pn->state, vcpu_halted);
 
 		if (!READ_ONCE(node->locked))
 			pv_wait(&pn->state, vcpu_halted);
