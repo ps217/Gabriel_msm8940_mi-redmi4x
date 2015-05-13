@@ -22,6 +22,15 @@
 
 #ifdef CONFIG_CGROUPS
 
+/*
+ * All weight knobs on the default hierarhcy should use the following min,
+ * default and max values.  The default value is the logarithmic center of
+ * MIN and MAX and allows 100x to be expressed in both directions.
+ */
+#define CGROUP_WEIGHT_MIN		1
+#define CGROUP_WEIGHT_DFL		100
+#define CGROUP_WEIGHT_MAX		10000
+
 /* a css_task_iter should be treated as an opaque object */
 struct css_task_iter {
 	struct cgroup_subsys		*ss;
@@ -228,10 +237,32 @@ void css_task_iter_end(struct css_task_iter *it);
  * cgroup_taskset_for_each - iterate cgroup_taskset
  * @task: the loop cursor
  * @tset: taskset to iterate
+ *
+ * @tset may contain multiple tasks and they may belong to multiple
+ * processes.  When there are multiple tasks in @tset, if a task of a
+ * process is in @tset, all tasks of the process are in @tset.  Also, all
+ * are guaranteed to share the same source and destination csses.
+ *
+ * Iteration is not in any specific order.
  */
 #define cgroup_taskset_for_each(task, tset)				\
 	for ((task) = cgroup_taskset_first((tset)); (task);		\
 	     (task) = cgroup_taskset_next((tset)))
+
+/**
+ * cgroup_taskset_for_each_leader - iterate group leaders in a cgroup_taskset
+ * @leader: the loop cursor
+ * @tset: takset to iterate
+ *
+ * Iterate threadgroup leaders of @tset.  For single-task migrations, @tset
+ * may not contain any.
+ */
+#define cgroup_taskset_for_each_leader(leader, tset)			\
+	for ((leader) = cgroup_taskset_first((tset)); (leader);		\
+	     (leader) = cgroup_taskset_next((tset)))			\
+		if ((leader) != (leader)->group_leader)			\
+			;						\
+		else
 
 /*
  * Inline functions.
@@ -247,6 +278,19 @@ static inline void css_get(struct cgroup_subsys_state *css)
 {
 	if (!(css->flags & CSS_NO_REF))
 		percpu_ref_get(&css->refcnt);
+}
+
+/**
+ * css_get_many - obtain references on the specified css
+ * @css: target css
+ * @n: number of references to get
+ *
+ * The caller must already have a reference.
+ */
+static inline void css_get_many(struct cgroup_subsys_state *css, unsigned int n)
+{
+	if (!(css->flags & CSS_NO_REF))
+		percpu_ref_get_many(&css->refcnt, n);
 }
 
 /**
@@ -294,6 +338,19 @@ static inline void css_put(struct cgroup_subsys_state *css)
 {
 	if (!(css->flags & CSS_NO_REF))
 		percpu_ref_put(&css->refcnt);
+}
+
+/**
+ * css_put_many - put css references
+ * @css: target css
+ * @n: number of references to put
+ *
+ * Put references obtained via css_get() and css_tryget_online().
+ */
+static inline void css_put_many(struct cgroup_subsys_state *css, unsigned int n)
+{
+	if (!(css->flags & CSS_NO_REF))
+		percpu_ref_put_many(&css->refcnt, n);
 }
 
 /**
@@ -403,68 +460,10 @@ static inline struct cgroup *task_cgroup(struct task_struct *task,
 	return task_css(task, subsys_id)->cgroup;
 }
 
-/**
- * cgroup_on_dfl - test whether a cgroup is on the default hierarchy
- * @cgrp: the cgroup of interest
- *
- * The default hierarchy is the v2 interface of cgroup and this function
- * can be used to test whether a cgroup is on the default hierarchy for
- * cases where a subsystem should behave differnetly depending on the
- * interface version.
- *
- * The set of behaviors which change on the default hierarchy are still
- * being determined and the mount option is prefixed with __DEVEL__.
- *
- * List of changed behaviors:
- *
- * - Mount options "noprefix", "xattr", "clone_children", "release_agent"
- *   and "name" are disallowed.
- *
- * - When mounting an existing superblock, mount options should match.
- *
- * - Remount is disallowed.
- *
- * - rename(2) is disallowed.
- *
- * - "tasks" is removed.  Everything should be at process granularity.  Use
- *   "cgroup.procs" instead.
- *
- * - "cgroup.procs" is not sorted.  pids will be unique unless they got
- *   recycled inbetween reads.
- *
- * - "release_agent" and "notify_on_release" are removed.  Replacement
- *   notification mechanism will be implemented.
- *
- * - "cgroup.clone_children" is removed.
- *
- * - "cgroup.subtree_populated" is available.  Its value is 0 if the cgroup
- *   and its descendants contain no task; otherwise, 1.  The file also
- *   generates kernfs notification which can be monitored through poll and
- *   [di]notify when the value of the file changes.
- *
- * - cpuset: tasks will be kept in empty cpusets when hotplug happens and
- *   take masks of ancestors with non-empty cpus/mems, instead of being
- *   moved to an ancestor.
- *
- * - cpuset: a task can be moved into an empty cpuset, and again it takes
- *   masks of ancestors.
- *
- * - memcg: use_hierarchy is on by default and the cgroup file for the flag
- *   is not created.
- *
- * - blkcg: blk-throttle becomes properly hierarchical.
- *
- * - debug: disallowed on the default hierarchy.
- */
-static inline bool cgroup_on_dfl(const struct cgroup *cgrp)
-{
-	return cgrp->root == &cgrp_dfl_root;
-}
-
 /* no synchronization, the result can only be used as a hint */
-static inline bool cgroup_has_tasks(struct cgroup *cgrp)
+static inline bool cgroup_is_populated(struct cgroup *cgrp)
 {
-	return !list_empty(&cgrp->cset_links);
+	return cgrp->populated_cnt;
 }
 
 /* returns ino associated with a cgroup */
