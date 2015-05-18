@@ -537,12 +537,13 @@ enum rpm_request {
 	RPM_REQ_RESUME,
 };
 
-struct wakeup_source;
-
 struct pm_domain_data {
 	struct list_head list_node;
 	struct device *dev;
 };
+
+struct wakeup_source;
+struct wake_irq;
 
 struct pm_subsys_data {
 	spinlock_t lock;
@@ -581,6 +582,7 @@ struct dev_pm_info {
 	unsigned long		timer_expires;
 	struct work_struct	work;
 	wait_queue_head_t	wait_queue;
+	struct wake_irq		*wakeirq;
 	atomic_t		usage_count;
 	atomic_t		child_count;
 	unsigned int		disable_depth:3;
