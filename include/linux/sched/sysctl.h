@@ -110,7 +110,6 @@ extern unsigned int sysctl_numa_balancing_scan_size;
 extern unsigned int sysctl_sched_migration_cost;
 extern unsigned int sysctl_sched_nr_migrate;
 extern unsigned int sysctl_sched_time_avg;
-extern unsigned int sysctl_timer_migration;
 extern unsigned int sysctl_sched_shares_window;
 
 int sched_proc_update_handler(struct ctl_table *table, int write,
@@ -130,17 +129,6 @@ extern int sched_boost_handler(struct ctl_table *table, int write,
 extern int sched_window_update_handler(struct ctl_table *table,
 		 int write, void __user *buffer, size_t *lenp, loff_t *ppos);
 
-#ifdef CONFIG_SCHED_DEBUG
-static inline unsigned int get_sysctl_timer_migration(void)
-{
-	return sysctl_timer_migration;
-}
-#else
-static inline unsigned int get_sysctl_timer_migration(void)
-{
-	return 1;
-}
-#endif
 
 /*
  *  control realtime throttling:
