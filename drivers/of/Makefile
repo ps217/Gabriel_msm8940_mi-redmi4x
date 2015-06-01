@@ -20,6 +20,3 @@ obj-$(CONFIG_OF_BATTERYDATA)	+= of_batterydata.o
 obj-$(CONFIG_OF_OVERLAY) += overlay.o
 
 obj-$(CONFIG_OF_UNITTEST) += unittest-data/
-
-CFLAGS_fdt.o = -I$(src)/../../scripts/dtc/libfdt
-CFLAGS_fdt_address.o = -I$(src)/../../scripts/dtc/libfdt
