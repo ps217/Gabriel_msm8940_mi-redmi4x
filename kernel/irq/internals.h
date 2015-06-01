@@ -205,7 +205,7 @@ static inline int irq_desc_is_chained(struct irq_desc *desc)
 
 static inline int irq_desc_get_node(struct irq_desc *desc)
 {
-	return irq_data_get_node(&desc->irq_data);
+	return irq_common_data_get_node(&desc->irq_common_data);
 }
 
 #ifdef CONFIG_PM_SLEEP
