@@ -5197,6 +5197,8 @@ static void try_to_wake_up_local(struct task_struct *p)
 	if (!(p->state & TASK_NORMAL))
 		goto out;
 
+	trace_sched_waking(p);
+
 	if (!task_on_rq_queued(p)) {
 		u64 wallclock = sched_ktime_clock();
 
