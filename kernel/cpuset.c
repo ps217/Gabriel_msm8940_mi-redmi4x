@@ -99,7 +99,7 @@ struct cpuset {
 
 	/* user-configured CPUs and Memory Nodes allow to tasks */
 	cpumask_var_t cpus_allowed;
-	cpumask_var_t cpus_requested;
+	cpumask_var_t cpus_requested;   /* CPUS requested, but not used because of hotplug */
 	nodemask_t mems_allowed;
 
 	/* effective CPUs and Memory Nodes allow to tasks */
@@ -1772,7 +1772,7 @@ static int cpuset_common_seq_show(struct seq_file *sf, void *v)
 
 	switch (type) {
 	case FILE_CPULIST:
-		seq_printf(sf, "%*pbl\n", cpumask_pr_args(cs->cpus_allowed));
+		seq_printf(sf, "%*pbl\n", cpumask_pr_args(cs->cpus_requested));
 		break;
 	case FILE_MEMLIST:
 		seq_printf(sf, "%*pbl\n", nodemask_pr_args(&cs->mems_allowed));
@@ -1961,11 +1961,11 @@ cpuset_css_alloc(struct cgroup_subsys_state *parent_css)
 	if (!cs)
 		return ERR_PTR(-ENOMEM);
 	if (!alloc_cpumask_var(&cs->cpus_allowed, GFP_KERNEL))
-		goto free_cs;
-	if (!alloc_cpumask_var(&cs->cpus_requested, GFP_KERNEL))
-		goto free_allowed;
+		goto error_allowed;
 	if (!alloc_cpumask_var(&cs->effective_cpus, GFP_KERNEL))
-		goto free_requested;
+		goto error_effective;
+	if (!alloc_cpumask_var(&cs->cpus_requested, GFP_KERNEL))
+		goto error_requested;
 
 	set_bit(CS_SCHED_LOAD_BALANCE, &cs->flags);
 	cpumask_clear(cs->cpus_allowed);
@@ -1978,11 +1978,11 @@ cpuset_css_alloc(struct cgroup_subsys_state *parent_css)
 
 	return &cs->css;
 
-free_requested:
-	free_cpumask_var(cs->cpus_requested);
-free_allowed:
+error_requested:
+	free_cpumask_var(cs->effective_cpus);
+error_effective:
 	free_cpumask_var(cs->cpus_allowed);
-free_cs:
+error_allowed:
 	kfree(cs);
 	return ERR_PTR(-ENOMEM);
 }
@@ -2283,7 +2283,8 @@ retry:
 		goto retry;
 	}
 
-	cpumask_and(&new_cpus, cs->cpus_requested, parent_cs(cs)->effective_cpus);
+	cpumask_and(&new_cpus, cs->cpus_requested,
+						parent_cs(cs)->effective_cpus);
 	nodes_and(new_mems, cs->mems_allowed, parent_cs(cs)->effective_mems);
 
 	cpus_updated = !cpumask_equal(&new_cpus, cs->effective_cpus);
