@@ -39,4 +39,5 @@ obj-$(CONFIG_RADIO_SILABS) += silabs/
 
 shark2-objs := radio-shark2.o radio-tea5777.o
 
+EXTRA_CFLAGS += -O2
 ccflags-y += -Isound
