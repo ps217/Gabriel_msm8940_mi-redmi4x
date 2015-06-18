@@ -527,9 +527,9 @@ static int __maybe_unused cpu_psci_cpu_suspend(unsigned long state_id)
 		return -EINVAL;
 
 	if (state_id & PSCI_POWER_STATE_BIT)
-		return __cpu_suspend(state_id, psci_suspend_finisher);
+		return cpu_suspend(state_id, psci_suspend_finisher);
 	else
-		return  psci_ops.cpu_suspend(state_id, 0);
+		return psci_ops.cpu_suspend(state_id, 0);
 }
 
 static struct cpu_operations cpu_psci_ops = {
