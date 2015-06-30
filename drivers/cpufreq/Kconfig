@@ -124,7 +124,7 @@ config CPU_FREQ_DEFAULT_GOV_GABRIELPLUS
 
 config CPU_FREQ_DEFAULT_GOV_SCHED
 	bool "sched"
-	select CPU_FREQ_GOV_INTERACTIVE
+	select CPU_FREQ_GOV_SCHED
 	help
 	  Use the CPUfreq governor 'sched' as default. This scales
 	  cpu frequency using CPU utilization estimates from the
@@ -187,7 +187,7 @@ config CPU_FREQ_GOV_ONDEMAND
 	  If in doubt, say N.
 
 config CPU_FREQ_GOV_INTERACTIVE
-	bool "'interactive' cpufreq policy governor"
+	tristate "'interactive' cpufreq policy governor"
 	help
 	  'interactive' - This driver adds a dynamic cpufreq policy governor
 	  designed for latency-sensitive workloads.
@@ -195,6 +195,9 @@ config CPU_FREQ_GOV_INTERACTIVE
 	  This governor attempts to reduce the latency of clock
 	  increases so that the system is more responsive to
 	  interactive workloads.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called cpufreq_interactive.
 
 	  For details, take a look at linux/Documentation/cpu-freq.
 
@@ -239,7 +242,6 @@ config CPU_FREQ_GOV_CONSERVATIVE
 config CPU_FREQ_GOV_SCHED
 	bool "'sched' cpufreq governor"
 	depends on CPU_FREQ
-	depends on SMP
 	select CPU_FREQ_GOV_COMMON
 	help
 	  'sched' - this governor scales cpu frequency from the
