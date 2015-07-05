@@ -411,9 +411,14 @@ static int _cpu_down(unsigned int cpu, int tasks_frozen)
 	smpboot_park_threads(cpu);
 
 	/*
+	 * Prevent irq alloc/free while the dying cpu reorganizes the
+	 * interrupt affinities.
+	 */
+	irq_lock_sparse();
+
+	/*
 	 * So now all preempt/rcu users must observe !cpu_active().
 	 */
-
 	err = stop_machine(take_cpu_down, &tcd_param, cpumask_of(cpu));
 	if (err) {
 		/* CPU didn't die: tell everyone.  Can't complain. */
@@ -542,8 +547,17 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen)
 		goto out_notify;
 	}
 
+	/*
+	 * Some architectures have to walk the irq descriptors to
+	 * setup the vector space for the cpu which comes online.
+	 * Prevent irq alloc/free across the bringup.
+	 */
+	irq_lock_sparse();
+
 	/* Arch-specific enabling code. */
 	ret = __cpu_up(cpu, idle);
+
+	irq_unlock_sparse();
 
 	if (ret != 0)
 		goto out_notify;
