@@ -16,6 +16,7 @@ obj-$(CONFIG_CPU_FREQ_GOV_GABRIELPLUS)	+= cpufreq_gabrielplus.o
 obj-$(CONFIG_CPU_FREQ_GOV_NIGHTMARE)		+= cpufreq_nightmare.o
 obj-$(CONFIG_CPU_FREQ_GOV_DARKNESS)		+= cpufreq_darkness.o
 obj-$(CONFIG_CPU_FREQ_GOV_ALUCARD)		+= cpufreq_alucard.o
+obj-$(CONFIG_CPU_FREQ_GOV_LIONFISH)	+= cpufreq_lionfish.o
 obj-$(CONFIG_CPU_FREQ_GOV_COMMON)		+= cpufreq_governor.o
 
 obj-$(CONFIG_CPUFREQ_DT)		+= cpufreq-dt.o
