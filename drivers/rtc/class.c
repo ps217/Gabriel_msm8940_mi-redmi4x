@@ -238,8 +238,9 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
 
 	err = device_register(&rtc->dev);
 	if (err) {
+		/* This will free both memory and the ID */
 		put_device(&rtc->dev);
-		goto exit_kfree;
+		goto exit;
 	}
 
 	rtc_dev_add_device(rtc);
@@ -250,9 +251,6 @@ struct rtc_device *rtc_device_register(const char *name, struct device *dev,
 			rtc->name, dev_name(&rtc->dev));
 
 	return rtc;
-
-exit_kfree:
-	kfree(rtc);
 
 exit_ida:
 	ida_simple_remove(&rtc_ida, id);
