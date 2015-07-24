@@ -116,3 +116,4 @@ obj-$(CONFIG_QCOM_EARLY_RANDOM)	+= early_random.o
 obj-$(CONFIG_MSM_HAB) += hab/
 obj-$(CONFIG_STATE_NOTIFIER)		+= state_notifier.o
 obj-$(CONFIG_CLUSTER_PLUG)	+= cluster_plug.o
+obj-$(CONFIG_MSM_RUN_QUEUE_STATS) += msm_rq_stats.o
