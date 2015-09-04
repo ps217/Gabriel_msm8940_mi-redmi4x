@@ -299,6 +299,7 @@ int smpboot_register_percpu_thread_cpumask(struct smp_hotplug_thread *plug_threa
 		ret = __smpboot_create_thread(plug_thread, cpu);
 		if (ret) {
 			smpboot_destroy_threads(plug_thread);
+			free_cpumask_var(plug_thread->cpumask);
 			goto out;
 		}
 		if (cpumask_test_cpu(cpu, cpumask))
