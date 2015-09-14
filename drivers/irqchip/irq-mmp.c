@@ -130,7 +130,7 @@ struct irq_chip icu_irq_chip = {
 	.irq_unmask	= icu_unmask_irq,
 };
 
-static void icu_mux_irq_demux(unsigned int irq, struct irq_desc *desc)
+static void icu_mux_irq_demux(struct irq_desc *desc)
 {
 	struct irq_domain *domain;
 	struct icu_chip_data *data;

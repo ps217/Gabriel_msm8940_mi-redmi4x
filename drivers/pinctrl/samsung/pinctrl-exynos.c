@@ -396,7 +396,7 @@ static struct exynos_irq_chip exynos_wkup_irq_chip = {
 };
 
 /* interrupt handler for wakeup interrupts 0..15 */
-static void exynos_irq_eint0_15(unsigned int irq, struct irq_desc *desc)
+static void exynos_irq_eint0_15(struct irq_desc *desc)
 {
 	struct exynos_weint_data *eintd = irq_get_handler_data(irq);
 	struct samsung_pin_bank *bank = eintd->bank;
@@ -428,7 +428,7 @@ static inline void exynos_irq_demux_eint(unsigned long pend,
 }
 
 /* interrupt handler for wakeup interrupt 16 */
-static void exynos_irq_demux_eint16_31(unsigned int irq, struct irq_desc *desc)
+static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
 {
 	struct irq_chip *chip = irq_get_chip(irq);
 	struct exynos_muxed_weint_data *eintd = irq_get_handler_data(irq);
