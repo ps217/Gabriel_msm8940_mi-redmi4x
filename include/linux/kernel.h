@@ -219,11 +219,6 @@ extern int _cond_resched(void);
 		ret;						\
 	})
 
-#define abs64(x) ({				\
-		s64 __x = (x);			\
-		(__x < 0) ? -__x : __x;		\
-	})
-
 /**
  * reciprocal_scale - "scale" a value into range [0, ep_ro)
  * @val: value
