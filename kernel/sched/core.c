@@ -3077,12 +3077,11 @@ static inline void set_window_start(struct rq *rq)
 	int cpu = cpu_of(rq);
 	struct rq *sync_rq = cpu_rq(sync_cpu);
 
-	if (rq->window_start || !sched_enable_hmp ||
-	    !sched_clock_initialized() || !sched_clock_cpu(cpu))
+	if (rq->window_start || !sched_enable_hmp)
 		return;
 
 	if (cpu == sync_cpu) {
-		rq->window_start = sched_clock();
+		rq->window_start = sched_ktime_clock();
 	} else {
 		raw_spin_unlock(&rq->lock);
 		double_rq_lock(rq, sync_rq);
@@ -3309,8 +3308,8 @@ void sched_get_cpus_busy(struct sched_load *busy,
 	for_each_cpu(cpu, query_cpus) {
 		rq = cpu_rq(cpu);
 
-		update_task_ravg(rq->curr, rq, TASK_UPDATE, sched_ktime_clock(),
-				 0);
+		update_task_ravg(rq->curr, rq, TASK_UPDATE,
+				 sched_ktime_clock(), 0);
 		cur_freq[i] = cpu_cycles_to_freq(rq->cc.cycles, rq->cc.time);
 
 		load[i] = rq->old_busy_time = rq->prev_runnable_sum;
@@ -3459,7 +3458,7 @@ void sched_set_io_is_busy(int val)
 
 int sched_set_window(u64 window_start, unsigned int window_size)
 {
-	u64 now, cur_jiffies, jiffy_sched_clock;
+	u64 now, cur_jiffies, jiffy_ktime_ns;
 	s64 ws;
 	unsigned long flags;
 
@@ -3469,16 +3468,18 @@ int sched_set_window(u64 window_start, unsigned int window_size)
 
 	mutex_lock(&policy_mutex);
 
-	/* Get a consistent view of sched_clock, jiffies, and the time
-	 * since the last jiffy (based on last_jiffies_update). */
+	/*
+	 * Get a consistent view of ktime, jiffies, and the time
+	 * since the last jiffy (based on last_jiffies_update).
+	 */
 	local_irq_save(flags);
-	cur_jiffies = jiffy_to_sched_clock(&now, &jiffy_sched_clock);
+	cur_jiffies = jiffy_to_ktime_ns(&now, &jiffy_ktime_ns);
 	local_irq_restore(flags);
 
 	/* translate window_start from jiffies to nanoseconds */
 	ws = (window_start - cur_jiffies); /* jiffy difference */
 	ws *= TICK_NSEC;
-	ws += jiffy_sched_clock;
+	ws += jiffy_ktime_ns;
 
 	/* roll back calculated window start so that it is in
 	 * the past (window stats must have a current window) */
