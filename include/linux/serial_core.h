@@ -307,21 +307,30 @@ struct earlycon_device {
 	char options[16];		/* e.g., 115200n8 */
 	unsigned int baud;
 };
+
+struct earlycon_id {
+	char	name[16];
+	char	compatible[128];
+	int	(*setup)(struct earlycon_device *, const char *options);
+} __aligned(32);
+
+extern const struct earlycon_id __earlycon_table[];
+extern const struct earlycon_id __earlycon_table_end[];
+
+#define OF_EARLYCON_DECLARE(_name, compat, fn)				\
+	static const struct earlycon_id __UNIQUE_ID(__earlycon_##_name)	\
+	     __used __section(__earlycon_table)				\
+		= { .name = __stringify(_name),				\
+		    .compatible = compat,				\
+		    .setup = fn  }
+
+#define EARLYCON_DECLARE(_name, fn)	OF_EARLYCON_DECLARE(_name, "", fn)
+
 int setup_earlycon(char *buf, const char *match,
 		   int (*setup)(struct earlycon_device *, const char *));
 
 extern int of_setup_earlycon(unsigned long addr,
 			     int (*setup)(struct earlycon_device *, const char *));
-
-#define EARLYCON_DECLARE(name, func) \
-static int __init name ## _setup_earlycon(char *buf) \
-{ \
-	return setup_earlycon(buf, __stringify(name), func); \
-} \
-early_param("earlycon", name ## _setup_earlycon);
-
-#define OF_EARLYCON_DECLARE(name, compat, fn)				\
-	_OF_DECLARE(earlycon, name, compat, fn, void *)
 
 struct uart_port *uart_get_console(struct uart_port *ports, int nr,
 				   struct console *c);

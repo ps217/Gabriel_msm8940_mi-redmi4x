@@ -150,6 +150,14 @@
 #define TRACE_SYSCALLS()
 #endif
 
+#ifdef CONFIG_SERIAL_EARLYCON
+#define EARLYCON_TABLE() STRUCT_ALIGN();			\
+			 VMLINUX_SYMBOL(__earlycon_table) = .;	\
+			 *(__earlycon_table)			\
+			 VMLINUX_SYMBOL(__earlycon_table_end) = .;
+#else
+#define EARLYCON_TABLE()
+#endif
 
 #define ___OF_TABLE(cfg, name)	_OF_TABLE_##cfg(name)
 #define __OF_TABLE(cfg, name)	___OF_TABLE(cfg, name)
@@ -167,7 +175,6 @@
 #define IOMMU_OF_TABLES()	OF_TABLE(CONFIG_OF_IOMMU, iommu)
 #define RESERVEDMEM_OF_TABLES()	OF_TABLE(CONFIG_OF_RESERVED_MEM, reservedmem)
 #define CPU_METHOD_OF_TABLES()	OF_TABLE(CONFIG_SMP, cpu_method)
-#define EARLYCON_OF_TABLES()	OF_TABLE(CONFIG_SERIAL_EARLYCON, earlycon)
 
 #define KERNEL_DTB()							\
 	STRUCT_ALIGN();							\
@@ -512,7 +519,7 @@
 	CPU_METHOD_OF_TABLES()						\
 	KERNEL_DTB()							\
 	IRQCHIP_OF_MATCH_TABLE()					\
-	EARLYCON_OF_TABLES()
+	EARLYCON_TABLE()
 
 #define INIT_TEXT							\
 	*(.init.text)							\
