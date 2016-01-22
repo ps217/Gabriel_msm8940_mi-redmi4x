@@ -3981,7 +3981,7 @@ static bool is_usb_present(struct fg_chip *chip)
 		chip->usb_psy = power_supply_get_by_name("usb");
 
 	if (chip->usb_psy)
-		chip->usb_psy->get_property(chip->usb_psy,
+		power_supply_get_property(chip->usb_psy,
 				POWER_SUPPLY_PROP_PRESENT, &prop);
 	return prop.intval != 0;
 }
@@ -3993,7 +3993,7 @@ static bool is_dc_present(struct fg_chip *chip)
 		chip->dc_psy = power_supply_get_by_name("dc");
 
 	if (chip->dc_psy)
-		chip->dc_psy->get_property(chip->dc_psy,
+		power_supply_get_property(chip->dc_psy,
 				POWER_SUPPLY_PROP_PRESENT, &prop);
 	return prop.intval != 0;
 }
@@ -4011,7 +4011,7 @@ static bool is_otg_present(struct fg_chip *chip)
 		chip->usb_psy = power_supply_get_by_name("usb");
 
 	if (chip->usb_psy)
-		chip->usb_psy->get_property(chip->usb_psy,
+		power_supply_get_property(chip->usb_psy,
 				POWER_SUPPLY_PROP_USB_OTG, &prop);
 	return prop.intval != 0;
 }
@@ -4040,7 +4040,7 @@ static int set_prop_enable_charging(struct fg_chip *chip, bool enable)
 		return -EINVAL;
 	}
 
-	rc = chip->batt_psy->set_property(chip->batt_psy,
+	rc = power_supply_set_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_BATTERY_CHARGING_ENABLED,
 			&ret);
 	if (rc) {
@@ -4974,7 +4974,7 @@ static void update_esr_value(struct work_struct *work)
 	if (!is_charger_available(chip))
 		return;
 
-	chip->batt_psy->get_property(chip->batt_psy,
+	power_supply_get_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_CHARGE_TYPE, &prop);
 
 	if (!chip->esr_strict_filter) {
