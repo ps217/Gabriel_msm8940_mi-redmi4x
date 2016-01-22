@@ -699,7 +699,7 @@ qpnp_flash_led_get_max_avail_current(struct flash_node_data *flash_node,
 				FLASH_LED_CURRENT_READING_DELAY_MAX);
 		}
 
-		led->battery_psy->get_property(led->battery_psy,
+		power_supply_get_property(led->battery_psy,
 				POWER_SUPPLY_PROP_FLASH_CURRENT_MAX, &prop);
 		if (!prop.intval) {
 			dev_err(&led->spmi_dev->dev,
@@ -1034,7 +1034,7 @@ static int qpnp_flash_led_module_disable(struct qpnp_flash_led *led,
 			led->revid_data->pmic_subtype == PMI8996_SUBTYPE &&
 						!led->revid_data->rev3) {
 			psy_prop.intval = false;
-			rc = led->battery_psy->set_property(led->battery_psy,
+			rc = power_supply_set_property(led->battery_psy,
 					POWER_SUPPLY_PROP_FLASH_TRIGGER,
 							&psy_prop);
 			if (rc) {
@@ -1067,7 +1067,7 @@ static int qpnp_flash_led_module_disable(struct qpnp_flash_led *led,
 
 		if (led->battery_psy) {
 			psy_prop.intval = false;
-			rc = led->battery_psy->set_property(led->battery_psy,
+			rc = power_supply_set_property(led->battery_psy,
 						POWER_SUPPLY_PROP_FLASH_ACTIVE,
 							&psy_prop);
 			if (rc) {
@@ -1540,7 +1540,7 @@ static void qpnp_flash_led_work(struct work_struct *work)
 
 		psy_prop.intval = true;
 		if (led->battery_psy) {
-			rc = led->battery_psy->set_property(led->battery_psy,
+			rc = power_supply_set_property(led->battery_psy,
 						POWER_SUPPLY_PROP_FLASH_ACTIVE,
 						&psy_prop);
 			if (rc) {
@@ -1557,7 +1557,7 @@ static void qpnp_flash_led_work(struct work_struct *work)
 		if (led->pdata->power_detect_en ||
 					led->pdata->die_current_derate_en) {
 			if (led->battery_psy) {
-				led->battery_psy->get_property(led->battery_psy,
+				power_supply_get_property(led->battery_psy,
 					POWER_SUPPLY_PROP_STATUS,
 					&psy_prop);
 				if (psy_prop.intval < 0) {
@@ -1691,7 +1691,7 @@ static void qpnp_flash_led_work(struct work_struct *work)
 
 		if (led->revid_data->pmic_subtype == PMI8996_SUBTYPE &&
 						!led->revid_data->rev3) {
-			rc = led->battery_psy->set_property(led->battery_psy,
+			rc = power_supply_set_property(led->battery_psy,
 						POWER_SUPPLY_PROP_FLASH_TRIGGER,
 							&psy_prop);
 			if (rc) {
