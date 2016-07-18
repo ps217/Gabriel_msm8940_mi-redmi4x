@@ -6413,8 +6413,7 @@ static void fg_hw_restart(struct fg_chip *chip)
 #define BATTERY_PSY_WAIT_MS		2000
 static int fg_batt_profile_init(struct fg_chip *chip)
 {
-	int rc = 0, ret;
-	int len;
+	int rc = 0, ret, len, batt_id;
 	struct device_node *node = chip->spmi->dev.of_node;
 	struct device_node *batt_node, *profile_node;
 	const char *data, *batt_type_str;
@@ -6465,19 +6464,17 @@ wait:
 		goto no_profile;
 	}
 
+	batt_id = get_sram_prop_now(chip, FG_DATA_BATT_ID);
+	batt_id /= 1000;
 	if (fg_debug_mask & FG_STATUS)
-		pr_info("battery id = %d\n",
-				get_sram_prop_now(chip, FG_DATA_BATT_ID));
-	profile_node = of_batterydata_get_best_profile(batt_node, "bms",
+		pr_info("battery id = %dKOhms\n", batt_id);
+
+	profile_node = of_batterydata_get_best_profile(batt_node, batt_id,
 							fg_batt_type);
 	if (IS_ERR_OR_NULL(profile_node)) {
 		rc = PTR_ERR(profile_node);
-		if (rc == -EPROBE_DEFER) {
-			goto reschedule;
-		} else {
-			pr_err("couldn't find profile handle rc=%d\n", rc);
-			goto no_profile;
-		}
+		pr_err("couldn't find profile handle %d\n", rc);
+		goto no_profile;
 	}
 
 	/* read rslow compensation values if they're available */
