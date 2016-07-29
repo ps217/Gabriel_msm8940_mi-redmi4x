@@ -123,7 +123,8 @@ static int pil_mss_power_up(struct q6v5_data *drv)
 	if (drv->vreg) {
 		ret = regulator_enable(drv->vreg);
 		if (ret)
-			dev_err(drv->desc.dev, "Failed to enable modem regulator.\n");
+			dev_err(drv->desc.dev, "Failed to enable modem regulator(rc:%d)\n",
+									ret);
 	}
 
 	if (drv->cxrail_bhs) {
@@ -244,7 +245,7 @@ static int pil_msa_wait_for_mba_ready(struct q6v5_data *drv)
 	ret = readl_poll_timeout(drv->rmb_base + RMB_PBL_STATUS, status,
 				 status != 0, POLL_INTERVAL_US, val);
 	if (ret) {
-		dev_err(dev, "PBL boot timed out\n");
+		dev_err(dev, "PBL boot timed out (rc:%d)\n", ret);
 		return ret;
 	}
 	if (status != STATUS_PBL_SUCCESS) {
@@ -256,7 +257,7 @@ static int pil_msa_wait_for_mba_ready(struct q6v5_data *drv)
 	ret = readl_poll_timeout(drv->rmb_base + RMB_MBA_STATUS, status,
 				status != 0, POLL_INTERVAL_US, val);
 	if (ret) {
-		dev_err(dev, "MBA boot timed out\n");
+		dev_err(dev, "MBA boot timed out (rc:%d)\n", ret);
 		return ret;
 	}
 	if (status != STATUS_XPU_UNLOCKED &&
@@ -298,7 +299,8 @@ int pil_mss_shutdown(struct pil_desc *pil)
 		if (!ret)
 			assert_clamps(pil);
 		else
-			dev_err(pil->dev, "error turning ON AHB clock\n");
+			dev_err(pil->dev, "error turning ON AHB clock(rc:%d)\n",
+									ret);
 	}
 
 	ret = pil_mss_restart_reg(drv, 1);
@@ -328,7 +330,8 @@ int __pil_mss_deinit_image(struct pil_desc *pil, bool err_path)
 				status == STATUS_MBA_UNLOCKED || status < 0,
 				POLL_INTERVAL_US, val);
 		if (ret)
-			dev_err(pil->dev, "MBA region unlock timed out\n");
+			dev_err(pil->dev, "MBA region unlock timed out(rc:%d)\n",
+									ret);
 		else if (status < 0)
 			dev_err(pil->dev, "MBA unlock returned err status: %d\n",
 						status);
@@ -367,19 +370,20 @@ int pil_mss_make_proxy_votes(struct pil_desc *pil)
 
 	ret = of_property_read_u32(pil->dev->of_node, "vdd_mx-uV", &uv);
 	if (ret) {
-		dev_err(pil->dev, "missing vdd_mx-uV property\n");
+		dev_err(pil->dev, "missing vdd_mx-uV property(rc:%d)\n", ret);
 		return ret;
 	}
 
 	ret = regulator_set_voltage(drv->vreg_mx, uv, INT_MAX);
 	if (ret) {
-		dev_err(pil->dev, "Failed to request vreg_mx voltage\n");
+		dev_err(pil->dev, "Failed to request vreg_mx voltage(rc:%d)\n",
+									ret);
 		return ret;
 	}
 
 	ret = regulator_enable(drv->vreg_mx);
 	if (ret) {
-		dev_err(pil->dev, "Failed to enable vreg_mx\n");
+		dev_err(pil->dev, "Failed to enable vreg_mx(rc:%d)\n", ret);
 		regulator_set_voltage(drv->vreg_mx, 0, INT_MAX);
 		return ret;
 	}
@@ -541,8 +545,8 @@ int pil_mss_reset_load_mba(struct pil_desc *pil)
 	fw_name_p = drv->non_elf_image ? fw_name_legacy : fw_name;
 	ret = request_firmware(&fw, fw_name_p, pil->dev);
 	if (ret) {
-		dev_err(pil->dev, "Failed to locate %s\n",
-						fw_name_p);
+		dev_err(pil->dev, "Failed to locate %s (rc:%d)\n",
+						fw_name_p, ret);
 		return ret;
 	}
 
@@ -618,14 +622,15 @@ int pil_mss_reset_load_mba(struct pil_desc *pil)
 		ret = pil_assign_mem_to_subsys(pil, drv->mba_dp_phys,
 							drv->mba_dp_size);
 		if (ret) {
-			pr_err("scm_call to unprotect MBA and DP mem failed\n");
+			pr_err("scm_call to unprotect MBA and DP mem failed(rc:%d)\n",
+									ret);
 			goto err_mba_data;
 		}
 	}
 
 	ret = pil_mss_reset(pil);
 	if (ret) {
-		dev_err(pil->dev, "MBA boot failed.\n");
+		dev_err(pil->dev, "MBA boot failed(rc:%d)\n", ret);
 		goto err_mss_reset;
 	}
 
@@ -696,7 +701,8 @@ static int pil_msa_auth_modem_mdt(struct pil_desc *pil, const u8 *metadata,
 		ret = pil_assign_mem_to_subsys(pil, mdata_phys,
 							ALIGN(size, SZ_4K));
 		if (ret) {
-			pr_err("scm_call to unprotect modem metadata mem failed\n");
+			pr_err("scm_call to unprotect modem metadata mem failed(rc:%d)\n",
+									ret);
 			dma_free_attrs(dma_dev, size, mdata_virt,
 							mdata_phys, &attrs);
 			goto fail;
@@ -713,7 +719,8 @@ static int pil_msa_auth_modem_mdt(struct pil_desc *pil, const u8 *metadata,
 			status == STATUS_META_DATA_AUTH_SUCCESS || status < 0,
 			POLL_INTERVAL_US, val);
 	if (ret) {
-		dev_err(pil->dev, "MBA authentication of headers timed out\n");
+		dev_err(pil->dev, "MBA authentication of headers timed out(rc:%d)\n",
+								ret);
 	} else if (status < 0) {
 		dev_err(pil->dev, "MBA returned error %d for headers\n",
 				status);
@@ -797,7 +804,8 @@ static int pil_msa_mba_auth(struct pil_desc *pil)
 	ret = readl_poll_timeout(drv->rmb_base + RMB_MBA_STATUS, status,
 		status == STATUS_AUTH_COMPLETE || status < 0, 50, val);
 	if (ret) {
-		dev_err(pil->dev, "MBA authentication of image timed out\n");
+		dev_err(pil->dev, "MBA authentication of image timed out(rc:%d)\n",
+									ret);
 	} else if (status < 0) {
 		dev_err(pil->dev, "MBA returned error %d for image\n", status);
 		ret = -EINVAL;
