@@ -49,6 +49,8 @@
 
 #include <asm/uaccess.h>
 
+#include "../printk_interface.h"
+
 #define CREATE_TRACE_POINTS
 #include <trace/events/printk.h>
 
@@ -1646,6 +1648,10 @@ asmlinkage int vprintk_emit(int facility, int level,
 		in_sched = true;
 	}
 
+	// if printk mode is disabled, terminate instantly
+	if (printk_mode == 0)
+		return 0;
+
 	boot_delay_msec(level);
 	printk_delay();
 
@@ -1814,6 +1820,10 @@ asmlinkage int printk_emit(int facility, int level,
 {
 	va_list args;
 	int r;
+
+	// if printk mode is disabled, terminate instantly
+	if (printk_mode == 0)
+		return 0;
 
 	va_start(args, fmt);
 	r = vprintk_emit(facility, level, dict, dictlen, fmt, args);
