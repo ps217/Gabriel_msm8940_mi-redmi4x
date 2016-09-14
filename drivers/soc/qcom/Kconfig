@@ -698,6 +698,40 @@ config MSM_GLINK_PKT
 	  This enable the usersapce clients to read and write to
 	  some glink packets channel.
 
+config MSM_QDSP6_SSR
+	bool "Audio QDSP6 SSR support"
+	depends on MSM_QDSP6_APRV2 || MSM_QDSP6_APRV3 || \
+		MSM_QDSP6_APRV2_GLINK || MSM_QDSP6_APRV3_GLINK
+	help
+	  Enable Subsystem Restart. Reset audio
+	  clients when the ADSP subsystem is
+	  restarted. Subsystem Restart for audio
+	  is only used for processes on the ADSP
+	  and signals audio drivers through APR.
+
+
+config MSM_QDSP6_PDR
+	bool "Audio QDSP6 PDR support"
+	depends on MSM_QDSP6_APRV2 || MSM_QDSP6_APRV3 || \
+		MSM_QDSP6_APRV2_GLINK || MSM_QDSP6_APRV3_GLINK
+	help
+	  Enable Protection Domain Restart. Reset
+          audio clients when a process on the ADSP
+          is restarted. PDR for audio is only used
+          for processes on the ADSP and signals
+          audio drivers through APR.
+
+config MSM_QDSP6_NOTIFIER
+	bool "Audio QDSP6 PDR support"
+	depends on MSM_QDSP6_SSR || MSM_QDSP6_PDR
+	help
+	  Enable notifier which decides whether
+	  to use SSR or PDR and notifies all
+	  audio clients of the event. Both SSR
+	  and PDR are recovery methods when
+	  there is a crash on ADSP. Audio drivers
+	  are contacted by ADSP through APR.
+
 config MSM_TZ_SMMU
 	bool "Helper functions for SMMU configuration through TZ"
 	depends on ARCH_MSMTHULIUM || ARCH_MSM8953
