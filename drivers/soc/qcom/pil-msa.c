@@ -313,6 +313,14 @@ int pil_mss_shutdown(struct pil_desc *pil)
 									ret);
 	}
 
+	/*
+	 *  If MSS was in turbo state before fatal error occurs, it would
+	 *  have set the vote bit. Since MSS is restarting, So PIL need to
+	 *  clear this bit. This may clear the throttle state.
+	 */
+	if (drv->cx_ipeak_vote)
+		writel_relaxed(CX_IPEAK_MSS, drv->cxip_lm_vote_clear);
+
 	ret = pil_mss_restart_reg(drv, 1);
 
 	if (drv->is_booted) {
