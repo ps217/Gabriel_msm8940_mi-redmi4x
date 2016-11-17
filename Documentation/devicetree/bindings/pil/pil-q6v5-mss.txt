@@ -16,6 +16,8 @@ Required properties:
 		      If "halt_base" is in same 4K pages this register then
 		      this will be defined else "halt_q6", "halt_modem",
 		      "halt_nc" is required.
+		      "cxip_lm_vote_clear" needs to defined , in case PIL has to
+		      clear the CX Ipeak bit if it was set by MSS.
 - interrupts:         The modem watchdog interrupt
 - vdd_cx-supply:      Reference to the regulator that supplies the vdd_cx domain.
 - vdd_cx-voltage:     Voltage corner/level(max) for cx rail.
