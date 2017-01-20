@@ -16,6 +16,7 @@ obj-$(CONFIG_QPNP_PBS) += qpnp-pbs.o
 obj-$(CONFIG_MSM_MEMORY_DUMP) += memory_dump.o
 obj-$(CONFIG_MSM_MEMORY_DUMP_V2) += memory_dump_v2.o
 obj-$(CONFIG_MSM_DDR_HEALTH) += ddr-health.o
+obj-$(CONFIG_QCOM_MINIDUMP) += msm_minidump.o
 obj-$(CONFIG_MSM_DCC) += dcc.o
 obj-$(CONFIG_MSM_WATCHDOG_V2) += watchdog_v2.o
 obj-$(CONFIG_MSM_CORE_HANG_DETECT) += core_hang_detect.o
