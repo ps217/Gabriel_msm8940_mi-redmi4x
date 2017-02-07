@@ -159,7 +159,7 @@ static unsigned long pressure = 0;
 static int lmk_vmpressure_notifier(struct notifier_block *nb,
 			unsigned long action, void *data)
 {
-	int other_free, other_file;
+	int other_free = 0, other_file = 0;
 	int array_size = ARRAY_SIZE(lowmem_adj);
 	pressure = action;
 
