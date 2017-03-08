@@ -658,6 +658,10 @@ else
 KBUILD_CFLAGS	+= -Ofast
 endif
 
+ifdef CONFIG_CC_WERROR
+KBUILD_CFLAGS	+= -Werror
+endif
+
 KBUILD_CFLAGS 	+= $(call cc-disable-warning,maybe-uninitialized,) \
 		   $(call cc-disable-warning,unused-variable,) \
 		   $(call cc-disable-warning,unused-function) \
