@@ -679,7 +679,7 @@ static int pil_load_seg(struct pil_desc *desc, struct pil_seg *seg)
 					      desc->unmap_fw_mem, map_data);
 		if (ret < 0) {
 			pil_err(desc, "Failed to locate blob %s or blob is too big(rc:%d)\n",
-				fw_name);
+				fw_name, ret);
 			subsys_set_error(desc->subsys_dev, firmware_error_msg);
 			return ret;
 		}
