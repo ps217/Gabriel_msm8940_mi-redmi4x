@@ -106,4 +106,12 @@ SCHED_FEAT(ENERGY_AWARE, true)
  * If enabled, this can be used to inform the scheduler about capacity
  * restrictions.
  */
-SCHED_FEAT(MIN_CAPACITY_CAPPING, false)
+SCHED_FEAT(ENERGY_AWARE, false)
+
+
+/*
+ * UtilEst. Use estimated utilization for CPUs and TASKs.
+ * Has no impact if CONFIG_SMP is not enabled.
+ */
+SCHED_FEAT(UTIL_EST, false)
+>>>>>>> e30d866... sched/fair: add util_est on top of PELT
