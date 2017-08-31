@@ -20,6 +20,10 @@
 #ifndef __ASM_PROCESSOR_H
 #define __ASM_PROCESSOR_H
 
+#define TASK_SIZE_64		(UL(1) << VA_BITS)
+
+#ifndef __ASSEMBLY__
+
 /*
  * Default implementation of macro that returns current
  * instruction pointer ("program counter").
@@ -37,7 +41,22 @@
 #include <asm/types.h>
 #include <asm/relaxed.h>
 
-#ifdef __KERNEL__
+/*
+ * TASK_SIZE - the maximum size of a user space task.
+ * TASK_UNMAPPED_BASE - the lower boundary of the mmap VM area.
+ */
+#ifdef CONFIG_COMPAT
+#define TASK_SIZE_32		UL(0x100000000)
+#define TASK_SIZE		(test_thread_flag(TIF_32BIT) ? \
+				TASK_SIZE_32 : TASK_SIZE_64)
+#define TASK_SIZE_OF(tsk)	(test_tsk_thread_flag(tsk, TIF_32BIT) ? \
+				TASK_SIZE_32 : TASK_SIZE_64)
+#else
+#define TASK_SIZE		TASK_SIZE_64
+#endif /* CONFIG_COMPAT */
+
+#define TASK_UNMAPPED_BASE	(PAGE_ALIGN(TASK_SIZE / 4))
+
 #define STACK_TOP_MAX		TASK_SIZE_64
 #ifdef CONFIG_COMPAT
 #define AARCH32_KUSER_HELPERS_BASE 0xffff0000
@@ -48,7 +67,6 @@
 #endif /* CONFIG_COMPAT */
 
 #define ARCH_LOW_ADDRESS_LIMIT	PHYS_MASK
-#endif /* __KERNEL__ */
 
 extern unsigned int boot_reason;
 extern unsigned int cold_boot;
@@ -178,4 +196,5 @@ void cpu_enable_pan(void *__unused);
 void cpu_enable_uao(void *__unused);
 #include <asm-generic/processor.h>
 
+#endif /* __ASSEMBLY__ */
 #endif /* __ASM_PROCESSOR_H */
