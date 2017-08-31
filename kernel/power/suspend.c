@@ -44,6 +44,10 @@ static const struct platform_suspend_ops *suspend_ops;
 static const struct platform_freeze_ops *freeze_ops;
 static DECLARE_WAIT_QUEUE_HEAD(suspend_freeze_wait_head);
 
+#ifdef CONFIG_QUICK_THAW_FINGERPRINTD
+extern void thaw_fingerprintd(void);
+#endif
+
 enum freeze_state __read_mostly suspend_freeze_state;
 static DEFINE_SPINLOCK(suspend_freeze_lock);
 
@@ -404,6 +408,10 @@ static int suspend_enter(suspend_state_t state, bool *wakeup)
  Platform_wake:
 	platform_resume_noirq(state);
 	dpm_resume_noirq(PMSG_RESUME);
+
+#ifdef CONFIG_QUICK_THAW_FINGERPRINTD
+	thaw_fingerprintd();
+#endif
 
  Platform_early_resume:
 	platform_resume_early(state);
