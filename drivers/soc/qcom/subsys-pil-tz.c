@@ -1096,8 +1096,23 @@ static int pil_tz_driver_probe(struct platform_device *pdev)
 		}
 
 		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
+						"rmb_err");
+		d->err_status = devm_ioremap_resource(&pdev->dev, res);
+		if (IS_ERR(d->err_status)) {
+			dev_err(&pdev->dev, "Invalid resource for rmb_err\n");
+			rc = PTR_ERR(d->err_status);
+			goto err_ramdump;
+		}
+
+		res = platform_get_resource_byname(pdev, IORESOURCE_MEM,
 						"rmb_err_spare2");
 		d->err_status_spare = devm_ioremap_resource(&pdev->dev, res);
+		if (IS_ERR(d->err_status_spare)) {
+			dev_err(&pdev->dev, "Invalid resource for rmb_err_spare2\n");
+			rc = PTR_ERR(d->err_status_spare);
+			goto err_ramdump;
+		}
+
 		rc = of_property_read_u32_array(pdev->dev.of_node,
 		       "qcom,spss-scsr-bits", d->bits_arr, sizeof(d->bits_arr)/
 							sizeof(d->bits_arr[0]));
@@ -1105,6 +1120,8 @@ static int pil_tz_driver_probe(struct platform_device *pdev)
 			dev_err(&pdev->dev, "Failed to read qcom,spss-scsr-bits");
 			goto err_ramdump;
 		}
+		mask_scsr_irqs(d);
+
 	} else {
 		d->subsys_desc.err_fatal_handler =
 						subsys_err_fatal_intr_handler;
