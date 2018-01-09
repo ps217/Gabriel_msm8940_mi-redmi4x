@@ -19,6 +19,7 @@
 #include <linux/cdev.h>
 #include <linux/fs.h>
 #include <linux/of_device.h>
+#include <linux/io.h>
 #include <asm/arch_timer.h>
 #include <linux/uaccess.h>
 
