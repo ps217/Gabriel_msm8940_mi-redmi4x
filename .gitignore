@@ -99,3 +99,8 @@ all.config
 
 # Binares
 ipa_common
+
+# build steps
+READY-KERNEL/*
+WORKING-DIR/temp/*
+build.log

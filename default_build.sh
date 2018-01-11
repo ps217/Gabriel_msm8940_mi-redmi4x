@@ -1,0 +1,249 @@
+#!/bin/bash
+
+LANG=C
+green='\033[01;32m'
+red='\033[01;31m'
+blink_red='\033[05;31m'
+restore='\033[0m'
+
+export MODEL=santoni
+export ARCH=arm64
+export BUILD_CROSS_COMPILE=android-toolchain-arm64/bin/arm-eabi-
+export SYSROOT=android-toolchain-arm64/aarch64-MIR4X-linux-gnu/sysroot/
+export TS=TOOLSET/
+export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
+export GIT_LOG1=`git log --oneline --decorate -n 1`
+
+RDIR=$(readlink -f .)
+OUTDIR=$RDIR/arch/$ARCH/boot
+WD=$RDIR/WORKING-DIR
+RK=$RDIR/READY-KERNEL
+
+FUNC_CLEAN_DTB()
+{
+	make ARCH=$ARCH mrproper;
+	make clean;
+
+# force regeneration of .dtb and zImage files for every compile
+	rm -f arch/$ARCH/boot/*.dtb
+	rm -f arch/$ARCH/boot/*.cmd
+	rm -f arch/$ARCH/boot/*.gz
+
+	if [ -d $WD/temp ]; then
+		rm -rf $WD/temp/*
+	else
+		mkdir $WD/temp
+	fi;
+
+### cleanup files creted previously
+	for i in $(find "$RDIR"/ -name "boot.img"); do
+		rm -fv "$i";
+	done;
+	for i in $(find "$RDIR"/ -name "Image"); do
+		rm -fv "$i";
+	done;
+	for i in $(find "$RDIR"/ -name "dtb.img"); do
+		rm -fv "$i";
+	done;
+	for i in $(find "$RDIR"/ -name "zImage"); do
+		rm -fv "$i";
+	done;
+
+	git checkout android-toolchain-arm64/
+}
+
+FUNC_BUILD_KERNEL()
+{
+	echo "build config="$KERNEL_DEFCONFIG ""
+	echo "git info="$GIT_LOG1 ""
+
+	echo -e "\ncleaning..."
+	FUNC_CLEAN_DTB | grep :
+
+	echo "generating .config"
+	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
+			$KERNEL_DEFCONFIG | grep :
+
+	echo "compiling..."
+	echo -e ""
+
+	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
+			CC='ccache '${BUILD_CROSS_COMPILE}gcc' --sysroot='$SYSROOT'' | grep :
+
+	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
+			modules | grep :
+
+	if [ -d $WD/package/system/lib/modules ]; then
+		rm -rf $WD/package/system/lib/modules/*
+	else
+		mkdir -p $WD/package/system/lib/modules
+	fi;
+
+	find . -name '*ko' ! -path "*android-toolchain-arm64/*" ! -path "*.git/*" -exec \cp '{}' $WD/package/system/lib/modules/ \;
+	chmod 755 $WD/package/system/lib/modules/*
+
+	# strip not needed debugs from modules.
+	"$BUILD_CROSS_COMPILE"strip --strip-unneeded $WD/package/system/lib/modules/* 2>/dev/null
+	"$BUILD_CROSS_COMPILE"strip --strip-debug $WD/package/system/lib/modules/* 2>/dev/null
+
+	mkdir -p $WD/package/system/lib/modules/pronto
+	mv $WD/package/system/lib/modules/wlan.ko $WD/package/system/lib/modules/pronto/pronto_wlan.ko
+
+if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz-dtb ]; then
+	echo -e "${red}"
+	echo -e "Kernel STUCK in BUILD! no Image exist !"
+	echo -e "${restore}"
+	exit 1
+fi;
+}
+
+FUNC_BUILD_RAMDISK_STK()
+{
+	rm -f $WD/boot.img
+
+	# copy all selected ramdisk files to temp folder
+	\cp -r $WD/ramdisk/* $WD/temp
+	\cp -r $WD/$MODEL/* $WD/temp/ramdisk
+	mv -f $RDIR/arch/$ARCH/boot/Image.gz-dtb $WD/temp/zImage
+
+	./$TS/mkboot $WD/temp $WD/boot.img
+}
+
+FUNC_BUILD_ZIP_STK()
+{
+	if [ -d $WD/temp ]; then
+		rm -rf $WD/temp/*
+	else
+		mkdir $WD/temp
+	fi;
+
+	# to generate new file name if exist.(add a digit to new one)
+	FILENAME=(Gabriel-$(date +"[%d-%m-%y]")-$MODEL);
+
+	ZIPFILE=$FILENAME
+	if [[ -e $RK/$ZIPFILE.zip ]] ; then
+			i=0
+		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
+			let i++
+		done
+	    FILENAME=$ZIPFILE-$i
+	fi
+
+	\cp -r $WD/package/* $WD/temp
+
+	mv -f $WD/boot.img $WD/temp/boot/boot.img
+	mv -f $RDIR/build.log $WD/temp/build.log
+	\cp $RDIR/.config $WD/temp/kernel_config_view_only
+
+	cd $WD/temp
+	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
+	cd $RDIR
+
+	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
+	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
+}
+
+FUNC_BUILD_RAMDISK_ANY()
+{
+	if [ -d $WD/temp ]; then
+		rm -rf $WD/temp/*
+	else
+		mkdir $WD/temp
+	fi;
+
+	# copy all selected ramdisk files to temp folder
+	\cp -r $WD/anykernel/* $WD/temp
+	mv -f $RDIR/arch/$ARCH/boot/Image.gz-dtb $WD/temp/Image.gz-dtb
+
+	if [ ! -d $WD/temp/ramdisk ]; then
+		mkdir -p $WD/temp/ramdisk/sbin
+	fi;
+
+	\cp -r $WD/ramdisk/ramdisk/sbin/* $WD/temp/ramdisk/sbin/
+	mkdir -p $WD/temp/modules/pronto/
+	\cp -r $WD/package/system/lib/modules/* $WD/temp/modules/
+	mv $WD/package/system/lib/modules/pronto/pronto_wlan.ko $WD/temp/modules/pronto/pronto_wlan.ko
+}
+
+FUNC_BUILD_ZIP_ANY()
+{
+# to generate new file name if exist.(add a digit to new one)
+	FILENAME=(Gabriel-$(date +"[%d-%m-%y]")-$MODEL);
+
+	ZIPFILE=$FILENAME
+	if [[ -e $RK/$ZIPFILE.zip ]] ; then
+			i=0
+		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
+			let i++
+		done
+	    FILENAME=$ZIPFILE-$i
+	fi
+
+	mv -f $RDIR/build.log $WD/temp/build.log
+	mv -f $RDIR/.config $WD/temp/kernel_config_view_only
+
+	cd $WD/temp
+	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
+	cd $RDIR
+
+	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
+	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
+}
+
+echo -e "${green}"
+echo "----------------"
+echo "Which Ramdisk ?!";
+echo "----------------"
+echo -e "${restore}"
+select CHOICE in stock anykernel; do
+	case "$CHOICE" in
+		"stock")
+			RAMDTYPE=STK
+			break;;
+		"anykernel")
+			RAMDTYPE=ANY
+			break;;
+	esac;
+done;
+
+echo -e "${green}"
+echo "----------------------"
+echo "Which kernel config ?!";
+echo "----------------------"
+echo -e "${restore}"
+select CHOICE in santoni-stock santoni-gabriel; do
+	case "$CHOICE" in
+		"santoni-stock")
+			KERNEL_DEFCONFIG=santoni_defconfig
+			break;;
+		"santoni-gabriel")
+			KERNEL_DEFCONFIG=gabriel_defconfig
+			break;;
+	esac;
+done;
+
+# MAIN FUNCTION
+rm -rf ./build.log
+(
+	DATE_START=$(date +"%s")
+
+	FUNC_BUILD_KERNEL
+	FUNC_BUILD_RAMDISK_$RAMDTYPE
+	FUNC_BUILD_ZIP_$RAMDTYPE
+
+	DATE_END=$(date +"%s")
+
+	echo -e "${green}"
+	echo "File Name is: "$FILENAME
+	echo -e "\n-------------------"
+	echo "Build Completed in:"
+	echo "-------------------"
+	echo -e "${restore}"
+
+	DATE_END=$(date +"%s")
+	DIFF=$(($DATE_END - $DATE_START))
+	echo "Time: $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds."
+) 2>&1	| tee -a ./build.log

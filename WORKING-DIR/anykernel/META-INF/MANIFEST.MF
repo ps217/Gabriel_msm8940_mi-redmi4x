@@ -1,0 +1,48 @@
+Manifest-Version: 1.0
+Created-By: 1.0 (Android SignApk)
+
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: surH1Bs4hR30JclyYkFBB7d7164=
+
+Name: Image.gz-dtb
+SHA1-Digest: jXYM3J1UvapYgxAS/6+EPisiTkY=
+
+Name: anykernel.sh
+SHA1-Digest: 5TZlzS4i9QMlVCYQVX+Pmf7Odkg=
+
+Name: META-INF/com/google/android/update-binary
+SHA1-Digest: 9FEDsxNr2hbK7U+VUjcLFOE9xCc=
+
+Name: ramdisk/init.fk.rc
+SHA1-Digest: nZyqXxejAN4a+3HFX1lhx/9WKDc=
+
+Name: tools/busybox
+SHA1-Digest: mh4PfTxmxAkm20hX8O2ZbkfqWJo=
+
+Name: ramdisk/init.special_power.sh
+SHA1-Digest: f7tE/lj4vKb5VvoVygy+/r5rdOQ=
+
+Name: ramdisk/init.performance_profiles.rc
+SHA1-Digest: +Oo+sGZu2gkfvVdwq364+VaAeAM=
+
+Name: tools/mkbootimg
+SHA1-Digest: KMyWfT266WCUUM6TAtUHCAspHn0=
+
+Name: tools/unpackbootimg
+SHA1-Digest: ZmS1K9vwaoW0bPYiJg8HjmyVg6Q=
+
+Name: ramdisk/init.supolicy.sh
+SHA1-Digest: tlp0lA0t/9Jd1akJm1XHG988+DQ=
+
+Name: ramdisk/sbin/msm_irqbalance.conf
+SHA1-Digest: pj/RzzobEA1+1plENK26QJ8PoNw=
+
+Name: tools/ak2-core.sh
+SHA1-Digest: xcq5sgQ0BJ+4kZAq7kFKjo5cVZA=
+
+Name: tools/xz
+SHA1-Digest: 01gkx9e7e5U3K+tdixRhTuV+YpQ=
+
+Name: tools/lz4
+SHA1-Digest: Q1jww6FvMgkMatn5fWjDeqsl3LE=
+

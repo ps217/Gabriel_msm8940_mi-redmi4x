@@ -1,0 +1,8 @@
+package_extract_dir("tools", "/tmp");
+package_extract_dir("boot", "/tmp");
+set_metadata("/tmp/busybox", "uid", 0, "gid", 0, "mode", 0777);
+ui_print("Flashing boot");
+run_program("/tmp/busybox", "dd", "if=/tmp/boot.img", "of=/dev/block/bootdevice/by-name/boot");
+package_extract_dir("system", "/system");
+delete_recursive("/tmp/");
+ui_print("done");
