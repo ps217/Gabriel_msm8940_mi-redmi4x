@@ -52,6 +52,15 @@ FUNC_CLEAN_DTB()
 	git checkout android-toolchain-arm64/
 }
 
+FUNC_ADB()
+{
+	if [ "$(adb devices | wc -l)" -eq "3" ]; then
+		echo -e "${green}"
+		adb push $RK/$FILENAME.zip /sdcard/ | grep 100
+		echo -e "${restore}"
+	fi;
+}
+
 FUNC_BUILD_KERNEL()
 {
 	echo "build config="$KERNEL_DEFCONFIG ""
@@ -66,11 +75,12 @@ FUNC_BUILD_KERNEL()
 			$KERNEL_DEFCONFIG | grep :
 
 	echo "compiling..."
-	echo -e ""
 
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
 			CC='ccache '${BUILD_CROSS_COMPILE}gcc' --sysroot='$SYSROOT'' | grep :
+
+	echo -e "compiling modules..."
 
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
@@ -144,6 +154,8 @@ FUNC_BUILD_ZIP_STK()
 
 	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
 	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
+
+	FUNC_ADB
 }
 
 FUNC_BUILD_RAMDISK_ANY()
@@ -191,6 +203,8 @@ FUNC_BUILD_ZIP_ANY()
 
 	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
 	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
+
+	FUNC_ADB
 }
 
 echo -e "${green}"
@@ -236,12 +250,13 @@ rm -rf ./build.log
 
 	DATE_END=$(date +"%s")
 
-	echo -e "${green}"
-	echo "File Name is: "$FILENAME
-	echo -e "\n-------------------"
-	echo "Build Completed in:"
-	echo "-------------------"
-	echo -e "${restore}"
+	if [ "$(adb devices | wc -l)" -eq "3" ]; then
+		echo "" # shown adb pushed file
+	else
+		echo -e "${green}"
+		echo "File Name is: "$FILENAME
+		echo -e "${restore}"
+	fi;
 
 	DATE_END=$(date +"%s")
 	DIFF=$(($DATE_END - $DATE_START))
