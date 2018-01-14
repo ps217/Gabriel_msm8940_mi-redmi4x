@@ -97,9 +97,6 @@ x509.genkey
 # Kconfig presets
 all.config
 
-# Binares
-ipa_common
-
 # build steps
 READY-KERNEL/*
 WORKING-DIR/temp/*
