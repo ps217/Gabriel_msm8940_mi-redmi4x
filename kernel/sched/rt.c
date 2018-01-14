@@ -2301,7 +2301,7 @@ static void pull_rt_task(struct rq *this_rq)
 #ifdef HAVE_RT_PUSH_IPI
 	if (sched_feat(RT_PUSH_IPI)) {
 		tell_cpu_to_push(this_rq);
-		return 0;
+		return;
 	}
 #endif
 
