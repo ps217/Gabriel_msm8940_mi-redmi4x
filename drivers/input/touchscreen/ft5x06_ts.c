@@ -55,6 +55,13 @@
 static irqreturn_t ft5x06_ts_interrupt(int irq, void *data);
 #endif
 
+#if defined(CONFIG_FOCALTECH_5336)
+//Required to get tp_color
+#define FT_LOCKDOWN_SIZE        8
+static u8 lockdown_info[FT_LOCKDOWN_SIZE];
+extern u8 tp_color;
+#endif
+
 #define FT_DRIVER_VERSION	0x02
 
 #define FT_META_REGS		3
@@ -906,6 +913,27 @@ static irqreturn_t ft5x06_ts_interrupt(int irq, void *dev_id)
 		/* invalid combination */
 		if (!num_touches && !status && !id)
 			break;
+
+#if defined(CONFIG_FOCALTECH_5336)
+		//Fixes nav-keys 
+		if (y == 2000) {
+			y = 1344;
+			
+			switch (x) {
+			case 180:
+				x = 150;
+				break;
+			case 540:
+				x = 360;
+				break;
+			case 900:
+				x = 580;
+				break;
+			default:
+				break;
+			}
+		}
+#endif
 
 		input_mt_slot(ip_dev, id);
 		if (status == FT_TOUCH_DOWN || status == FT_TOUCH_CONTACT) {
@@ -2258,6 +2286,9 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	u8 reg_value;
 	u8 reg_addr;
 	int err, len, retval, attr_count;
+#if defined(CONFIG_FOCALTECH_5336)
+	u8 buf[128];
+#endif
 
 	if (client->dev.of_node) {
 		pdata = devm_kzalloc(&client->dev,
@@ -2313,8 +2344,9 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 	data->input_dev = input_dev;
 	data->client = client;
 	data->pdata = pdata;
-
-	input_dev->name = "ft5x06_ts";
+	
+	
+	input_dev->name="ft5x06_ts";
 	input_dev->id.bustype = BUS_I2C;
 	input_dev->dev.parent = &client->dev;
 
@@ -2394,12 +2426,22 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 
 	/* check the controller id */
 	reg_addr = FT_REG_ID;
-	err = ft5x06_i2c_read(client, &reg_addr, 1, &reg_value, 1);
-	if (err < 0) {
-		dev_err(&client->dev, "version read failed");
-		goto free_gpio;
-	}
 
+	do { //Search for the correct register.
+ 		err = ft5x06_i2c_read(client, &reg_addr, 1, &reg_value, 1);
+ 		if (err < 0) {
+ 			dev_err(&client->dev, "version read failed");
+ 			//goto free_reset_gpio;
+ 		}
+ 		if(reg_value!=0x14){
+ 		 	client->addr = client->addr + 0x1;
+ 		}else{
+ 			dev_info(&client->dev, "Touchpanel Register found: 0x%x\n",client->addr);
+ 			break;
+ 		}
+#if defined(CONFIG_FOCALTECH_5336) //We can support more than one TP	
+ 	}while(reg_value!=0x14);//We expect it to be 0x14 for FT5336	
+#endif
 	dev_info(&client->dev, "Device ID = 0x%x\n", reg_value);
 
 	if ((pdata->family_id != reg_value) && (!pdata->ignore_id_check)) {
@@ -2589,6 +2631,17 @@ static int ft5x06_ts_probe(struct i2c_client *client,
 			data->fw_ver[1], data->fw_ver[2]);
 	FT_STORE_TS_INFO(ts_info_buff, data->family_id, data->fw_ver[0],
 			 data->fw_ver[1], data->fw_ver[2]);
+#if defined(CONFIG_FOCALTECH_5336)
+	buf[0] = 0x03;
+        buf[1] = 0x00;
+        buf[2] = (u8) (0x07d0 >> 8);
+        buf[3] = (u8) (0x07d0);
+
+	ft5x06_i2c_read(client, buf, 4, lockdown_info, 8);
+	msleep(10);
+	printk(KERN_ERR "Bitrvmpd tp_color: %d" , lockdown_info[2]);
+	tp_color = lockdown_info[2];
+#endif
 #if defined(CONFIG_FB)
 	INIT_WORK(&data->fb_notify_work, fb_notify_resume_work);
 	data->fb_notif.notifier_call = fb_notifier_callback;

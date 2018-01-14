@@ -581,6 +581,12 @@ config QPNP_MISC
 	  and the driver provides an API to check if this interrupt
 	  is available on the current PMIC chip.
 
+config AW87319
+	bool "AW87319 Ext. Speaker Amp."
+	default n
+	help
+	  Enables external speaker amp. If unsure say 'n'.
+
 source "drivers/misc/c2port/Kconfig"
 source "drivers/misc/eeprom/Kconfig"
 source "drivers/misc/cb710/Kconfig"
