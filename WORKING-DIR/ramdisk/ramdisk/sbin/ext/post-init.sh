@@ -21,8 +21,8 @@ OPEN_RW;
 
 # some nice thing for dev
 if [ ! -e /cpufreq ]; then
-	$BB ln -s /sys/devices/system/cpu/cpu0/cpufreq/ /cpufreq0;
-	$BB ln -s /sys/devices/system/cpu/cpu4/cpufreq/ /cpufreq4;
+	$BB ln -s /sys/devices/system/cpu/cpu0/cpufreq/ /cpufreq_b;
+	$BB ln -s /sys/devices/system/cpu/cpu4/cpufreq/ /cpufreq_l;
 	$BB ln -s /sys/module/msm_thermal/parameters/ /cputemp;
 fi;
 
@@ -48,59 +48,40 @@ CRITICAL_PERM_FIX()
 }
 CRITICAL_PERM_FIX;
 
-# oom and mem perm fix
 $BB chmod 666 /sys/module/lowmemorykiller/parameters/cost;
 $BB chmod 666 /sys/module/lowmemorykiller/parameters/adj;
 $BB chmod 666 /sys/module/lowmemorykiller/parameters/minfree
 
 $BB chmod 666 /sys/module/msm_thermal/parameters/*
 
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal_cont
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal_hue
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal_invert
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal_sat
-$BB chown system system /sys/devices/platform/kcal_ctrl.0/kcal_val
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_cont
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_hue
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_invert
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_sat
-$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/kcal_val
+for i in kcal kcal_cont kcal_hue kcal_invert kcal_sat kcal_val; do
+	$BB chown system system /sys/devices/platform/kcal_ctrl.0/$i
+	$BB chmod 0664 /sys/devices/platform/kcal_ctrl.0/$i
+done;
 
-#    chown system:system /sys/devices/virtual/graphics/fb0/hbm
-#    chmod 0664 /sys/devices/virtual/graphics/fb0/hbm
+for i in governor max_freq min_freq; do
+	$BB chown system system /sys/class/devfreq/1c00000.qcom,kgsl-3d0/$i
+	$BB chmod 0664 /sys/class/devfreq/1c00000.qcom,kgsl-3d0/$i
+done;
 
-$BB chown system system /sys/class/devfreq/1c00000.qcom,kgsl-3d0/governor
-$BB chown system system /sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq
-$BB chown system system /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq
-$BB chmod 0664 /sys/class/devfreq/1c00000.qcom,kgsl-3d0/governor
-$BB chmod 0664 /sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq
-$BB chmod 0664 /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq
+for i in cpu1 cpu2 cpu3 cpu4 cpu5 cpu6 cpu7; do
+	$BB chown system system /sys/devices/system/cpu/$i/online
+	$BB chmod 0664 /sys/devices/system/cpu/$i/online
+done;
 
-    # cpufreq settings
-$BB chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-$BB chown system system /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
-$BB chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-$BB chown system system /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
-$BB chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-$BB chown system system /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
-$BB chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-$BB chmod 0664 /sys/devices/system/cpu/cpu4/cpufreq/scaling_max_freq
-$BB chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-$BB chmod 0664 /sys/devices/system/cpu/cpu4/cpufreq/scaling_min_freq
-$BB chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-$BB chmod 0664 /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+for i in cpu0 cpu4; do
+$BB chown system system /sys/devices/system/cpu/$i/cpufreq/*
+$BB chown system system /sys/devices/system/cpu/$i/cpufreq/*
+$BB chmod 0664 /sys/devices/system/cpu/$i/cpufreq/scaling_governor
+$BB chmod 0664 /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
+$BB chmod 0664 /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+$BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/cpuinfo_cur_freq
+$BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/stats/*
+done;
 
-if [ ! -d /data/.gabriel ]; then
-	$BB mkdir -p /data/.gabriel;
-fi;
-
-if [ ! -d /data/.gabriel/logs ]; then
-	$BB mkdir -p /data/.gabriel/logs;
-fi;
-
-#echo 1 > /sys/module/workqueue/parameters/power_efficient;
+SYSTEM_TUNING()
+{
+echo 0 > /sys/module/workqueue/parameters/power_efficient;
 echo 0 > /sys/module/msm_thermal/core_control/enabled;
 echo 1 > /cputemp/enabled;
 
@@ -109,9 +90,7 @@ echo 10 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
 
 echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
-#echo "18432,23040,27648,51256,150296,200640" > /sys/module/lowmemorykiller/parameters/minfree
 echo "18432,23040,27648,51256,89600,115200" > /sys/module/lowmemorykiller/parameters/minfree
-#echo 202640 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 echo 128000 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 
 echo 0 > /proc/sys/kernel/sched_boost
@@ -125,50 +104,39 @@ echo 100 > /proc/sys/kernel/sched_init_task_load
 echo 0 > /sys/devices/system/cpu/cpu0/sched_mostly_idle_freq
 echo 0 > /sys/devices/system/cpu/cpu4/sched_mostly_idle_freq
 
-    # Little cluster
+# Little cluster
 echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_sched_load
 echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay
-echo 100 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load
-echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq
-echo "70 768000:60 902400:85 998400:90 1094400:95" > /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads
-echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate
-echo 40000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time
+echo 91 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load
+echo 998400 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq
+echo "80 902400:70 998400:99" > /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads
+echo 60000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate
+echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/ignore_hispeed_on_notif
-echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis
-echo 30000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_slack
+echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis
+echo 480000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_slack
 echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy
 
-    # big cluster
+# big cluster
 echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load
 echo "20000 1209600:40000 1344000:20000" > /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay
 echo 85 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
 echo 1094400 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-echo "90 1344000:95" > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
+echo "90 1344000:99" > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
 echo 30000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-echo 30000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/ignore_hispeed_on_notif
-echo 80000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/max_freq_hysteresis
-echo 30000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
+echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/max_freq_hysteresis
+echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
 
-# Prevent mmc from scaling its clk down when performing writes
-#echo 1 > /sys/class/mmc_host/mmc0/clk_scaling/scale_down_in_low_wr_load
-
-
-if [ "$(cat /sys/block/zram0/disksize)" -ne "1048576000" ]; then
-	if [ -e /dev/block/zram0 ]; then
-		# for on the fly changes we need to shutdown ZRAM first
-		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
-		echo "1" > /sys/block/zram0/reset;
-		echo "lz4" > /sys/block/zram0/comp_algorithm;
-		echo "6" > /sys/block/zram0/max_comp_streams;
-		# setting size of ZRAM swap drive
-		echo "1GB" > /sys/block/zram0/disksize;
-		# creating SWAP from ZRAM drive
-		$BB mkswap /dev/block/zram0 >/dev/null;
-		# activating ZRAM swap
-		$BB swapon /dev/block/zram0;
-	fi;
+if [ -e /dev/block/zram0 ]; then
+	$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+	echo "1" > /sys/block/zram0/reset;
+	echo "lz4" > /sys/block/zram0/comp_algorithm;
+	echo "1GB" > /sys/block/zram0/disksize;
+	$BB mkswap /dev/block/zram0 >/dev/null;
+	$BB swapon /dev/block/zram0;
 fi;
 
 # disable block iostats/rotational and set io-scheduler
@@ -178,6 +146,7 @@ for i in /sys/block/*/queue; do
 	echo zen > $i/scheduler
 	echo 128 > $i/read_ahead_kb
 done;
+}
 
 # start CORTEX by tree root, so it's will not be terminated.
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
@@ -186,6 +155,16 @@ fi;
 
 OPEN_RW;
 
+if [ ! -d /data/.gabriel ]; then
+	$BB mkdir -p /data/.gabriel;
+fi;
+
+if [ ! -d /data/.gabriel/logs ]; then
+	$BB mkdir -p /data/.gabriel/logs;
+fi;
+
+SYSTEM_TUNING;
+
 $BB nohup $BB run-parts /system/etc/init.d/ > /data/.gabriel/init.d.txt &
 
 if [ -e /system/etc/init.d/99SuperSUDaemon ]; then
@@ -193,6 +172,9 @@ if [ -e /system/etc/init.d/99SuperSUDaemon ]; then
 else
 	echo "no root script in init.d";
 fi;
+
+# Fix critical perms again after init.d mess
+CRITICAL_PERM_FIX;
 
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;
