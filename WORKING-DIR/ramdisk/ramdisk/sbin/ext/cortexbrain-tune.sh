@@ -40,8 +40,6 @@ echo "1" > /data/gabriel_cortex_sleep;
 rm -f /cache/power_efficient
 rm -f /cache/fsync_enabled;
 rm -f /cache/lc_corectl_state;
-rm -f /cache/devfreq_max;
-rm -f /cache/devfreq_min;
 rm -f /cache/sched_epa;
 
 # ==============================================================
@@ -86,9 +84,6 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	echo "$(cat /cache/lc_corectl_state)" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 
-	echo "$(cat /cache/devfreq_max)" > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq;
-	echo "$(cat /cache/devfreq_min)" > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq;
-
 	echo "$(cat /cache/sched_epa)" > /proc/sys/kernel/sched_enable_power_aware;
 
 	echo "1" > /sys/kernel/printk_mode/printk_mode;
@@ -112,11 +107,6 @@ SLEEP_MODE()
 
 	echo "$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)" > /cache/lc_corectl_state;
 	echo "0" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-
-	echo "$(cat /sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq)" > /cache/devfreq_max;
-	echo "$(cat /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq)" > /cache/devfreq_min;
-	echo "320000000" > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/max_freq;
-	echo "216000000" > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/min_freq;
 
 	echo "$(cat /proc/sys/kernel/sched_enable_power_aware)" > /cache/sched_epa;
 	echo "1" > /proc/sys/kernel/sched_enable_power_aware;
