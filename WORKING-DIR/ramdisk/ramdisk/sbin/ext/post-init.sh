@@ -86,7 +86,7 @@ echo 0 > /sys/module/msm_thermal/core_control/enabled;
 echo 1 > /cputemp/enabled;
 
 echo 12288 > /proc/sys/vm/min_free_kbytes
-echo 10 > /proc/sys/vm/swappiness
+echo 0 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
 
 echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
