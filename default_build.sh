@@ -144,6 +144,9 @@ FUNC_BUILD_ZIP_STK()
 
 	\cp -r $WD/package/* $WD/temp
 
+	if [ ! -d $WD/temp/boot ]; then
+		mkdir $WD/temp/boot/
+	fi;
 	mv -f $WD/boot.img $WD/temp/boot/boot.img
 	mv -f $RDIR/build.log $WD/temp/build.log
 	\cp $RDIR/.config $WD/temp/kernel_config_view_only
