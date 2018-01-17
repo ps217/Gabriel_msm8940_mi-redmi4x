@@ -13,6 +13,8 @@ export SYSROOT=android-toolchain-arm64/aarch64-MIR4X-linux-gnu/sysroot/
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
+export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-32)
+export FILENAME=(Gabriel-$VER-$(date +"[%d-%m-%y]")-$MODEL);
 
 RDIR=$(readlink -f .)
 OUTDIR=$RDIR/arch/$ARCH/boot
@@ -59,6 +61,18 @@ FUNC_ADB()
 		adb push $RK/$FILENAME.zip /sdcard/ | grep 100
 		echo -e "${restore}"
 	fi;
+}
+
+FUNC_ZIP_NAME()
+{
+	ZIPFILE=$FILENAME
+	if [[ -e $RK/$ZIPFILE.zip ]] ; then
+			i=0
+		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
+			let i++
+		done
+	    FILENAME=$ZIPFILE-$i
+	fi
 }
 
 FUNC_BUILD_KERNEL()
@@ -130,17 +144,7 @@ FUNC_BUILD_ZIP_STK()
 		mkdir $WD/temp
 	fi;
 
-	# to generate new file name if exist.(add a digit to new one)
-	FILENAME=(Gabriel-$(date +"[%d-%m-%y]")-$MODEL);
-
-	ZIPFILE=$FILENAME
-	if [[ -e $RK/$ZIPFILE.zip ]] ; then
-			i=0
-		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
-			let i++
-		done
-	    FILENAME=$ZIPFILE-$i
-	fi
+	FUNC_ZIP_NAME
 
 	\cp -r $WD/package/* $WD/temp
 
@@ -185,17 +189,7 @@ FUNC_BUILD_RAMDISK_ANY()
 
 FUNC_BUILD_ZIP_ANY()
 {
-# to generate new file name if exist.(add a digit to new one)
-	FILENAME=(Gabriel-$(date +"[%d-%m-%y]")-$MODEL);
-
-	ZIPFILE=$FILENAME
-	if [[ -e $RK/$ZIPFILE.zip ]] ; then
-			i=0
-		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
-			let i++
-		done
-	    FILENAME=$ZIPFILE-$i
-	fi
+	FUNC_ZIP_NAME
 
 	mv -f $RDIR/build.log $WD/temp/build.log
 	mv -f $RDIR/.config $WD/temp/kernel_config_view_only
