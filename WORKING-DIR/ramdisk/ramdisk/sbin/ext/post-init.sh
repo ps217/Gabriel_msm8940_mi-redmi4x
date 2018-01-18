@@ -150,7 +150,7 @@ done;
 
 # start CORTEX by tree root, so it's will not be terminated.
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
-	nohup sh /sbin/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
+	$BB nohup sh /sbin/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
 fi;
 
 OPEN_RW;
@@ -175,6 +175,10 @@ fi;
 
 # Fix critical perms again after init.d mess
 CRITICAL_PERM_FIX;
+
+if [ "$(cat /system/build.prop | grep "ro.build.version.release" | cut -c 26)" -eq "7" ]; then
+	echo 1 > /sys/fs/selinux/enforce;
+fi;
 
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;

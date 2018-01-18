@@ -181,7 +181,7 @@ FUNC_BUILD_RAMDISK_ANY()
 		mkdir -p $WD/temp/ramdisk/sbin
 	fi;
 
-	\cp -r $WD/ramdisk/ramdisk/sbin/* $WD/temp/ramdisk/sbin/
+	\cp -r $WD/ramdisk/ramdisk/* $WD/temp/ramdisk/
 	mkdir -p $WD/temp/modules/pronto/
 	\cp -r $WD/package/system/lib/modules/* $WD/temp/modules/
 	mv $WD/package/system/lib/modules/pronto/pronto_wlan.ko $WD/temp/modules/pronto/pronto_wlan.ko

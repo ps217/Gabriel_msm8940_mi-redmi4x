@@ -39,8 +39,15 @@ dump_boot;
 # begin ramdisk changes
 
 # init.qcom.rc
+if [ -f /init.qcom.rc ]; then
 backup_file init.qcom.rc;
 append_file init.qcom.rc "bbinstall" init.qcom.patch;
+else
+backup_file init.rc;
+insert_line init.rc "init.gabriel.rc" before "on early-init" "import init.gabriel.rc";
+insert_line init.rc "" before "on early-init" "";
+fi;
+
 
 # end ramdisk changes
 
