@@ -180,6 +180,11 @@ if [ "$(cat /system/build.prop | grep "ro.build.version.release" | cut -c 26)" -
 	echo 1 > /sys/fs/selinux/enforce;
 fi;
 
+# Fix titanium backup root access
+if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
+	\cp /sbin/su /system/xbin/su;
+fi;
+
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;
 BUSYBOX_VER=$(busybox | grep "BusyBox v" | cut -c0-15);
