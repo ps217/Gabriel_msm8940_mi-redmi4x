@@ -130,6 +130,10 @@ echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/max_freq_hysteresis
 echo 480000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
 echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
 
+if [ -e /sys/module/cluster_plug/parameters/active ];then
+	echo "1" > /sys/module/cluster_plug/parameters/active;
+fi
+
 if [ -e /dev/block/zram0 ]; then
 	$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
 	echo "1" > /sys/block/zram0/reset;
