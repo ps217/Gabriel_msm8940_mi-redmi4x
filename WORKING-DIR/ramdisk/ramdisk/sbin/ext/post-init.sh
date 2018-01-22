@@ -134,6 +134,10 @@ if [ -e /sys/module/cluster_plug/parameters/active ];then
 	echo "1" > /sys/module/cluster_plug/parameters/active;
 fi
 
+if [ -e /sys/android_touch/doubletap2wake ];then
+	echo "2" > /sys/android_touch/doubletap2wake;
+fi;
+
 if [ -e /dev/block/zram0 ]; then
 	$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
 	echo "1" > /sys/block/zram0/reset;
