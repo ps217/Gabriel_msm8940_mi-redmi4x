@@ -158,7 +158,7 @@ done;
 
 # start CORTEX by tree root, so it's will not be terminated.
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
-	$BB nohup sh /sbin/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
+	nohup sh /sbin/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
 fi;
 
 OPEN_RW;
