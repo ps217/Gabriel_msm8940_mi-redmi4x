@@ -81,6 +81,10 @@ done;
 
 SYSTEM_TUNING()
 {
+# Tune entropy parameters.
+echo "1024" > /proc/sys/kernel/random/read_wakeup_threshold;
+echo "128" > /proc/sys/kernel/random/write_wakeup_threshold;
+
 echo 0 > /sys/module/workqueue/parameters/power_efficient;
 echo 0 > /sys/module/msm_thermal/core_control/enabled;
 echo 1 > /cputemp/enabled;
