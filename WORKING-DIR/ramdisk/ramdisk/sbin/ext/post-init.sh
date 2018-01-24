@@ -197,6 +197,19 @@ if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
 	\cp /sbin/su /system/xbin/su;
 fi;
 
+# Fentropy enForcer
+# Thanks to ArjunrambZ (TweakDrypT)
+if [ -e "/dev/frandom" ]; then
+	chmod 666 /dev/frandom;
+	for dom in /dev/*random; do
+		if [ "\$dom" != "/dev/frandom" ] && [ ! "\`ls \$dom.*\`" ]; then
+			mv \$dom \$dom.unsuper;
+			ln /dev/frandom \$dom;
+			chmod 666 \$dom;
+		fi 2>/dev/null;
+	done;
+fi;
+
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;
 BUSYBOX_VER=$(busybox | grep "BusyBox v" | cut -c0-15);
