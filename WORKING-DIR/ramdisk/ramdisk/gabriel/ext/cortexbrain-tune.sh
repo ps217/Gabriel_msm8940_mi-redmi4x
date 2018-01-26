@@ -1,4 +1,4 @@
-#!/sbin/busybox sh
+#!/gabriel/busybox sh
 
 #Credits:
 # Zacharias.maladroit
@@ -14,7 +14,7 @@
 #
 # This script must be activated after init start =< 25sec or parameters from /sys/* will not be loaded.
 
-BB=/sbin/busybox
+BB=/gabriel/busybox
 
 # change mode for /tmp/
 ROOTFS_MOUNT=$(mount | grep rootfs | cut -c26-27 | grep -c rw)

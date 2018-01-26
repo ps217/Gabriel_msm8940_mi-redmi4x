@@ -1,9 +1,9 @@
-#!/sbin/busybox sh
+#!/gabriel/busybox sh
 
 # Kernel Tuning by Dorimanx.
 # Kernel Tuning by Mostafaz.
 
-BB=/sbin/busybox
+BB=/gabriel/busybox
 
 # protect init from oom
 if [ -f /system/xbin/su ]; then
@@ -40,10 +40,11 @@ CRITICAL_PERM_FIX()
 	$BB chown -R root:root /tmp;
 	$BB chown -R root:root /res;
 	$BB chown -R root:root /sbin;
+	$BB chown -R root:root /gabriel;
 	$BB chmod -R 777 /tmp/;
 	$BB chmod -R 775 /res/;
-	$BB chmod -R 06755 /sbin/ext/;
-	$BB chmod 06755 /sbin/busybox;
+	$BB chmod -R 06755 /gabriel/ext/;
+	$BB chmod 06755 /gabriel/busybox;
 	$BB chmod 06755 /system/xbin/busybox;
 }
 CRITICAL_PERM_FIX;
@@ -164,7 +165,7 @@ done;
 
 # start CORTEX by tree root, so it's will not be terminated.
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
-	nohup sh /sbin/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
+	nohup sh /gabriel/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
 fi;
 
 OPEN_RW;
@@ -234,6 +235,10 @@ echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 	pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver
 
 	echo "[Gabriel-Kernel] google services fix enabled" > /dev/kmsg
+
+	# script finish here, so let me know when
+	TIME_NOW=$(date)
+	echo "$TIME_NOW" > /data/.gabriel/boot_log
 
 	$BB mount -o remount,ro /system;
 )&

@@ -178,7 +178,7 @@ FUNC_BUILD_RAMDISK_ANY()
 	mv -f $RDIR/arch/$ARCH/boot/Image.gz-dtb $WD/temp/Image.gz-dtb
 
 	if [ ! -d $WD/temp/ramdisk ]; then
-		mkdir -p $WD/temp/ramdisk/sbin
+		mkdir -p $WD/temp/ramdisk
 	fi;
 
 	\cp -r $WD/ramdisk/ramdisk/* $WD/temp/ramdisk/
