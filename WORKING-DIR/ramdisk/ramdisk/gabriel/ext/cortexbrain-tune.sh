@@ -70,7 +70,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	echo "$(cat /cache/sched_epa)" > /proc/sys/kernel/sched_enable_power_aware;
 
-	echo "1" > /sys/kernel/printk_mode/printk_mode;
+#	echo "1" > /sys/kernel/printk_mode/printk_mode;
 
 	echo "0" > /data/gabriel_cortex_sleep
 fi
@@ -95,7 +95,7 @@ SLEEP_MODE()
 	echo "$(cat /proc/sys/kernel/sched_enable_power_aware)" > /cache/sched_epa;
 	echo "1" > /proc/sys/kernel/sched_enable_power_aware;
 
-	echo "0" > /sys/kernel/printk_mode/printk_mode;
+#	echo "0" > /sys/kernel/printk_mode/printk_mode;
 
 	echo "1" > /data/gabriel_cortex_sleep
 }
