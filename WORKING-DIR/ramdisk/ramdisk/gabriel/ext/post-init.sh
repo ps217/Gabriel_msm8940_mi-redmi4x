@@ -96,9 +96,15 @@ echo 12288 > /proc/sys/vm/min_free_kbytes
 echo 0 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
 
-echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
-echo "18432,23040,27648,51256,89600,115200" > /sys/module/lowmemorykiller/parameters/minfree
-echo 128000 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+if [ $MEM_ALL -lt "2900000000" ];then
+	echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
+	echo "18432,23040,27648,51256,89600,115200" > /sys/module/lowmemorykiller/parameters/minfree
+	echo 128000 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+else
+	echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
+	echo "18432,23040,27648,51256,150296,200640" > /sys/module/lowmemorykiller/parameters/minfree
+	echo 202640 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
+fi;
 
 echo 0 > /proc/sys/kernel/sched_boost
 echo 90 > /proc/sys/kernel/sched_downmigrate
