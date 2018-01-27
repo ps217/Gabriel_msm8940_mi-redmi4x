@@ -43,6 +43,9 @@
 static unsigned int debug = 2;
 module_param_named(debug_mask, debug, uint, 0644);
 
+static unsigned int sleep_state = 0;
+module_param_named(sleep_state, sleep_state, uint, 0644);
+
 #define dprintk(msg...)		\
 do { 				\
 	if (debug)		\
@@ -1598,11 +1601,13 @@ static int fb_notifier_callback(struct notifier_block *self,
 					return 0;
 				ft5x06_ts_suspend(&ft5x06_data->client->dev);
 				dprintk("[ft5x06_ts] screen is off ...\n");
+				sleep_state = 1;
 			} else if (*blank == FB_BLANK_UNBLANK ||
 				(*blank == FB_BLANK_NORMAL &&
 				ft5x06_data->suspended)) {
 				ft5x06_ts_resume(&ft5x06_data->client->dev);
 				dprintk("[ft5x06_ts] screen is on ...\n");
+				sleep_state = 0;
 			}
 		}
 	}
