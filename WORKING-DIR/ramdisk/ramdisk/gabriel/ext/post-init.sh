@@ -5,6 +5,8 @@
 
 BB=/gabriel/busybox
 
+MEM_ALL=`free | grep Mem | $BB awk '{ print $2 }'`;
+
 # protect init from oom
 if [ -f /system/xbin/su ]; then
 	su -c echo "-1000" > /proc/1/oom_score_adj;
@@ -145,13 +147,15 @@ if [ -e /sys/android_touch/doubletap2wake ];then
 	echo "2" > /sys/android_touch/doubletap2wake;
 fi;
 
-if [ -e /dev/block/zram0 ]; then
-	$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
-	echo "1" > /sys/block/zram0/reset;
-	echo "lz4" > /sys/block/zram0/comp_algorithm;
-	echo "1GB" > /sys/block/zram0/disksize;
-	$BB mkswap /dev/block/zram0 >/dev/null;
-	$BB swapon /dev/block/zram0;
+if [ $MEM_ALL -lt "3000000000" ];then
+	if [ -e /dev/block/zram0 ]; then
+		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+		echo "1" > /sys/block/zram0/reset;
+		echo "lz4" > /sys/block/zram0/comp_algorithm;
+		echo "1GB" > /sys/block/zram0/disksize;
+		$BB mkswap /dev/block/zram0 >/dev/null;
+		$BB swapon /dev/block/zram0;
+	fi;
 fi;
 
 # disable block iostats/rotational and set io-scheduler
