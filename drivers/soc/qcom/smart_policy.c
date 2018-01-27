@@ -43,7 +43,7 @@ static int fb_notifier_callback(struct notifier_block *self,
 	struct fb_event *event = data;
 	struct fb_info *info = event->info;
 
-	dev_dbg(info->dev, "%s action:%lu\n", __func__, action);
+//	dev_dbg(info->dev, "%s action:%lu\n", __func__, action);
 
 	/* If we aren't interested in this action, skip it immediately ... */
 	switch (action) {
