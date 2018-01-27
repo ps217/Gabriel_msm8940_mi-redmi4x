@@ -64,9 +64,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	echo "$(cat /cache/fsync_enabled)" > /sys/module/sync/parameters/fsync_enabled;
 
-	if [ -e /sys/devices/system/cpu/cpu4/core_ctl/max_cpus ];then
-		echo "$(cat /cache/lc_corectl_state)" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-	fi;
+	echo "$(cat /cache/lc_corectl_state)" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 
 	echo "$(cat /cache/sched_epa)" > /proc/sys/kernel/sched_enable_power_aware;
 
@@ -87,10 +85,8 @@ SLEEP_MODE()
 	echo "$(cat /sys/module/sync/parameters/fsync_enabled)" > /cache/fsync_enabled;
 	echo "1" > /sys/module/sync/parameters/fsync_enabled;
 
-	if [ -e /sys/devices/system/cpu/cpu4/core_ctl/max_cpus ];then
-		echo "$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)" > /cache/lc_corectl_state;
-		echo "0" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-	fi;
+	echo "$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)" > /cache/lc_corectl_state;
+	echo "2" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 
 	echo "$(cat /proc/sys/kernel/sched_enable_power_aware)" > /cache/sched_epa;
 	echo "1" > /proc/sys/kernel/sched_enable_power_aware;
