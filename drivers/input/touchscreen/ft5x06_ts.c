@@ -37,6 +37,18 @@
 #include <linux/sysfs.h>
 #include <linux/input/ft5x06.h>
 
+/*
+ * debug = 1 will print all
+ */
+static unsigned int debug = 2;
+module_param_named(debug_mask, debug, uint, 0644);
+
+#define dprintk(msg...)		\
+do { 				\
+	if (debug)		\
+		pr_info(msg);	\
+} while (0)
+
 #if (defined(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE) && !defined(CONFIG_TOUCHSCREEN_SWEEP2WAKE))
 #include <linux/input/doubletap2wake.h>
 #elif (defined(CONFIG_TOUCHSCREEN_SWEEP2WAKE) && !defined(CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE))
@@ -1585,10 +1597,12 @@ static int fb_notifier_callback(struct notifier_block *self,
 				if (*blank != FB_BLANK_POWERDOWN)
 					return 0;
 				ft5x06_ts_suspend(&ft5x06_data->client->dev);
+				dprintk("[ft5x06_ts] screen is off ...\n");
 			} else if (*blank == FB_BLANK_UNBLANK ||
 				(*blank == FB_BLANK_NORMAL &&
 				ft5x06_data->suspended)) {
 				ft5x06_ts_resume(&ft5x06_data->client->dev);
+				dprintk("[ft5x06_ts] screen is on ...\n");
 			}
 		}
 	}
