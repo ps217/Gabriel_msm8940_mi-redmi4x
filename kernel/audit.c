@@ -272,7 +272,7 @@ void audit_log_lost(const char *message)
 
 	if (print) {
 		if (printk_ratelimit())
-			pr_warn("audit_lost=%u audit_rate_limit=%u audit_backlog_limit=%u\n",
+			pr_debug("audit_lost=%u audit_rate_limit=%u audit_backlog_limit=%u\n",
 				atomic_read(&audit_lost),
 				audit_rate_limit,
 				audit_backlog_limit);
@@ -1950,7 +1950,7 @@ void audit_log_end(struct audit_buffer *ab)
 	if (!ab)
 		return;
 	if (!audit_rate_check()) {
-		audit_log_lost("rate limit exceeded");
+//		audit_log_lost("rate limit exceeded");
 	} else {
 		struct nlmsghdr *nlh = nlmsg_hdr(ab->skb);
 
