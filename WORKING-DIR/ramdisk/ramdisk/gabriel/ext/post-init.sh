@@ -154,6 +154,16 @@ echo 15 > /sys/module/adreno_idler/parameters/adreno_idler_idlewait;
 echo 40 > /sys/module/adreno_idler/parameters/adreno_idler_downdifferential;
 echo 5000 > /sys/module/adreno_idler/parameters/adreno_idler_idleworkload;
 
+# screen calibration
+if [ ! -e /init.miui.rc ];then
+	echo "237 235 235" > /sys/devices/platform/kcal_ctrl.0/kcal;
+	echo "255" > /sys/devices/platform/kcal_ctrl.0/kcal_cont;
+	echo "1515" > /sys/devices/platform/kcal_ctrl.0/kcal_hue;
+	echo "35" > /sys/devices/platform/kcal_ctrl.0/kcal_min;
+	echo "265" > /sys/devices/platform/kcal_ctrl.0/kcal_sat;
+	echo "253" > /sys/devices/platform/kcal_ctrl.0/kcal_val;
+fi;
+
 if [ -e /sys/module/cluster_plug/parameters/active ];then
 	echo "1" > /sys/module/cluster_plug/parameters/active;
 fi
