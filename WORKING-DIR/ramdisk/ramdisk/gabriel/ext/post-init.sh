@@ -225,7 +225,7 @@ fi;
 
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;
-BUSYBOX_VER=$(busybox | grep "BusyBox v" | cut -c0-15);
+BUSYBOX_VER=$($BB | grep "BusyBox v" | cut -c0-15);
 echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 
 (
