@@ -8,15 +8,15 @@ BB=/gabriel/busybox
 	$BB mount -o remount,rw /system;
 
 # update passwd and group files for busybox.
-echo "root:x:0:0::/:/gabriel/sh" > /system/etc/passwd;
-echo "system:x:1000:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "radio:x:1001:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "bluetooth:x:1002:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "wifi:x:1010:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "dhcp:x:1014:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "media:x:1013:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "gps:x:1021:0::/:/gabriel/sh" >> /system/etc/passwd;
-echo "nfc:x:1027:0::/:/gabriel/sh" >> /system/etc/passwd;
+echo "root:x:0:0::/:/sbin/sh" > /system/etc/passwd;
+echo "system:x:1000:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "radio:x:1001:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "bluetooth:x:1002:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "wifi:x:1010:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "dhcp:x:1014:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "media:x:1013:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "gps:x:1021:0::/:/sbin/sh" >> /system/etc/passwd;
+echo "nfc:x:1027:0::/:/sbin/sh" >> /system/etc/passwd;
 $BB chmod 755 /system/etc/passwd;
 $BB chown 0.0 /system/etc/passwd;
 

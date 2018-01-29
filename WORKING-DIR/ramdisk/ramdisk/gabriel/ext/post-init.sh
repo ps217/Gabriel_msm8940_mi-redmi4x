@@ -21,6 +21,11 @@ OPEN_RW()
 }
 OPEN_RW;
 
+if [ ! -e /sbin/busybox ];then
+	$BB cp /gabriel/busybox /sbin/busybox;
+	$BB chmod 06755 /sbin/busybox;
+fi;
+
 # some nice thing for dev
 if [ ! -e /cpufreq ]; then
 	$BB ln -s /sys/devices/system/cpu/cpu0/cpufreq/ /cpufreq_b;
@@ -244,7 +249,7 @@ fi;
 
 # Load parameters for Synapse
 DEBUG=/data/.gabriel/;
-BUSYBOX_VER=$($BB | grep "BusyBox v" | cut -c0-15);
+BUSYBOX_VER=$(busybox | grep "BusyBox v" | cut -c0-15);
 echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 
 (
