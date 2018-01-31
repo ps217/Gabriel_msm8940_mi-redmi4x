@@ -152,7 +152,7 @@ echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
 
 # kgsl tuning
 echo 'msm-adreno-tz' > /sys/class/kgsl/kgsl-3d0/devfreq/governor;
-echo 216000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+echo 160000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
 echo 6 > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel;
 echo 1 > /sys/module/adreno_idler/parameters/adreno_idler_active;
 echo 15 > /sys/module/adreno_idler/parameters/adreno_idler_idlewait;
