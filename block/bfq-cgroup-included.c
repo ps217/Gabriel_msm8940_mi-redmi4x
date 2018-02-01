@@ -15,7 +15,7 @@
  * file.
  */
 
-#ifdef CONFIG_BFQ_GROUP_IOSCHED
+#ifdef CONFIG_BFQ_SQ_GROUP_IOSCHED
 
 /* bfqg stats flags */
 enum bfqg_stats_flags {
@@ -208,34 +208,36 @@ static void bfqg_put(struct bfq_group *bfqg)
 
 static void bfqg_stats_update_io_add(struct bfq_group *bfqg,
 				     struct bfq_queue *bfqq,
-				     int rw)
+				     unsigned int op)
 {
-	blkg_rwstat_add(&bfqg->stats.queued, rw, 1);
+	blkg_rwstat_add(&bfqg->stats.queued, op, 1);
 	bfqg_stats_end_empty_time(&bfqg->stats);
 	if (!(bfqq == ((struct bfq_data *)bfqg->bfqd)->in_service_queue))
 		bfqg_stats_set_start_group_wait_time(bfqg, bfqq_group(bfqq));
 }
 
-static void bfqg_stats_update_io_remove(struct bfq_group *bfqg, int rw)
+static void bfqg_stats_update_io_remove(struct bfq_group *bfqg, unsigned int op)
 {
-	blkg_rwstat_add(&bfqg->stats.queued, rw, -1);
+	blkg_rwstat_add(&bfqg->stats.queued, op, -1);
 }
 
-static void bfqg_stats_update_io_merged(struct bfq_group *bfqg, int rw)
+static void bfqg_stats_update_io_merged(struct bfq_group *bfqg, unsigned int op)
 {
-	blkg_rwstat_add(&bfqg->stats.merged, rw, 1);
+	blkg_rwstat_add(&bfqg->stats.merged, op, 1);
 }
 
 static void bfqg_stats_update_completion(struct bfq_group *bfqg,
-			uint64_t start_time, uint64_t io_start_time, int rw)
+			uint64_t start_time, uint64_t io_start_time,
+			unsigned int op)
 {
 	struct bfqg_stats *stats = &bfqg->stats;
 	unsigned long long now = sched_clock();
 
 	if (time_after64(now, io_start_time))
-		blkg_rwstat_add(&stats->service_time, rw, now - io_start_time);
+		blkg_rwstat_add(&stats->service_time, op,
+				now - io_start_time);
 	if (time_after64(io_start_time, start_time))
-		blkg_rwstat_add(&stats->wait_time, rw,
+		blkg_rwstat_add(&stats->wait_time, op,
 				io_start_time - start_time);
 }
 
@@ -267,7 +269,8 @@ static void bfqg_stats_add_aux(struct bfqg_stats *to, struct bfqg_stats *from)
 	blkg_rwstat_add_aux(&to->wait_time, &from->wait_time);
 	blkg_stat_add_aux(&from->time, &from->time);
 	blkg_stat_add_aux(&to->avg_queue_size_sum, &from->avg_queue_size_sum);
-	blkg_stat_add_aux(&to->avg_queue_size_samples, &from->avg_queue_size_samples);
+	blkg_stat_add_aux(&to->avg_queue_size_samples,
+			  &from->avg_queue_size_samples);
 	blkg_stat_add_aux(&to->dequeue, &from->dequeue);
 	blkg_stat_add_aux(&to->group_wait_time, &from->group_wait_time);
 	blkg_stat_add_aux(&to->idle_time, &from->idle_time);
@@ -349,9 +352,9 @@ static int bfqg_stats_init(struct bfqg_stats *stats, gfp_t gfp)
 }
 
 static struct bfq_group_data *cpd_to_bfqgd(struct blkcg_policy_data *cpd)
- {
+{
 	return cpd ? container_of(cpd, struct bfq_group_data, pd) : NULL;
- }
+}
 
 static struct bfq_group_data *blkcg_to_bfqgd(struct blkcg *blkcg)
 {
@@ -362,7 +365,7 @@ static struct blkcg_policy_data *bfq_cpd_alloc(gfp_t gfp)
 {
 	struct bfq_group_data *bgd;
 
-	bgd = kzalloc(sizeof(*bgd), GFP_KERNEL);
+	bgd = kzalloc(sizeof(*bgd), gfp);
 	if (!bgd)
 		return NULL;
 	return &bgd->pd;
@@ -428,7 +431,6 @@ static void bfq_pd_free(struct blkg_policy_data *pd)
 	struct bfq_group *bfqg = pd_to_bfqg(pd);
 
 	bfqg_stats_exit(&bfqg->stats);
-
 	return kfree(bfqg);
 }
 
@@ -440,9 +442,10 @@ static void bfq_pd_reset_stats(struct blkg_policy_data *pd)
 }
 
 static void bfq_group_set_parent(struct bfq_group *bfqg,
-				 struct bfq_group *parent)
+					struct bfq_group *parent)
 {
 	struct bfq_entity *entity;
+
 	BUG_ON(!parent);
 	BUG_ON(!bfqg);
 	BUG_ON(bfqg == parent);
@@ -674,7 +677,6 @@ static void bfq_reparent_leaf_entity(struct bfq_data *bfqd,
 
 	BUG_ON(!bfqq);
 	bfq_bfqq_move(bfqd, bfqq, bfqd->root_group);
-	return;
 }
 
 /**
@@ -702,8 +704,6 @@ static void bfq_reparent_active_entities(struct bfq_data *bfqd,
 	if (bfqg->sched_data.in_service_entity)
 		bfq_reparent_leaf_entity(bfqd,
 			bfqg->sched_data.in_service_entity);
-
-	return;
 }
 
 /**
@@ -823,6 +823,7 @@ static int bfq_io_set_weight_legacy(struct cgroup_subsys_state *css,
 	bfqgd->weight = (unsigned short)val;
 	hlist_for_each_entry(blkg, &blkcg->blkg_list, blkcg_node) {
 		struct bfq_group *bfqg = blkg_to_bfqg(blkg);
+
 		if (!bfqg)
 			continue;
 		/*
@@ -977,7 +978,8 @@ static int bfqg_print_avg_queue_size(struct seq_file *sf, void *v)
 	return 0;
 }
 
-static struct bfq_group *bfq_create_group_hierarchy(struct bfq_data *bfqd, int node)
+static struct bfq_group *
+bfq_create_group_hierarchy(struct bfq_data *bfqd, int node)
 {
 	int ret;
 
@@ -985,7 +987,7 @@ static struct bfq_group *bfq_create_group_hierarchy(struct bfq_data *bfqd, int n
 	if (ret)
 		return NULL;
 
-        return blkg_to_bfqg(bfqd->queue->root_blkg);
+	return blkg_to_bfqg(bfqd->queue->root_blkg);
 }
 
 static struct cftype bfq_blkcg_legacy_files[] = {
@@ -995,6 +997,7 @@ static struct cftype bfq_blkcg_legacy_files[] = {
 		.seq_show = bfq_io_show_weight,
 		.write_u64 = bfq_io_set_weight_legacy,
 	},
+
 	/* statistics, covers only the tasks in the bfqg */
 	{
 		.name = "bfq.time",
@@ -1113,16 +1116,17 @@ static struct cftype bfq_blkg_files[] = {
 	{} /* terminate */
 };
 
-#else /* CONFIG_BFQ_GROUP_IOSCHED */
+#else /* CONFIG_BFQ_SQ_GROUP_IOSCHED */
 
 static inline void bfqg_stats_update_io_add(struct bfq_group *bfqg,
-			struct bfq_queue *bfqq, int rw) { }
-static inline void bfqg_stats_update_io_remove(struct bfq_group *bfqg,
-					       int rw) { }
-static inline void bfqg_stats_update_io_merged(struct bfq_group *bfqg,
-					       int rw) { }
+			struct bfq_queue *bfqq, unsigned int op) { }
+static inline void
+bfqg_stats_update_io_remove(struct bfq_group *bfqg, unsigned int op) { }
+static inline void
+bfqg_stats_update_io_merged(struct bfq_group *bfqg, unsigned int op) { }
 static inline void bfqg_stats_update_completion(struct bfq_group *bfqg,
-			uint64_t start_time, uint64_t io_start_time, int rw) { }
+			uint64_t start_time, uint64_t io_start_time,
+			unsigned int op) { }
 static inline void
 bfqg_stats_set_start_group_wait_time(struct bfq_group *bfqg,
 				     struct bfq_group *curr_bfqg) { }
@@ -1140,6 +1144,7 @@ static void bfq_init_entity(struct bfq_entity *entity,
 			    struct bfq_group *bfqg)
 {
 	struct bfq_queue *bfqq = bfq_entity_to_bfqq(entity);
+
 	entity->weight = entity->new_weight;
 	entity->orig_weight = entity->new_weight;
 	if (bfqq) {
