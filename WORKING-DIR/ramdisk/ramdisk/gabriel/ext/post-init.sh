@@ -270,6 +270,16 @@ echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 
 	echo "[Gabriel-Kernel] google services fix enabled" > /dev/kmsg
 
+	for i in cpu0 cpu1 cpu2 cpu3; do
+	echo 1401000 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
+	echo 960000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+	done;
+
+	for i in cpu4 cpu5 cpu6 cpu7; do
+	echo 1094400 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
+	echo 768000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+	done;
+
 	# script finish here, so let me know when
 	TIME_NOW=$(date)
 	echo "$TIME_NOW" > /data/.gabriel/boot_log
