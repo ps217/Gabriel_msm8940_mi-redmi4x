@@ -490,7 +490,7 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen)
 	ret = __cpu_notify(CPU_UP_PREPARE | mod, hcpu, -1, &nr_calls);
 	if (ret) {
 		nr_calls--;
-		pr_warn("%s: attempt to bring up CPU %u failed\n",
+		pr_debug("%s: attempt to bring up CPU %u failed\n",
 			__func__, cpu);
 		goto out_notify;
 	}
@@ -577,7 +577,7 @@ out:
 
 	if (!switch_err) {
 		switch_err = switch_to_fair_policy();
-		pr_err("Hotplug policy switch err. Task %s pid=%d\n",
+		pr_debug("Hotplug policy switch err. Task %s pid=%d\n",
 					current->comm, current->pid);
 	}
 
