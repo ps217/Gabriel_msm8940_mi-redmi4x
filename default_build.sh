@@ -94,6 +94,7 @@ FUNC_BUILD_KERNEL()
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
 			CC='ccache '${BUILD_CROSS_COMPILE}gcc' --sysroot='$SYSROOT'' | grep :
 
+if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 	echo -e "compiling modules..."
 
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
@@ -115,6 +116,7 @@ FUNC_BUILD_KERNEL()
 
 	mkdir -p $WD/package/system/lib/modules/pronto
 	mv $WD/package/system/lib/modules/wlan.ko $WD/package/system/lib/modules/pronto/pronto_wlan.ko
+fi;
 
 if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz-dtb ]; then
 	echo -e "${red}"
@@ -182,9 +184,12 @@ FUNC_BUILD_RAMDISK_ANY()
 	fi;
 
 	\cp -r $WD/ramdisk/ramdisk/* $WD/temp/ramdisk/
+
+if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 	mkdir -p $WD/temp/modules/pronto/
 	\cp -r $WD/package/system/lib/modules/* $WD/temp/modules/
 	mv $WD/package/system/lib/modules/pronto/pronto_wlan.ko $WD/temp/modules/pronto/pronto_wlan.ko
+fi;
 }
 
 FUNC_BUILD_ZIP_ANY()
