@@ -102,13 +102,13 @@ SLEEP_MODE()
 
 while :
 	do
-	while [ "$(cat /sys/module/state_notifier/parameters/state_suspended)" == "Y" ]; do
+	while [ "$(cat /sys/module/ft5x06_ts/parameters/sleep_state)" -ne "0" ]; do
 		sleep "3"
 	done
 	# AWAKE State. all system ON
 	AWAKE_MODE;
 
-	while [ "$(cat /sys/module/state_notifier/parameters/state_suspended)" == "N" ]; do
+	while [ "$(cat /sys/module/ft5x06_ts/parameters/sleep_state)" -ne "1" ]; do
 		sleep "3"
 	done
 	# SLEEP state. All system to power save
