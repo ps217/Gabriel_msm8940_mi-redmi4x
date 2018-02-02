@@ -58,7 +58,7 @@ FUNC_ADB()
 {
 	if [ "$(adb devices | wc -l)" -eq "3" ]; then
 		echo -e "${green}"
-		adb push $RK/$FILENAME.zip /sdcard/ | grep 100
+		adb push $RK/$TARGET-$FILENAME.zip /sdcard/ | grep 100
 		echo -e "${restore}"
 	fi;
 }
@@ -208,8 +208,8 @@ FUNC_BUILD_ZIP_ANY()
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
 	cd $RDIR
 
-	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
-	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
+	cp $WD/temp/kernel.zip $RK/$TARGET-$FILENAME.zip
+	md5sum $RK/$TARGET-$FILENAME.zip > $RK/$TARGET-$FILENAME.zip.md5
 
 	FUNC_ADB
 }
@@ -254,8 +254,10 @@ echo -e "${restore}"
 select CHOICE in module built-in; do
 	case "$CHOICE" in
 		"module")
+			TARGET=MIUI
 			break;;
 		"built-in")
+			TARGET=AOSP
 			FUNC_BUILTIN
 			break;;
 	esac;
@@ -278,7 +280,7 @@ rm -rf ./build.log
 		echo "" # shown adb pushed file
 	else
 		echo -e "${green}"
-		echo "File Name is: "$FILENAME
+		echo "File Name is: "$TARGET-$FILENAME
 		echo -e "${restore}"
 	fi;
 
