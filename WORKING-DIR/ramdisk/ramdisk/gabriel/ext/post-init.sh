@@ -161,7 +161,7 @@ echo 5000 > /sys/module/adreno_idler/parameters/adreno_idler_idleworkload;
 
 # screen calibration
 if [ ! -e /init.miui.rc ];then
-	echo "237 235 235" > /sys/devices/platform/kcal_ctrl.0/kcal;
+	echo "237 235 255" > /sys/devices/platform/kcal_ctrl.0/kcal;
 	echo "255" > /sys/devices/platform/kcal_ctrl.0/kcal_cont;
 	echo "1515" > /sys/devices/platform/kcal_ctrl.0/kcal_hue;
 	echo "35" > /sys/devices/platform/kcal_ctrl.0/kcal_min;
