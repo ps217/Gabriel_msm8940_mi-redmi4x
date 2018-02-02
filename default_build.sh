@@ -63,6 +63,11 @@ FUNC_ADB()
 	fi;
 }
 
+FUNC_BUILTIN()
+{
+sed -i 's/=m/=y/g' arch/$ARCH/configs/$KERNEL_DEFCONFIG
+}
+
 FUNC_ZIP_NAME()
 {
 	ZIPFILE=$FILENAME
@@ -241,6 +246,21 @@ select CHOICE in santoni-stock santoni-gabriel; do
 	esac;
 done;
 
+echo -e "${green}"
+echo "----------------------"
+echo "Modular or Built-in ?!";
+echo "----------------------"
+echo -e "${restore}"
+select CHOICE in module built-in; do
+	case "$CHOICE" in
+		"module")
+			break;;
+		"built-in")
+			FUNC_BUILTIN
+			break;;
+	esac;
+done;
+
 # MAIN FUNCTION
 rm -rf ./build.log
 (
@@ -249,6 +269,8 @@ rm -rf ./build.log
 	FUNC_BUILD_KERNEL
 	FUNC_BUILD_RAMDISK_$RAMDTYPE
 	FUNC_BUILD_ZIP_$RAMDTYPE
+
+	git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
 
 	DATE_END=$(date +"%s")
 
