@@ -280,6 +280,10 @@ echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 	echo 768000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
 	done;
 
+	$BB fstrim /system
+	$BB fstrim /data
+	$BB fstrim /cache
+
 	# script finish here, so let me know when
 	TIME_NOW=$(date)
 	echo "$TIME_NOW" > /data/.gabriel/boot_log
