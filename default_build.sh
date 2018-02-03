@@ -71,9 +71,9 @@ sed -i 's/=m/=y/g' arch/$ARCH/configs/$KERNEL_DEFCONFIG
 FUNC_ZIP_NAME()
 {
 	ZIPFILE=$FILENAME
-	if [[ -e $RK/$ZIPFILE.zip ]] ; then
+	if [[ -e $RK/$TARGET-$ZIPFILE.zip ]] ; then
 			i=0
-		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
+		while [[ -e $RK/$TARGET-$ZIPFILE-$i.zip ]] ; do
 			let i++
 		done
 	    FILENAME=$ZIPFILE-$i
