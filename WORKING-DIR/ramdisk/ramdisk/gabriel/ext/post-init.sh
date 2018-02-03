@@ -173,8 +173,10 @@ if [ -e /sys/module/cluster_plug/parameters/active ];then
 	echo "1" > /sys/module/cluster_plug/parameters/active;
 fi
 
-if [ -e /sys/android_touch/doubletap2wake ];then
-	echo "2" > /sys/android_touch/doubletap2wake;
+if [ -e /init.miui.rc ]; then
+	if [ -e /sys/android_touch/doubletap2wake ];then
+		echo "2" > /sys/android_touch/doubletap2wake;
+	fi;
 fi;
 
 if [ $MEM_ALL -lt "3000000000" ];then
