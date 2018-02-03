@@ -38,6 +38,12 @@ dump_boot;
 
 # begin ramdisk changes
 
+# fstab.qcom
+if [ -f /fstab.qcom ]; then
+insert_line fstab.qcom "data        f2fs" before "data        ext4" "/dev/block/bootdevice/by-name/userdata     /data        f2fs    nosuid,nodev,noatime,inline_xattr,data_flush      wait,check,encryptable=footer,formattable,length=-16384";
+insert_line fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
+fi;
+
 # init.qcom.rc
 if [ -f /init.qcom.rc ]; then
 backup_file init.qcom.rc;
@@ -47,7 +53,6 @@ backup_file init.rc;
 insert_line init.rc "init.gabriel.rc" before "on early-init" "import init.gabriel.rc";
 insert_line init.rc "" before "on early-init" "";
 fi;
-
 
 # end ramdisk changes
 
