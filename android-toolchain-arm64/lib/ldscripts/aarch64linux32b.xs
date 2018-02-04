@@ -7,7 +7,7 @@ OUTPUT_FORMAT("elf32-bigaarch64", "elf32-bigaarch64",
 	      "elf32-littleaarch64")
 OUTPUT_ARCH(aarch64:ilp32)
 ENTRY(_start)
-SEARCH_DIR("=/run/media/gabriel/HD2/kernel/crosstool-dorimanx/builds/aarch64-MIR4X-linux-gnu/aarch64-MIR4X-linux-gnu/libilp32"); SEARCH_DIR("=/usr/local/libilp32"); SEARCH_DIR("=/libilp32"); SEARCH_DIR("=/usr/libilp32"); SEARCH_DIR("=/run/media/gabriel/HD2/kernel/crosstool-dorimanx/builds/aarch64-MIR4X-linux-gnu/aarch64-MIR4X-linux-gnu/lib"); SEARCH_DIR("=/usr/local/lib"); SEARCH_DIR("=/lib"); SEARCH_DIR("=/usr/lib");
+SEARCH_DIR("=/run/media/gabriel/HD2/kernel/crosstool-dorimanx/builds/aarch64-MIR4X-linux-android/aarch64-MIR4X-linux-android/libilp32"); SEARCH_DIR("=/usr/local/libilp32"); SEARCH_DIR("=/libilp32"); SEARCH_DIR("=/usr/libilp32"); SEARCH_DIR("=/run/media/gabriel/HD2/kernel/crosstool-dorimanx/builds/aarch64-MIR4X-linux-android/aarch64-MIR4X-linux-android/lib"); SEARCH_DIR("=/usr/local/lib"); SEARCH_DIR("=/lib"); SEARCH_DIR("=/usr/lib");
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
