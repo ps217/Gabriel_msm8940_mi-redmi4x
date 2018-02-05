@@ -376,7 +376,17 @@ CC		= $(srctree)/scripts/gcc-wrapper.py $(REAL_CC)
 CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 		  -Wbitwise -Wno-return-void $(CF)
 
-KERNELFLAGS = -pipe -DNDEBUG -O2 -mtune=cortex-a53 -march=armv8-a+crypto+crc
+# fall back to -march=armv8-a in case the compiler isn't compatible 
+# with -mcpu and -mtune
+ARM_ARCH_OPT := -mcpu=cortex-a53 -mtune=cortex-a53
+
+KERNELFLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
+ -g0 \
+ -pipe \
+ -DNDEBUG \
+ -fomit-frame-pointer \
+ -fivopts
+
 MODFLAGS	= -DMODULE $(KERNELFLAGS)
 CFLAGS_MODULE	= $(MODFLAGS)
 AFLAGS_MODULE	= $(MODFLAGS)
