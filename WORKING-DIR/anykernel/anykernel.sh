@@ -48,9 +48,12 @@ fi;
 if [ -f /init.qcom.rc ]; then
 backup_file init.qcom.rc;
 append_file init.qcom.rc "bbinstall" init.qcom.patch;
+insert_line init.qcom.rc "init.spectrum.rc" before "on early-init" "import init.spectrum.rc";
+insert_line init.qcom.rc "" before "on early-init" "";
 else
 backup_file init.rc;
 insert_line init.rc "init.gabriel.rc" before "on early-init" "import init.gabriel.rc";
+insert_line init.rc "init.spectrum.rc" after "import init.gabriel.rc" "import init.spectrum.rc";
 insert_line init.rc "" before "on early-init" "";
 fi;
 
