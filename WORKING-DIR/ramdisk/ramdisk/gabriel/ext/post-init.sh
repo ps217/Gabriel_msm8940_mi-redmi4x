@@ -97,9 +97,12 @@ echo 0 > /sys/module/workqueue/parameters/power_efficient;
 echo 0 > /sys/module/msm_thermal/core_control/enabled;
 echo 1 > /cputemp/enabled;
 
-echo 12288 > /proc/sys/vm/min_free_kbytes
-echo 0 > /proc/sys/vm/swappiness
+echo 8192 > /proc/sys/vm/min_free_kbytes
+echo 70 > /proc/sys/vm/swappiness
 echo 1500 > /proc/sys/vm/dirty_writeback_centisecs
+echo 90 > /proc/sys/vm/dirty_ratio
+echo 70 > /proc/sys/vm/dirty_background_ratio
+echo 500 > /proc/sys/vm/vfs_cache_pressure
 
 if [ $MEM_ALL -lt "2900000000" ];then
 	echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
