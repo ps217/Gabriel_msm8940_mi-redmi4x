@@ -198,7 +198,7 @@ for i in /sys/block/*/queue; do
 	echo 0 > $i/iostats
 	echo 0 > $i/rotational
 	echo zen > $i/scheduler
-	echo 128 > $i/read_ahead_kb
+	echo 2048 > $i/read_ahead_kb
 done;
 }
 
