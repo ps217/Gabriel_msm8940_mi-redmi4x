@@ -93,10 +93,6 @@ SYSTEM_TUNING()
 echo "1024" > /proc/sys/kernel/random/read_wakeup_threshold;
 echo "128" > /proc/sys/kernel/random/write_wakeup_threshold;
 
-echo 0 > /sys/module/workqueue/parameters/power_efficient;
-echo 0 > /sys/module/msm_thermal/core_control/enabled;
-echo 1 > /cputemp/enabled;
-
 echo 8192 > /proc/sys/vm/min_free_kbytes
 echo 70 > /proc/sys/vm/swappiness
 echo 200 > /proc/sys/vm/dirty_expire_centisecs
@@ -114,6 +110,48 @@ else
 	echo "18432,23040,27648,51256,150296,200640" > /sys/module/lowmemorykiller/parameters/minfree
 	echo 202640 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
 fi;
+
+# screen calibration
+if [ ! -e /init.miui.rc ];then
+	echo "237 235 255" > /sys/devices/platform/kcal_ctrl.0/kcal;
+	echo "255" > /sys/devices/platform/kcal_ctrl.0/kcal_cont;
+	echo "1515" > /sys/devices/platform/kcal_ctrl.0/kcal_hue;
+	echo "35" > /sys/devices/platform/kcal_ctrl.0/kcal_min;
+	echo "265" > /sys/devices/platform/kcal_ctrl.0/kcal_sat;
+	echo "253" > /sys/devices/platform/kcal_ctrl.0/kcal_val;
+fi;
+
+if [ -e /init.miui.rc ]; then
+	if [ -e /sys/android_touch/doubletap2wake ];then
+		echo "2" > /sys/android_touch/doubletap2wake;
+	fi;
+fi;
+
+if [ $MEM_ALL -lt "3000000000" ];then
+	if [ -e /dev/block/zram0 ]; then
+		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+		echo "1" > /sys/block/zram0/reset;
+		echo "lz4" > /sys/block/zram0/comp_algorithm;
+		echo "1GB" > /sys/block/zram0/disksize;
+		$BB mkswap /dev/block/zram0 >/dev/null;
+		$BB swapon /dev/block/zram0;
+	fi;
+fi;
+
+# disable block iostats/rotational and set io-scheduler
+for i in /sys/block/*/queue; do
+	echo 0 > $i/iostats
+	echo 0 > $i/rotational
+	echo zen > $i/scheduler
+	echo 2048 > $i/read_ahead_kb
+done;
+}
+
+OLD_CONFIG()
+{
+echo 0 > /sys/module/workqueue/parameters/power_efficient;
+echo 0 > /sys/module/msm_thermal/core_control/enabled;
+echo 1 > /cputemp/enabled;
 
 echo 0 > /proc/sys/kernel/sched_boost
 echo 90 > /proc/sys/kernel/sched_downmigrate
@@ -163,45 +201,11 @@ echo 15 > /sys/module/adreno_idler/parameters/adreno_idler_idlewait;
 echo 40 > /sys/module/adreno_idler/parameters/adreno_idler_downdifferential;
 echo 5000 > /sys/module/adreno_idler/parameters/adreno_idler_idleworkload;
 
-# screen calibration
-if [ ! -e /init.miui.rc ];then
-	echo "237 235 255" > /sys/devices/platform/kcal_ctrl.0/kcal;
-	echo "255" > /sys/devices/platform/kcal_ctrl.0/kcal_cont;
-	echo "1515" > /sys/devices/platform/kcal_ctrl.0/kcal_hue;
-	echo "35" > /sys/devices/platform/kcal_ctrl.0/kcal_min;
-	echo "265" > /sys/devices/platform/kcal_ctrl.0/kcal_sat;
-	echo "253" > /sys/devices/platform/kcal_ctrl.0/kcal_val;
-fi;
-
 if [ -e /sys/module/cluster_plug/parameters/active ];then
 	echo "1" > /sys/module/cluster_plug/parameters/active;
 fi
-
-if [ -e /init.miui.rc ]; then
-	if [ -e /sys/android_touch/doubletap2wake ];then
-		echo "2" > /sys/android_touch/doubletap2wake;
-	fi;
-fi;
-
-if [ $MEM_ALL -lt "3000000000" ];then
-	if [ -e /dev/block/zram0 ]; then
-		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
-		echo "1" > /sys/block/zram0/reset;
-		echo "lz4" > /sys/block/zram0/comp_algorithm;
-		echo "1GB" > /sys/block/zram0/disksize;
-		$BB mkswap /dev/block/zram0 >/dev/null;
-		$BB swapon /dev/block/zram0;
-	fi;
-fi;
-
-# disable block iostats/rotational and set io-scheduler
-for i in /sys/block/*/queue; do
-	echo 0 > $i/iostats
-	echo 0 > $i/rotational
-	echo zen > $i/scheduler
-	echo 2048 > $i/read_ahead_kb
-done;
 }
+#OLD_CONFIG;
 
 # start CORTEX by tree root, so it's will not be terminated.
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
