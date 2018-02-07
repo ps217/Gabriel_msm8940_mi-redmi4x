@@ -295,7 +295,7 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-GRAPHITE = -fgraphite -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-strip-mine -floop-block -ftree-loop-linear
+GRAPHITE = -floop-nest-optimize -fgraphite -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-parallelize-all -floop-strip-mine -floop-block -ftree-loop-linear -floop-flatten
 
 HOSTCC       = gcc
 HOSTCXX      = g++
@@ -387,7 +387,8 @@ KERNELFLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
  -pipe \
  -DNDEBUG \
  -fomit-frame-pointer \
- -fivopts
+ -fivopts \
+ $(GRAPHITE)
 
 MODFLAGS	= -DMODULE $(KERNELFLAGS)
 CFLAGS_MODULE	= $(MODFLAGS)
