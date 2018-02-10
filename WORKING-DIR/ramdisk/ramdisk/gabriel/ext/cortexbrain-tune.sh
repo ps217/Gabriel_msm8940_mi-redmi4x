@@ -83,7 +83,9 @@ SLEEP_MODE()
 	echo "1" > /sys/module/sync/parameters/fsync_enabled;
 
 	echo "$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)" > /cache/lc_corectl_state;
-	echo "2" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+	if [ "$(cat /sys/devices/system/cpu/cpu0/core_ctl/min_cpus)" != "0" ];then
+		echo "2" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+	fi;
 
 #	echo "0" > /sys/kernel/printk_mode/printk_mode;
 
