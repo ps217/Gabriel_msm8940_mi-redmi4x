@@ -66,3 +66,7 @@ cortexbrain_memory=on
 cortexbrain_kernel_tweaks=on
 cortexbrain_io=on
 cortexbrain_firewall=on
+cortexbrain_auto_tweak_mobile=off
+cortexbrain_auto_tweak_mobile_sleep_delay=30
+cortexbrain_auto_tweak_wifi=off
+cortexbrain_auto_tweak_wifi_sleep_delay=30

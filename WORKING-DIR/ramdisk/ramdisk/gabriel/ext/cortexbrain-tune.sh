@@ -29,16 +29,38 @@ chmod -R 777 /tmp/;
 
 FILE_NAME=$0;
 DATA_DIR=/data/.gabriel;
+TELE_DATA=init;
 
 # ==============================================================
 # INITIATE
 # ==============================================================
+
+# check if dumpsys exist in ROM
+if [ -e /system/bin/dumpsys ]; then
+	DUMPSYS_STATE=1;
+else
+	DUMPSYS_STATE=0;
+fi;
 
 # For CHARGER CHECK.
 echo "1" > /data/gabriel_cortex_sleep;
 
 rm -f /cache/fsync_enabled;
 rm -f /cache/lc_corectl_state;
+
+# ==============================================================
+# FILES FOR VARIABLES
+# ==============================================================
+
+# WIFI HELPER
+WIFI_HELPER_AWAKE="$DATA_DIR/WIFI_HELPER_AWAKE";
+WIFI_HELPER_TMP="$DATA_DIR/WIFI_HELPER_TMP";
+echo "1" > $WIFI_HELPER_TMP;
+
+# MOBILE HELPER
+MOBILE_HELPER_AWAKE="$DATA_DIR/MOBILE_HELPER_AWAKE";
+MOBILE_HELPER_TMP="$DATA_DIR/MOBILE_HELPER_TMP";
+echo "1" > $MOBILE_HELPER_TMP;
 
 # ==============================================================
 # I/O-TWEAKS
@@ -126,6 +148,128 @@ FIREWALL_TWEAKS()
 	fi;
 }
 FIREWALL_TWEAKS;
+
+# ==============================================================
+# WIFI-NET-TWEAKS
+# ==============================================================
+
+WIFI_SET()
+{
+	local state="$1";
+
+	if [ "$state" == "off" ]; then
+		svc wifi disable;
+		echo "1" > $WIFI_HELPER_AWAKE;
+	elif [ "$state" == "on" ]; then
+		svc wifi enable;
+	fi;
+
+	log -p i -t $FILE_NAME "*** WIFI ***: $state";
+}
+
+WIFI()
+{
+	local state="$1";
+
+	if [ "$state" == "sleep" ]; then
+		if [ "$cortexbrain_auto_tweak_wifi" == "on" ]; then
+			if [ "$cortexbrain_auto_tweak_wifi_sleep_delay" -eq "0" ]; then
+				WIFI_SET "off";
+			else
+				(
+					echo "0" > $WIFI_HELPER_TMP;
+					# screen time out but user want to keep it on and have wifi
+					sleep 10;
+					if [ `cat $WIFI_HELPER_TMP` -eq "0" ]; then
+						# user did not turned screen on, so keep waiting
+						local SLEEP_TIME_WIFI=$(( $cortexbrain_auto_tweak_wifi_sleep_delay - 10 ));
+						log -p i -t $FILE_NAME "*** DISABLE_WIFI $cortexbrain_auto_tweak_wifi_sleep_delay Sec Delay Mode ***";
+						sleep $SLEEP_TIME_WIFI;
+						if [ `cat $WIFI_HELPER_TMP` -eq "0" ]; then
+							# user left the screen off, then disable wifi
+							WIFI_SET "off";
+						fi;
+					fi;
+				)&
+			fi;
+		else
+			echo "0" > $WIFI_HELPER_AWAKE;
+		fi;
+	elif [ "$state" == "awake" ]; then
+		if [ "$cortexbrain_auto_tweak_wifi" == "on" ]; then
+			echo "1" > $WIFI_HELPER_TMP;
+			if [ `cat $WIFI_HELPER_AWAKE` -eq "1" ]; then
+				WIFI_SET "on";
+			fi;
+		fi;
+	fi;
+}
+
+MOBILE_DATA_SET()
+{
+	local state="$1";
+
+	if [ "$state" == "off" ]; then
+		svc data disable;
+		echo "1" > $MOBILE_HELPER_AWAKE;
+	elif [ "$state" == "on" ]; then
+		svc data enable;
+	fi;
+
+	log -p i -t $FILE_NAME "*** MOBILE DATA ***: $state";
+}
+
+MOBILE_DATA_STATE()
+{
+	DATA_STATE_CHECK=0;
+
+	if [ $DUMPSYS_STATE -eq "1" ]; then
+		local DATA_STATE=`echo "$TELE_DATA" | awk '/mDataConnectionState/ {print $1}'`;
+
+		if [ "$DATA_STATE" != "mDataConnectionState=0" ]; then
+			DATA_STATE_CHECK=1;
+		fi;
+	fi;
+}
+
+MOBILE_DATA()
+{
+	local state="$1";
+
+	if [ "$cortexbrain_auto_tweak_mobile" == "on" ]; then
+		if [ "$state" == "sleep" ]; then
+			MOBILE_DATA_STATE;
+			if [ "$DATA_STATE_CHECK" -eq "1" ]; then
+				if [ "$cortexbrain_auto_tweak_mobile_sleep_delay" -eq "0" ]; then
+					MOBILE_DATA_SET "off";
+				else
+					(
+						echo "0" > $MOBILE_HELPER_TMP;
+						# screen time out but user want to keep it on and have mobile data
+						sleep 10;
+						if [ `cat $MOBILE_HELPER_TMP` -eq "0" ]; then
+							# user did not turned screen on, so keep waiting
+							local SLEEP_TIME_DATA=$(( $cortexbrain_auto_tweak_mobile_sleep_delay - 10 ));
+							log -p i -t $FILE_NAME "*** DISABLE_MOBILE $cortexbrain_auto_tweak_mobile_sleep_delay Sec Delay Mode ***";
+							sleep $SLEEP_TIME_DATA;
+							if [ `cat $MOBILE_HELPER_TMP` -eq "0" ]; then
+								# user left the screen off, then disable mobile data
+								MOBILE_DATA_SET "off";
+							fi;
+						fi;
+					)&
+				fi;
+			else
+				echo "0" > $MOBILE_HELPER_AWAKE;
+			fi;
+		elif [ "$state" == "awake" ]; then
+			echo "1" > $MOBILE_HELPER_TMP;
+			if [ `cat $MOBILE_HELPER_AWAKE` -eq "1" ]; then
+				MOBILE_DATA_SET "on";
+			fi;
+		fi;
+	fi;
+}
 
 CPU_CENTRAL_CONTROL()
 {
@@ -226,6 +370,9 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	CPU_CENTRAL_CONTROL "awake";
 
+	WIFI "awake";
+	MOBILE_DATA "awake";
+
 #	echo "1" > /sys/kernel/printk_mode/printk_mode;
 
 	echo "0" > /data/gabriel_cortex_sleep
@@ -240,6 +387,11 @@ SLEEP_MODE()
 	# we only read the config when the screen turns off ...
 	PROFILE=$(cat "$DATA_DIR"/.active.profile);
 	. "$DATA_DIR"/"$PROFILE".profile;
+
+	# we only read tele-data when the screen turns off ...
+	if [ "$DUMPSYS_STATE" -eq "1" ]; then
+		TELE_DATA=`dumpsys telephony.registry`;
+	fi;
 
 	echo "1" > /sys/module/workqueue/parameters/power_efficient;
 
@@ -257,6 +409,9 @@ SLEEP_MODE()
 	fi
 
 	CPU_CENTRAL_CONTROL "sleep";
+
+	WIFI "sleep";
+	MOBILE_DATA "sleep";
 
 #	echo "0" > /sys/kernel/printk_mode/printk_mode;
 

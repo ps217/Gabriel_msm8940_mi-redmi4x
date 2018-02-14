@@ -557,6 +557,14 @@
 
 		<checkbox description="Enable or Disable ICMP only Firewall-Tweaks (reboot needed)." name="Firewall-Tweaks" action="generic_cortex /tmp/cortexbrain_firewall" label="Firewall-Tweaks"/>
 
+		<checkbox description="Enable or Disable the DATA turns off while screen is off function." name="Auto-DATA" action="generic_cortex /tmp/cortexbrain_auto_tweak_mobile" label="Force Auto-Data"/>
+
+		<seekBar description="Here you can set a delay before DATA is forced to OFF when screen is turned off." name="DATA Turn Off Delay (in sec)" action="generic_cortex /tmp/cortexbrain_auto_tweak_mobile_sleep_delay" unit="sec" min="0" reversed="false" step="30" max="300"/>
+
+		<checkbox description="Enable or Disable the Wifi turns off while screen is off function." name="Auto-Wifi" action="generic_cortex /tmp/cortexbrain_auto_tweak_wifi" label="Force Auto-Wifi"/>
+
+		<seekBar description="Here you can set a delay before WIFI is forced to OFF when screen is turned off." name="WIFI Turn Off Delay (in sec)" action="generic_cortex /tmp/cortexbrain_auto_tweak_wifi_sleep_delay" unit="sec" min="0" reversed="false" step="30" max="300"/>
+
 	</settingsPane>
 
 </settingsTab>
