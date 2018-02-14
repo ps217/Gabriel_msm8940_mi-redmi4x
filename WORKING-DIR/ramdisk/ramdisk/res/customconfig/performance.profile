@@ -4,6 +4,7 @@ fsync_enabled=0
 entropy_awake=high
 entropy_sleep=low
 allow_suspend=1
+bcl=disable
 default_cpu_l_gov=interactive
 default_cpu_b_gov=interactive
 cpu_l_interactive_profile=nlb_performance

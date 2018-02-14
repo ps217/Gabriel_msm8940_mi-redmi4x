@@ -78,6 +78,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="BCL polls the battery monitor system for various values such as voltage, current and temperature through the battery. It prevents reboots by setting thresholds and when the threshold is passed, it will throttle or unplug cores, Disable for Performance Improvement but you device will sudden reboot in system/battery pressure. Kernel default is Enabled." name="Battery Current Limit">
+
+		<spinner description="Select Battery Current Limit State" name="BCL State"
+			action="bcl">
+			<spinnerItem name="Disable" value="disable"/>
+			<spinnerItem name="Enable" value="enable"/>
+		</spinner>
+
+	</settingsPane>
+
 </settingsTab>
 
 <settingsTab name="CPU Tuning">

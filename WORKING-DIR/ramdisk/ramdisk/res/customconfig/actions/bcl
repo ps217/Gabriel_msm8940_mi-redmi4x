@@ -1,0 +1,26 @@
+#!/sbin/busybox sh
+
+# BCL
+
+# $1 - "bcl"
+# $2 - value=
+
+BB=/sbin/busybox
+
+if [ "a$2" != "a" ]; then
+	bcl=$2;
+
+	case "${bcl}" in
+		disable)
+			echo -n disable > /sys/devices/soc/soc:qcom,bcl/mode;
+		;;
+		enable)
+			echo -n enable > /sys/devices/soc/soc:qcom,bcl/mode;
+		;;
+		*)
+			bcl=disable;
+		;;
+	esac;
+fi;
+
+echo ${bcl};
