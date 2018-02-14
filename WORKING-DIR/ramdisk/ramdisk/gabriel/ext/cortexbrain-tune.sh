@@ -267,7 +267,7 @@ MOBILE_DATA_STATE()
 	DATA_STATE_CHECK=0;
 
 	if [ $DUMPSYS_STATE -eq "1" ]; then
-		local DATA_STATE=`echo "$TELE_DATA" | awk '/mDataConnectionState/ {print $1}'`;
+		local DATA_STATE=`echo "$TELE_DATA" | awk '/mDataConnectionState/ {print $1}' | head -n 1`;
 
 		if [ "$DATA_STATE" != "mDataConnectionState=0" ]; then
 			DATA_STATE_CHECK=1;
