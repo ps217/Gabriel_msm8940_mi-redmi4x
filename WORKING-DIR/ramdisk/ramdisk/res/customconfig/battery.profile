@@ -1,7 +1,8 @@
 stweaks_boot_control=yes
 doubletap2wake=0
 fsync_enabled=1
-entropytweaks=default
+entropy_awake=default
+entropy_sleep=low
 allow_suspend=1
 default_cpu_l_gov=interactive
 default_cpu_b_gov=interactive

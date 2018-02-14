@@ -35,6 +35,10 @@ TELE_DATA=init;
 # INITIATE
 # ==============================================================
 
+# get values from profile
+PROFILE=`cat $DATA_DIR/.active.profile`;
+. $DATA_DIR/${PROFILE}.profile;
+
 # check if dumpsys exist in ROM
 if [ -e /system/bin/dumpsys ]; then
 	DUMPSYS_STATE=1;
@@ -128,6 +132,23 @@ if [ "$cortexbrain_memory" == "on" ]; then
 fi;
 }
 MEMORY_TWEAKS;
+
+# ==============================================================
+# ENTROPY-TWEAKS
+# ==============================================================
+
+ENTROPY()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh entropytweaks $entropy_awake
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh entropytweaks $entropy_sleep
+	fi;
+
+	log -p i -t $FILE_NAME "*** ENTROPY ***: $state - $PROFILE";
+}
 
 # ==============================================================
 # FIREWALL-TWEAKS
@@ -368,6 +389,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 		echo "$max_cpu_percentage" > /sys/kernel/mm/uksm/max_cpu_percentage
 	fi
 
+	ENTROPY "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -408,6 +430,7 @@ SLEEP_MODE()
 		echo "0" > /sys/kernel/mm/uksm/run
 	fi
 
+	ENTROPY "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";

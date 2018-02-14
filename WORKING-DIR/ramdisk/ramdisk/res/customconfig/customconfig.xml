@@ -48,10 +48,18 @@
 
 	</settingsPane>
 
-	<settingsPane description="The random number generator gathers environmental noise from device drivers and other sources into an entropy pool. The generator also keeps an estimate of the number of bits of noise in the entropy pool. From this entropy pool random numbers are created." name="Entropy">
+	<settingsPane description="The random number generator gathers environmental noise from device drivers and other sources into an entropy pool. The generator also keeps an estimate of the number of bits of noise in the entropy pool. From this entropy pool random numbers are created. Depends on Cortexbrain." name="Entropy">
 
-		<spinner description="Select availalbe entropy generator. (Default: Medium)." name="Available entropy"
-			action="entropytweaks">
+		<spinner description="Select availalbe entropy generator for Screen ON state." name="Available awake entropy"
+			action="generic_cortex /tmp/entropy_awake">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Low" value="low"/>
+			<spinnerItem name="Medium" value="medium"/>
+			<spinnerItem name="High" value="high"/>
+		</spinner>
+
+		<spinner description="Select availalbe entropy generator for Screen OFF state." name="Available sleep entropy"
+			action="generic_cortex /tmp/entropy_sleep">
 			<spinnerItem name="Default" value="default"/>
 			<spinnerItem name="Low" value="low"/>
 			<spinnerItem name="Medium" value="medium"/>
