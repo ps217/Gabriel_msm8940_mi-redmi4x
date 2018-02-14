@@ -317,8 +317,19 @@
 
 	<settingsPane description="Customize I/O settings." name="I/O Tuning">
 
-		<spinner description="Set the Maximum number of KiloBytes to read-ahead from device storage, (Default: 128 KiB)." name="KiloBytes to Read Ahead"
+		<spinner description="Set the Maximum number of KiloBytes to read-ahead from device storage, (Default: 128 KiB)." name="Internal KiloBytes to Read Ahead"
 			action="generic /sys/block/mmcblk0/queue/read_ahead_kb">
+			<spinnerItem name="64 KiB" value="64"/>
+			<spinnerItem name="128 KiB" value="128"/>
+			<spinnerItem name="256 KiB" value="256"/>
+			<spinnerItem name="512 KiB" value="512"/>
+			<spinnerItem name="1024 KiB" value="1024"/>
+			<spinnerItem name="2048 KiB" value="2048"/>
+			<spinnerItem name="2560 KiB" value="2560"/>
+		</spinner>
+
+		<spinner description="Set the Maximum number of KiloBytes to read-ahead for external storage. Reboot needed. Depends on Cortexbrain I/O Tweak. (Default: 512 KiB)." name="External KiloBytes to Read Ahead"
+			action="generic_cortex /tmp/read_ahead_kb_ext">
 			<spinnerItem name="64 KiB" value="64"/>
 			<spinnerItem name="128 KiB" value="128"/>
 			<spinnerItem name="256 KiB" value="256"/>
@@ -330,8 +341,59 @@
 
 		<button description="Push Trim Now button in order to speed up Read and Write Access Time. It's good to use it once in a day or two. WAIT some sec for getting cleanup report. stweak will FREEZE, don't panic and wait some sec." name="Trim System and Data" action="push-actions/fstrim" label="Trim NOW"/>
 
-		<spinner description="Set the I/O scheduler for internal storage (Default: ZEN)." name="Default I/O Scheduler"
+		<spinner description="Set the I/O scheduler for internal storage for Screen ON state (Default: ZEN)." name="Default Internal I/O Scheduler Awake"
 			action="scheduler">
+			<spinnerItem name="CFQ" value="cfq"/>
+			<spinnerItem name="BFQ" value="bfq"/>
+			<spinnerItem name="DEADLINE" value="deadline"/>
+			<spinnerItem name="NOOP" value="noop"/>
+			<spinnerItem name="SIO" value="sio"/>
+			<spinnerItem name="SIOPLUS" value="sioplus"/>
+			<spinnerItem name="ZEN" value="zen"/>
+			<spinnerItem name="ROW" value="row"/>
+			<spinnerItem name="FIOPS" value="fiops"/>
+			<spinnerItem name="FIFO" value="fifo"/>
+			<spinnerItem name="VR" value="vr"/>
+			<spinnerItem name="TRIPNDROID" value="tripndroid"/>
+			<spinnerItem name="MAPLE" value="maple"/>
+		</spinner>
+
+		<spinner description="Set the I/O scheduler for internal storage for Screen OFF state (Default: NOOP)." name="Default Internal I/O Scheduler Sleep"
+			action="generic_cortex /tmp/scheduler_int_sleep">
+			<spinnerItem name="CFQ" value="cfq"/>
+			<spinnerItem name="BFQ" value="bfq"/>
+			<spinnerItem name="DEADLINE" value="deadline"/>
+			<spinnerItem name="NOOP" value="noop"/>
+			<spinnerItem name="SIO" value="sio"/>
+			<spinnerItem name="SIOPLUS" value="sioplus"/>
+			<spinnerItem name="ZEN" value="zen"/>
+			<spinnerItem name="ROW" value="row"/>
+			<spinnerItem name="FIOPS" value="fiops"/>
+			<spinnerItem name="FIFO" value="fifo"/>
+			<spinnerItem name="VR" value="vr"/>
+			<spinnerItem name="TRIPNDROID" value="tripndroid"/>
+			<spinnerItem name="MAPLE" value="maple"/>
+		</spinner>
+
+		<spinner description="Set the I/O scheduler for external storage for Screen ON state (Default: ZEN)." name="Default External I/O Scheduler Awake"
+			action="generic_cortex /tmp/scheduler_ext_awake">
+			<spinnerItem name="CFQ" value="cfq"/>
+			<spinnerItem name="BFQ" value="bfq"/>
+			<spinnerItem name="DEADLINE" value="deadline"/>
+			<spinnerItem name="NOOP" value="noop"/>
+			<spinnerItem name="SIO" value="sio"/>
+			<spinnerItem name="SIOPLUS" value="sioplus"/>
+			<spinnerItem name="ZEN" value="zen"/>
+			<spinnerItem name="ROW" value="row"/>
+			<spinnerItem name="FIOPS" value="fiops"/>
+			<spinnerItem name="FIFO" value="fifo"/>
+			<spinnerItem name="VR" value="vr"/>
+			<spinnerItem name="TRIPNDROID" value="tripndroid"/>
+			<spinnerItem name="MAPLE" value="maple"/>
+		</spinner>
+
+		<spinner description="Set the I/O scheduler for external storage for Screen OFF state (Default: NOOP)." name="Default External I/O Scheduler Sleep"
+			action="generic_cortex /tmp/scheduler_ext_sleep">
 			<spinnerItem name="CFQ" value="cfq"/>
 			<spinnerItem name="BFQ" value="bfq"/>
 			<spinnerItem name="DEADLINE" value="deadline"/>

@@ -94,11 +94,33 @@ if [ "$cortexbrain_io" == "on" ]; then
 	echo "$read_ahead_kb" > /sys/block/mmcblk0/queue/read_ahead_kb;
 	echo "$read_ahead_kb" > /sys/block/mmcblk0/bdi/read_ahead_kb;
 
+	echo "$read_ahead_kb_ext" > /sys/block/mmcblk1/queue/read_ahead_kb;
+	echo "$read_ahead_kb_ext" > /sys/block/mmcblk1/bdi/read_ahead_kb;
+
 	echo "45" > /proc/sys/fs/lease-break-time;
 
 fi;
 }
 IO_TWEAKS;
+
+# ==============================================================
+# IO-SCHEDULER
+# ==============================================================
+
+IO_SCHEDULER()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh scheduler $scheduler
+		echo $scheduler_ext_awake > /sys/block/mmcblk1/queue/scheduler;
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh scheduler $scheduler_int_sleep
+		echo $scheduler_ext_sleep > /sys/block/mmcblk1/queue/scheduler;
+	fi;
+
+	log -p i -t $FILE_NAME "*** ENTROPY ***: $state - $PROFILE";
+}
 
 # ==============================================================
 # KERNEL-TWEAKS
@@ -390,6 +412,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	fi
 
 	ENTROPY "awake";
+	IO_SCHEDULER "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -431,6 +454,7 @@ SLEEP_MODE()
 	fi
 
 	ENTROPY "sleep";
+	IO_SCHEDULER "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";
