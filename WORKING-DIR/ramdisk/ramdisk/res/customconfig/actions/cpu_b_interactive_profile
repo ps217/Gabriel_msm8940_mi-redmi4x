@@ -1,0 +1,155 @@
+#!/sbin/busybox sh
+
+# $1 - "cpu_b_interactive_profile"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/sbin/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	cpu_b_interactive_profile=$2;
+
+	case "${cpu_b_interactive_profile}" in
+		off)
+			$BB sleep 0.5s
+			$BB sync
+		;;
+		balance)
+			TARGET0="1 960000:35 1094400:50 1209600:65 1248000:85 1344000:90 1401000:99"
+
+			for i in 0 1 2 3; do
+				CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUB/scaling_governor);
+					chmod 644 /$CPUB/$GOV/*
+					echo 0 > /$CPUB/$GOV/use_sched_load
+					echo 0 > /$CPUB/$GOV/use_migration_notif
+					echo 0 > /$CPUB/$GOV/enable_prediction
+					echo 0 > /$CPUB/$GOV/above_hispeed_delay
+					echo 300 > /$CPUB/$GOV/go_hispeed_load
+					echo 1094400 > /$CPUB/$GOV/hispeed_freq
+					echo "$TARGET0" > /$CPUB/$GOV/target_loads
+					echo 40000 > /$CPUB/$GOV/timer_rate
+					echo 40000 > /$CPUB/$GOV/sleep_timer_rate
+					echo 0 > /$CPUB/$GOV/min_sample_time
+					echo 1 > /$CPUB/$GOV/ignore_hispeed_on_notif
+					echo 0 > /$CPUB/$GOV/max_freq_hysteresis
+					echo -1 > /$CPUB/$GOV/timer_slack
+					echo 0 > /$CPUB/$GOV/io_is_busy
+					echo 0 > /$CPUB/$GOV/boost
+					echo 80000 > /$CPUB/$GOV/boostpulse_duration
+					echo 0 > /$CPUB/$GOV/fast_ramp_down
+					echo 1401000 > /$CPUB/scaling_max_freq
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		xanax_battery_extreme)
+			TARGET0="65 960000:75 1094400:80 1209600:99 1248000:97 1344000:99 1401000:99"
+
+			for i in 0 1 2 3; do
+				CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			    if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUB/scaling_governor);
+					chmod 644 /$CPUB/$GOV/*
+					echo 0 > /$CPUB/$GOV/use_sched_load
+					echo 1 > /$CPUB/$GOV/use_migration_notif
+					echo 0 > /$CPUB/$GOV/enable_prediction
+					echo 10000 > /$CPUB/$GOV/above_hispeed_delay
+					echo 155 > /$CPUB/$GOV/go_hispeed_load
+					echo 768000 > /$CPUB/$GOV/hispeed_freq
+					echo "$TARGET0" > /$CPUB/$GOV/target_loads
+					echo 86666 > /$CPUB/$GOV/timer_rate
+					echo 86666 > /$CPUB/$GOV/sleep_timer_rate
+					echo 23000 > /$CPUB/$GOV/min_sample_time
+					echo 0 > /$CPUB/$GOV/ignore_hispeed_on_notif
+					echo 0 > /$CPUB/$GOV/max_freq_hysteresis
+					echo 145000 > /$CPUB/$GOV/timer_slack
+					echo 0 > /$CPUB/$GOV/io_is_busy
+					echo 1 > /$CPUB/$GOV/boost
+					echo 0 > /$CPUB/$GOV/boostpulse_duration
+					echo 0 > /$CPUB/$GOV/fast_ramp_down
+					echo 998400 > /$CPUB/scaling_max_freq
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		nlb_performance)
+			TARGET0="1 960000:29 1094400:50 1209600:70 1248000:80 1344000:90 1401000:95"
+
+			for i in 0 1 2 3; do
+				CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			    if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUB/scaling_governor);
+					chmod 644 /$CPUB/$GOV/*
+					echo 0 > /$CPUB/$GOV/use_sched_load
+					echo 1 > /$CPUB/$GOV/use_migration_notif
+					echo 0 > /$CPUB/$GOV/enable_prediction
+					echo 0 > /$CPUB/$GOV/above_hispeed_delay
+					echo 300 > /$CPUB/$GOV/go_hispeed_load
+					echo 998400 > /$CPUB/$GOV/hispeed_freq
+					echo "$TARGET0" > /$CPUB/$GOV/target_loads
+					echo 20000 > /$CPUB/$GOV/timer_rate
+					echo 40000 > /$CPUB/$GOV/sleep_timer_rate
+					echo 0 > /$CPUB/$GOV/min_sample_time
+					echo 1 > /$CPUB/$GOV/ignore_hispeed_on_notif
+					echo 0 > /$CPUB/$GOV/max_freq_hysteresis
+					echo -1 > /$CPUB/$GOV/timer_slack
+					echo 0 > /$CPUB/$GOV/io_is_busy
+					echo 1 > /$CPUB/$GOV/boost
+					echo 0 > /$CPUB/$GOV/boostpulse_duration
+					echo 0 > /$CPUB/$GOV/fast_ramp_down
+					echo 1094400 > /$CPUB/scaling_max_freq
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		bef_gaming)
+			TARGET0="45 1248000:75"
+
+			for i in 0 1 2 3; do
+				CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			    if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUB/scaling_governor);
+					chmod 644 /$CPUB/$GOV/*
+					echo 1 > /$CPUB/$GOV/use_sched_load
+					echo 1 > /$CPUB/$GOV/use_migration_notif
+					echo 1 > /$CPUB/$GOV/enable_prediction
+					echo 0 > /$CPUB/$GOV/above_hispeed_delay
+					echo 85 > /$CPUB/$GOV/go_hispeed_load
+					echo 1344000 > /$CPUB/$GOV/hispeed_freq
+					echo "$TARGET0" > /$CPUB/$GOV/target_loads
+					echo 20000 > /$CPUB/$GOV/timer_rate
+					echo 40000 > /$CPUB/$GOV/sleep_timer_rate
+					echo 60000 > /$CPUB/$GOV/min_sample_time
+					echo 1 > /$CPUB/$GOV/ignore_hispeed_on_notif
+					echo 79000 > /$CPUB/$GOV/max_freq_hysteresis
+					echo 80000 > /$CPUB/$GOV/timer_slack
+					echo 0 > /$CPUB/$GOV/io_is_busy
+					echo 0 > /$CPUB/$GOV/boost
+					echo 0 > /$CPUB/$GOV/boostpulse_duration
+					echo 0 > /$CPUB/$GOV/fast_ramp_down
+					echo 1401000 > /$CPUB/scaling_max_freq
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		*)
+			cpu_b_interactive_profile=off;
+		;;
+	esac;
+fi;
+
+echo ${cpu_b_interactive_profile};

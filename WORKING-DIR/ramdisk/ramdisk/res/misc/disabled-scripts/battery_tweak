@@ -1,0 +1,18 @@
+#!/sbin/busybox sh
+
+# Created By Mostafa-z
+
+if [ "$(cat /sys/devices/battery/power_supply/battery/capacity)" -eq "100" ]; then
+
+		# battery-calibration if battery is full
+		BATTFULL=`cat /sys/devices/battery/power_supply/battery/status`;
+
+		if [ "$BATTFULL" == "Full" ]; then
+			rm -f /data/system/batterystats.bin;
+			echo "Battery-calibration done";
+		else
+			echo "No Charger Connected !!";
+		fi;
+else
+			echo "Battery-calibration Failed, Full Charge it Then Try Again";
+fi;

@@ -1,0 +1,31 @@
+#!/sbin/busybox sh
+
+# $1 - "default_cpu_l_gov"
+# $2 - value=
+# Created By Dorimanx
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	default_cpu_l_gov=$2;
+
+for i in 4 5 6 7; do
+	CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+	if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+		chmod 644 /$CPUL/scaling_governor
+		echo "$default_cpu_l_gov" > /$CPUL/scaling_governor;
+		chmod 444 /$CPUL/scaling_governor
+        break
+    fi;
+done;
+
+	if [ -e /res/uci_boot.sh ]; then
+		/res/uci_boot.sh power_mode $power_mode > /dev/null;
+	else
+		/res/uci.sh power_mode $power_mode > /dev/null;
+	fi;
+fi;
+
+echo ${default_cpu_l_gov};

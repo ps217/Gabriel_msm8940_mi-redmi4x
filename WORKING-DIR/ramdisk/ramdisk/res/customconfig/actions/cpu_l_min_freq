@@ -1,0 +1,20 @@
+#!/sbin/busybox sh
+
+# $1 - "cpu_l_min_freq"
+# $2 - value=
+# Created By Dorimanx
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "$cortexbrain_cpu" == "on" ]; then
+	if [ "a$2" != "a" ]; then
+		cpu_l_min_freq=$2;
+
+		echo "4:$cpu_l_min_freq 5:$cpu_l_min_freq 6:$cpu_l_min_freq 7:$cpu_l_min_freq" > /sys/module/msm_performance/parameters/cpu_min_freq
+
+	fi;
+fi;
+
+echo ${cpu_l_min_freq};

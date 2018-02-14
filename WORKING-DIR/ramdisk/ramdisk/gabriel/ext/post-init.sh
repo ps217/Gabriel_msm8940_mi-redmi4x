@@ -26,6 +26,14 @@ if [ ! -e /sbin/busybox ];then
 	$BB chmod 06755 /sbin/busybox;
 fi;
 
+$BB ln -sf /sbin/busybox /sbin/cp
+$BB ln -sf /sbin/busybox /sbin/grep
+$BB ln -sf /sbin/busybox /sbin/sed
+$BB ln -sf /sbin/busybox /sbin/mount
+$BB ln -sf /sbin/busybox /sbin/awk
+$BB ln -sf /sbin/busybox /sbin/sh
+$BB ln -sf /sbin/busybox /sbin/echo
+
 # some nice thing for dev
 if [ ! -e /cpufreq ]; then
 	$BB ln -s /sys/devices/system/cpu/cpu0/cpufreq/ /cpufreq_b;
@@ -89,124 +97,9 @@ done;
 
 SYSTEM_TUNING()
 {
-# Tune entropy parameters.
-echo "1024" > /proc/sys/kernel/random/read_wakeup_threshold;
-echo "128" > /proc/sys/kernel/random/write_wakeup_threshold;
-
-echo 0 > /sys/module/workqueue/parameters/power_efficient;
-echo 0 > /sys/module/msm_thermal/core_control/enabled;
-echo 1 > /cputemp/enabled;
-
-echo 8192 > /proc/sys/vm/min_free_kbytes
-echo 70 > /proc/sys/vm/swappiness
-echo 200 > /proc/sys/vm/dirty_expire_centisecs
-echo 500 > /proc/sys/vm/dirty_writeback_centisecs
-echo 90 > /proc/sys/vm/dirty_ratio
-echo 70 > /proc/sys/vm/dirty_background_ratio
-echo 10 > /proc/sys/vm/vfs_cache_pressure
-
-if [ $MEM_ALL -lt "2900000000" ];then
-	echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
-	echo "18432,23040,27648,51256,89600,115200" > /sys/module/lowmemorykiller/parameters/minfree
-	echo 128000 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
-else
-	echo 1 > /sys/module/lowmemorykiller/parameters/enable_adaptive_lmk
-	echo "18432,23040,27648,51256,150296,200640" > /sys/module/lowmemorykiller/parameters/minfree
-	echo 202640 > /sys/module/lowmemorykiller/parameters/vmpressure_file_min
-fi;
-
-echo 0 > /proc/sys/kernel/sched_boost
-echo 90 > /proc/sys/kernel/sched_downmigrate
-echo 95 > /proc/sys/kernel/sched_upmigrate
-echo 400000 > /proc/sys/kernel/sched_freq_inc_notify
-echo 400000 > /proc/sys/kernel/sched_freq_dec_notify
-echo 3 > /proc/sys/kernel/sched_spill_nr_run
-echo 100 > /proc/sys/kernel/sched_init_task_load
-
-echo 0 > /sys/devices/system/cpu/cpu0/sched_mostly_idle_freq
-echo 0 > /sys/devices/system/cpu/cpu4/sched_mostly_idle_freq
-
-# Little cluster
-echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_sched_load
-echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/use_migration_notif
-echo 10000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/above_hispeed_delay
-echo 80 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/go_hispeed_load
-echo 998400 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/hispeed_freq
-echo "80" > /sys/devices/system/cpu/cpu4/cpufreq/interactive/target_loads
-echo 20000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_rate
-echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/min_sample_time
-echo 1 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/ignore_hispeed_on_notif
-echo 99000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/max_freq_hysteresis
-echo 80000 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/timer_slack
-echo 0 > /sys/devices/system/cpu/cpu4/cpufreq/interactive/io_is_busy
-
-# big cluster
-echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_sched_load
-echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/use_migration_notif
-echo "20000 1094400:20000 1209600:20000 1401000:39000" > /sys/devices/system/cpu/cpu0/cpufreq/interactive/above_hispeed_delay
-echo 80 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/go_hispeed_load
-echo 1094400 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/hispeed_freq
-echo "80 1248000:90 1344000:80 1401000:95" > /sys/devices/system/cpu/cpu0/cpufreq/interactive/target_loads
-echo 20000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_rate
-echo 80000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/min_sample_time
-echo 1 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/ignore_hispeed_on_notif
-echo 99000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/max_freq_hysteresis
-echo 80000 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/timer_slack
-echo 0 > /sys/devices/system/cpu/cpu0/cpufreq/interactive/io_is_busy
-
-# kgsl tuning
-echo 'msm-adreno-tz' > /sys/class/kgsl/kgsl-3d0/devfreq/governor;
-echo 160000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
-echo 8 > /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel;
-echo 1 > /sys/module/adreno_idler/parameters/adreno_idler_active;
-echo 15 > /sys/module/adreno_idler/parameters/adreno_idler_idlewait;
-echo 40 > /sys/module/adreno_idler/parameters/adreno_idler_downdifferential;
-echo 5000 > /sys/module/adreno_idler/parameters/adreno_idler_idleworkload;
-
-# screen calibration
-if [ ! -e /init.miui.rc ];then
-	echo "237 235 255" > /sys/devices/platform/kcal_ctrl.0/kcal;
-	echo "255" > /sys/devices/platform/kcal_ctrl.0/kcal_cont;
-	echo "1515" > /sys/devices/platform/kcal_ctrl.0/kcal_hue;
-	echo "35" > /sys/devices/platform/kcal_ctrl.0/kcal_min;
-	echo "265" > /sys/devices/platform/kcal_ctrl.0/kcal_sat;
-	echo "253" > /sys/devices/platform/kcal_ctrl.0/kcal_val;
-fi;
-
-if [ -e /sys/module/cluster_plug/parameters/active ];then
-	echo "1" > /sys/module/cluster_plug/parameters/active;
-fi
-
-if [ -e /init.miui.rc ]; then
-	if [ -e /sys/android_touch/doubletap2wake ];then
-		echo "2" > /sys/android_touch/doubletap2wake;
-	fi;
-fi;
-
-if [ $MEM_ALL -lt "3000000000" ];then
-	if [ -e /dev/block/zram0 ]; then
-		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
-		echo "1" > /sys/block/zram0/reset;
-		echo "lz4" > /sys/block/zram0/comp_algorithm;
-		echo "1GB" > /sys/block/zram0/disksize;
-		$BB mkswap /dev/block/zram0 >/dev/null;
-		$BB swapon /dev/block/zram0;
-	fi;
-fi;
-
-# disable block iostats/rotational and set io-scheduler
-for i in /sys/block/*/queue; do
-	echo 0 > $i/iostats
-	echo 0 > $i/rotational
-	echo zen > $i/scheduler
-	echo 2048 > $i/read_ahead_kb
-done;
+echo 1 > /sys/module/msm_thermal/core_control/enabled;
+echo 0 > /cputemp/enabled;
 }
-
-# start CORTEX by tree root, so it's will not be terminated.
-if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
-	nohup sh /gabriel/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
-fi;
 
 OPEN_RW;
 
@@ -220,25 +113,86 @@ fi;
 
 SYSTEM_TUNING;
 
-$BB nohup $BB run-parts /system/etc/init.d/ > /data/.gabriel/init.d.txt &
+# reset profiles auto trigger to be used by kernel ADMIN, in case of need, if new value added in default profiles
+# just set numer $RESET_MAGIC + 1 and profiles will be reset one time on next boot with new kernel.
+# incase that ADMIN feel that something wrong with global STweaks config and profiles, then ADMIN can add +1 to CLEAN_gabriel_DIR
+# to clean all files on first boot from /data/.gabriel/ folder.
+RESET_MAGIC=3;
+CLEAN_gabriel_DIR=1;
 
-if [ -e /system/etc/init.d/99SuperSUDaemon ]; then
-	$BB nohup $BB sh /system/etc/init.d/99SuperSUDaemon > /data/.gabriel/root.txt &
+if [ ! -e /data/.gabriel/reset_profiles ]; then
+	echo "$RESET_MAGIC" > /data/.gabriel/reset_profiles;
+fi;
+if [ ! -e /data/reset_gabriel_dir ]; then
+	echo "$CLEAN_gabriel_DIR" > /data/reset_gabriel_dir;
+fi;
+if [ -e /data/.gabriel/.active.profile ]; then
+	PROFILE=$(cat /data/.gabriel/.active.profile);
 else
-	echo "no root script in init.d";
+	echo "default" > /data/.gabriel/.active.profile;
+	PROFILE=$(cat /data/.gabriel/.active.profile);
+fi;
+if [ "$(cat /data/reset_gabriel_dir)" -eq "$CLEAN_gabriel_DIR" ]; then
+	if [ "$(cat /data/.gabriel/reset_profiles)" != "$RESET_MAGIC" ]; then
+		if [ ! -e /data/.gabriel_old ]; then
+			mkdir /data/.gabriel_old;
+		fi;
+		cp -a /data/.gabriel/*.profile /data/.gabriel_old/;
+		$BB rm -f /data/.gabriel/*.profile;
+		if [ -e /data/data/com.af.synapse/databases ]; then
+			$BB rm -R /data/data/com.af.synapse/databases;
+		fi;
+		echo "$RESET_MAGIC" > /data/.gabriel/reset_profiles;
+	else
+		echo "no need to reset profiles or delete .gabriel folder";
+	fi;
+else
+	# Clean /data/.gabriel/ folder from all files to fix any mess but do it in smart way.
+	if [ -e /data/.gabriel/"$PROFILE".profile ]; then
+		cp /data/.gabriel/"$PROFILE".profile /sdcard/"$PROFILE".profile_backup;
+	fi;
+	if [ ! -e /data/.gabriel_old ]; then
+		mkdir /data/.gabriel_old;
+	fi;
+	cp -a /data/.gabriel/* /data/.gabriel_old/;
+	$BB rm -f /data/.gabriel/*
+	if [ -e /data/data/com.af.synapse/databases ]; then
+		$BB rm -R /data/data/com.af.synapse/databases;
+	fi;
+	echo "$CLEAN_gabriel_DIR" > /data/reset_gabriel_dir;
+	echo "$RESET_MAGIC" > /data/.gabriel/reset_profiles;
+	echo "$PROFILE" > /data/.gabriel/.active.profile;
 fi;
 
 # Fix critical perms again after init.d mess
 CRITICAL_PERM_FIX;
+
+[ ! -f /data/.gabriel/default.profile ] && cp -a /res/customconfig/default.profile /data/.gabriel/default.profile;
+[ ! -f /data/.gabriel/battery.profile ] && cp -a /res/customconfig/battery.profile /data/.gabriel/battery.profile;
+[ ! -f /data/.gabriel/extreme_battery.profile ] && cp -a /res/customconfig/extreme_battery.profile /data/.gabriel/extreme_battery.profile;
+[ ! -f /data/.gabriel/performance.profile ] && cp -a /res/customconfig/performance.profile /data/.gabriel/performance.profile;
+[ ! -f /data/.gabriel/gaming.profile ] && cp -a /res/customconfig/gaming.profile /data/.gabriel/gaming.profile;
+
+$BB chmod -R 0777 /data/.gabriel/;
+
+. /res/customconfig/customconfig-helper;
+read_defaults;
+read_config;
+
+# start CORTEX by tree root, so it's will not be terminated.
+sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=1/g" /gabriel/ext/cortexbrain-tune.sh;
+if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
+	nohup sh /gabriel/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
+fi;
 
 if [ "$(cat /system/build.prop | grep "ro.build.version.release" | cut -c 26)" -eq "7" ]; then
 	echo 1 > /sys/fs/selinux/enforce;
 fi;
 
 # Fix titanium backup root access
-if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
-	\cp /sbin/su /system/xbin/su;
-fi;
+#if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
+#	\cp /sbin/su /system/xbin/su;
+#fi;
 
 # Fentropy enForcer
 # Thanks to ArjunrambZ (TweakDrypT)
@@ -258,9 +212,48 @@ DEBUG=/data/.gabriel/;
 BUSYBOX_VER=$(busybox | grep "BusyBox v" | cut -c0-15);
 echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 
+if [ "$stweaks_boot_control" == "yes" ]; then
+	# apply Synapse monitor
+	$BB sh /res/synapse/uci reset;
+	# apply Gabriel settings
+	$BB sh /res/uci_boot.sh apply;
+	$BB mv /res/uci_boot.sh /res/uci.sh;
+else
+	$BB mv /res/uci_boot.sh /res/uci.sh;
+fi;
+
+OPEN_RW;
+
+# set system tuning.
+SYSTEM_TUNING;
+
+# Start any init.d scripts that may be present in the rom or added by the user
+$BB chmod -R 755 /system/etc/init.d/;
+if [ "$init_d" == "on" ]; then
+	(
+		$BB nohup $BB run-parts /system/etc/init.d/ > /data/.gabriel/init.d.txt &
+	)&
+else
+	if [ -e /system/etc/init.d/99SuperSUDaemon ]; then
+		$BB nohup $BB sh /system/etc/init.d/99SuperSUDaemon > /data/.gabriel/root.txt &
+	else
+		echo "no root script in init.d";
+	fi;
+fi;
+
+OPEN_RW;
+
+# Fix critical perms again after init.d mess
+CRITICAL_PERM_FIX;
+
 (
 	sleep 10;
 
+	# get values from profile
+	PROFILE=$(cat /data/.gabriel/.active.profile);
+	. /data/.gabriel/"$PROFILE".profile;
+
+if [ "$stweaks_boot_control" == "no" ]; then
 	for i in cpu0 cpu1 cpu2 cpu3; do
 	echo 1401000 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
 	echo 960000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
@@ -270,6 +263,7 @@ echo "$BUSYBOX_VER" > $DEBUG/busybox_ver;
 	echo 1094400 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
 	echo 768000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
 	done;
+fi;
 
 	# script finish here, so let me know when
 	TIME_NOW=$(date)

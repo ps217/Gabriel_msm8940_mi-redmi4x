@@ -1,0 +1,92 @@
+#!/sbin/busybox sh
+
+# $1 - "cpu_zzmoove_profile"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/sbin/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	cpu_zzmoove_profile=$2;
+
+	case "${cpu_zzmoove_profile}" in
+		cus)
+			echo 0 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+		;;
+		def)
+			echo 1 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		ybat)
+			echo 2 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		ybatext)
+			echo 3 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzbat)
+			echo 4 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzbatp)
+			echo 5 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzopt)
+			echo 6 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzmod)
+			echo 7 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzperf)
+			echo 8 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzinz)
+			echo 9 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzgame)
+			echo 10 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		zzrelax)
+			echo 11 > /sys/devices/system/cpu/cpufreq/zzmoove/profile_number;
+			sleep 2;
+			echo "$min_online_cpus" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_min_limit;
+			echo "$eco_mode" > /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_max_limit;
+		;;
+		*)
+			cpu_zzmoove_profile=cus;
+		;;
+	esac;
+fi;
+
+echo ${cpu_zzmoove_profile};
