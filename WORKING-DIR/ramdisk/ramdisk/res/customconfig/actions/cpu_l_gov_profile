@@ -1,0 +1,144 @@
+#!/sbin/busybox sh
+
+# $1 - "cpu_l_gov_profile"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/sbin/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	cpu_l_gov_profile=$2;
+
+	case "${cpu_l_gov_profile}" in
+		off)
+			$BB sleep 0.5s
+			$BB sync
+		;;
+		relaxed_default)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 12 > /$CPUL/$GOV/boost_ceiling
+					echo 8 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 35 > /$CPUL/$GOV/down_threshold
+					echo 45 > /$CPUL/$GOV/down_threshold_suspended
+					echo 5 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 85 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		chill_default)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 8 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 35 > /$CPUL/$GOV/down_threshold
+					echo 45 > /$CPUL/$GOV/down_threshold_suspended
+					echo 5 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 85 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		relaxed_balance)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 10 > /$CPUL/$GOV/boost_ceiling
+					echo 5 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 60 > /$CPUL/$GOV/down_threshold
+					echo 85 > /$CPUL/$GOV/down_threshold_suspended
+					echo 6 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 70 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		chill_balance)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 10 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 75 > /$CPUL/$GOV/down_threshold
+					echo 99 > /$CPUL/$GOV/down_threshold_suspended
+					echo 4 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 90 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		relaxed_battery)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 12 > /$CPUL/$GOV/boost_ceiling
+					echo 6 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 70 > /$CPUL/$GOV/down_threshold
+					echo 85 > /$CPUL/$GOV/down_threshold_suspended
+					echo 6 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 75 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		chill_battery)
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+				if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 12 > /$CPUL/$GOV/boost_count
+					echo 1 > /$CPUL/$GOV/boost_enabled
+					echo 75 > /$CPUL/$GOV/down_threshold
+					echo 99 > /$CPUL/$GOV/down_threshold_suspended
+					echo 4 > /$CPUL/$GOV/freq_step
+					echo 0 > /$CPUL/$GOV/ignore_nice_load
+					echo 90 > /$CPUL/$GOV/up_threshold
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
+		*)
+			cpu_l_gov_profile=off;
+		;;
+	esac;
+fi;
+
+echo ${cpu_l_gov_profile};

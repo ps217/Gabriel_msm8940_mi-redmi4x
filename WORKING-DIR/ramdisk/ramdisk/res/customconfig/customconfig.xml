@@ -152,6 +152,32 @@
 
 	</settingsPane>
 
+	<settingsPane description="Set the profile for custom governors. Set here if you chosen same cpu governor in CPU Active Governor section." name="Custom CPU Governor Profile">
+
+		<spinner description="Select the little cluster Profile." name="little cluster Interactive Profile"
+			action="cpu_l_gov_profile">
+			<spinnerItem name="OFF" value="off"/>
+			<spinnerItem name="Relaxed Default" value="relaxed_default"/>
+			<spinnerItem name="Relaxed Balance" value="relaxed_balance"/>
+			<spinnerItem name="Relaxed Battery" value="relaxed_battery"/>
+			<spinnerItem name="Chill Default" value="chill_default"/>
+			<spinnerItem name="Chill Balance" value="chill_balance"/>
+			<spinnerItem name="Chill Battery" value="chill_battery"/>
+		</spinner>
+
+		<spinner description="Select the big cluster Profile." name="big cluster Interactive Profile"
+			action="cpu_b_gov_profile">
+			<spinnerItem name="OFF" value="off"/>
+			<spinnerItem name="Relaxed Default" value="relaxed_default"/>
+			<spinnerItem name="Relaxed Balance" value="relaxed_balance"/>
+			<spinnerItem name="Relaxed Battery" value="relaxed_battery"/>
+			<spinnerItem name="Chill Default" value="chill_default"/>
+			<spinnerItem name="Chill Balance" value="chill_balance"/>
+			<spinnerItem name="Chill Battery" value="chill_battery"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Customize the CPU Power Saving settings." name="CPU Power Controls">
 
 		<seekBar description="Select big cluster CPU Governor Sample Rate which works in Power Save mode. The lower the value, the faster response you'll get, but quicker battery will be discharging (Default: 20000)." name="Big Cluster CPU Governor Sample Rate"
