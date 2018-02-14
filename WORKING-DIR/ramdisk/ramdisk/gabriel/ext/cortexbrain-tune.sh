@@ -107,6 +107,26 @@ fi;
 }
 MEMORY_TWEAKS;
 
+# ==============================================================
+# FIREWALL-TWEAKS
+# ==============================================================
+FIREWALL_TWEAKS()
+{
+	if [ "$cortexbrain_firewall" == "on" ]; then
+		# ping/icmp protection
+		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts; # 1
+		echo "1" > /proc/sys/net/ipv4/icmp_echo_ignore_all; # 0
+		echo "1" > /proc/sys/net/ipv4/icmp_ignore_bogus_error_responses; # 1
+
+		log -p i -t $FILE_NAME "*** FIREWALL_TWEAKS ***: enabled";
+
+		return 1;
+	else
+		return 0;
+	fi;
+}
+FIREWALL_TWEAKS;
+
 CPU_CENTRAL_CONTROL()
 {
 	local state="$1";

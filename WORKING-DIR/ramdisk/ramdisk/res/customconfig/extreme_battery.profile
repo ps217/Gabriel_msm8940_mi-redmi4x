@@ -65,3 +65,4 @@ cortexbrain_background_process=1
 cortexbrain_memory=on
 cortexbrain_kernel_tweaks=on
 cortexbrain_io=on
+cortexbrain_firewall=on
