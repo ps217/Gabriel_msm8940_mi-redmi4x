@@ -210,30 +210,43 @@ WIFI_SET()
 	log -p i -t $FILE_NAME "*** WIFI ***: $state";
 }
 
+WIFI_STATE()
+{
+	WIFI_STATE_CHECK=0;
+	local WLAN0_STATE=`$BB ifconfig | grep wlan0 | wc -l`;
+
+	if [ $WLAN0_STATE -eq "1" ]; then
+		WIFI_STATE_CHECK=1;
+	fi;
+}
+
 WIFI()
 {
 	local state="$1";
 
 	if [ "$state" == "sleep" ]; then
-		if [ "$cortexbrain_auto_tweak_wifi" == "on" ]; then
-			if [ "$cortexbrain_auto_tweak_wifi_sleep_delay" -eq "0" ]; then
-				WIFI_SET "off";
-			else
-				(
-					echo "0" > $WIFI_HELPER_TMP;
-					# screen time out but user want to keep it on and have wifi
-					sleep 10;
-					if [ `cat $WIFI_HELPER_TMP` -eq "0" ]; then
-						# user did not turned screen on, so keep waiting
-						local SLEEP_TIME_WIFI=$(( $cortexbrain_auto_tweak_wifi_sleep_delay - 10 ));
-						log -p i -t $FILE_NAME "*** DISABLE_WIFI $cortexbrain_auto_tweak_wifi_sleep_delay Sec Delay Mode ***";
-						sleep $SLEEP_TIME_WIFI;
+		WIFI_STATE;
+		if [ "$WIFI_STATE_CHECK" -eq "1" ]; then
+			if [ "$cortexbrain_auto_tweak_wifi" == "on" ]; then
+				if [ "$cortexbrain_auto_tweak_wifi_sleep_delay" -eq "0" ]; then
+					WIFI_SET "off";
+				else
+					(
+						echo "0" > $WIFI_HELPER_TMP;
+						# screen time out but user want to keep it on and have wifi
+						sleep 10;
 						if [ `cat $WIFI_HELPER_TMP` -eq "0" ]; then
-							# user left the screen off, then disable wifi
-							WIFI_SET "off";
+							# user did not turned screen on, so keep waiting
+							local SLEEP_TIME_WIFI=$(( $cortexbrain_auto_tweak_wifi_sleep_delay - 10 ));
+							log -p i -t $FILE_NAME "*** DISABLE_WIFI $cortexbrain_auto_tweak_wifi_sleep_delay Sec Delay Mode ***";
+							sleep $SLEEP_TIME_WIFI;
+							if [ `cat $WIFI_HELPER_TMP` -eq "0" ]; then
+								# user left the screen off, then disable wifi
+								WIFI_SET "off";
+							fi;
 						fi;
-					fi;
-				)&
+					)&
+				fi;
 			fi;
 		else
 			echo "0" > $WIFI_HELPER_AWAKE;
@@ -243,6 +256,9 @@ WIFI()
 			echo "1" > $WIFI_HELPER_TMP;
 			if [ `cat $WIFI_HELPER_AWAKE` -eq "1" ]; then
 				WIFI_SET "on";
+					if [ `cat $MOBILE_HELPER_AWAKE` -eq "0" ] && [ `cat $DATA_STATE_CHECK` -eq "0" ]; then
+						MOBILE_DATA_SET "off";
+					fi;
 			fi;
 		fi;
 	fi;
