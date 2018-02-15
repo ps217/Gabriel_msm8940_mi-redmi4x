@@ -1,0 +1,31 @@
+#!/sbin/busybox sh
+
+# $1 - "f2fs_readdir"
+# $2 - value=
+# Created By Dorimanx
+
+if [ "a$2" != "a" ]; then
+	f2fs_readdir=$2;
+
+case "${f2fs_readdir}" in
+	enable)
+		for f in /sys/fs/f2fs/mmcblk*; do
+			if [ -e $f/readdir_ra ]; then
+				echo 1 > $f/readdir_ra;
+			fi;
+		done;
+	;;
+	disable)
+		for f in /sys/fs/f2fs/mmcblk*; do
+			if [ -e $f/readdir_ra ]; then
+				echo 0 > $f/readdir_ra;
+			fi;
+		done;
+	;;
+	*)
+		f2fs_readdir=disable;
+	;;
+	esac;
+fi;
+
+echo ${f2fs_readdir};

@@ -37,6 +37,7 @@ scheduler=noop
 scheduler_int_sleep=noop
 scheduler_ext_awake=noop
 scheduler_ext_sleep=noop
+f2fs_readdir=disable
 enable_adaptive_lmk=off
 vm_pressure_adaptive_start=85
 vmpressure_file_min=68

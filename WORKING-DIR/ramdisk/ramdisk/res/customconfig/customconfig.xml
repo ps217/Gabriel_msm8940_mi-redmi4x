@@ -447,6 +447,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="Set the f2fs tuning parameters if you use this file system." name="F2FS Tuning">
+
+		<spinner description="Control readaheading inode block in read directory. Improves the performance of readdir + stat with much number of files. (Default: Disable)" name="readaheading inode block in readdir"
+			action="f2fs_readdir">
+			<spinnerItem name="Disable" value="disable"/>
+			<spinnerItem name="Enable" value="enable"/>
+		</spinner>
+
+	</settingsPane>
+
 </settingsTab>
 
 <settingsTab name="Memory">
