@@ -54,6 +54,7 @@ overcommit_ratio=50
 min_free_kbytes=8192
 vfs_cache_pressure=500
 oom_kill_allocating_task=off
+swaptweaks=0
 zramtweaks=1024
 swappiness=70
 run=0
