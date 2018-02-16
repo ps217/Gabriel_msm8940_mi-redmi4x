@@ -103,6 +103,11 @@ echo 0 > /cputemp/enabled;
 
 OPEN_RW;
 
+for f in /sys/class/devfreq/soc*; do
+	DEVFREQ=`echo "$f" | awk -F/ '{print $NF}'`;
+	echo "$(cat $f/governor)" > /cache/$DEVFREQ
+done;
+
 if [ ! -d /data/.gabriel ]; then
 	$BB mkdir -p /data/.gabriel;
 fi;

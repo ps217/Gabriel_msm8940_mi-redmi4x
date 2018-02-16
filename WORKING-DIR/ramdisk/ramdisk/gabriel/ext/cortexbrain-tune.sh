@@ -173,6 +173,23 @@ ENTROPY()
 }
 
 # ==============================================================
+# CLOCK-FREQUENCY-SCALE
+# ==============================================================
+
+CLOCK_FREQ_SCALE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh devfreq_soc_gov $devfreq_soc_gov
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh devfreq_soc_gov $devfreq_soc_gov_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** CLOCK-FREQUENCY-SCALE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -429,6 +446,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	ENTROPY "awake";
 	IO_SCHEDULER "awake";
+	CLOCK_FREQ_SCALE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -471,6 +489,7 @@ SLEEP_MODE()
 
 	ENTROPY "sleep";
 	IO_SCHEDULER "sleep";
+	CLOCK_FREQ_SCALE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";

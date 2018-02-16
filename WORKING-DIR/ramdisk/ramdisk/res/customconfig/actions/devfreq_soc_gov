@@ -1,0 +1,47 @@
+#!/sbin/busybox sh
+
+# $1 - "devfreq_soc_gov"
+# $2 - value=
+
+if [ "a$2" != "a" ]; then
+	devfreq_soc_gov=$2;
+
+case "${devfreq_soc_gov}" in
+	default)
+		for f in /sys/class/devfreq/soc*; do
+			DEVFREQ=`echo "$f" | awk -F/ '{print $NF}'`;
+			RESTORE="$(cat /cache/$DEVFREQ)";
+			if [ -e $f/governor ]; then
+				echo $RESTORE > $f/governor;
+			fi;
+		done;
+	;;
+	power)
+		for f in /sys/class/devfreq/soc*; do
+			DEVFREQ=`echo "$f" | awk -F/ '{print $NF}'`;
+			if [ ! -e /cache/$DEVFREQ ]; then
+				echo "$(cat $f/governor)" > /cache/$DEVFREQ
+			fi;
+			if [ -e $f/governor ]; then
+				echo "powersave" > $f/governor;
+			fi;
+		done;
+	;;
+	turbo)
+		for f in /sys/class/devfreq/soc*; do
+			DEVFREQ=`echo "$f" | awk -F/ '{print $NF}'`;
+			if [ ! -e /cache/$DEVFREQ ]; then
+				echo "$(cat $f/governor)" > /cache/$DEVFREQ
+			fi;
+			if [ -e $f/governor ]; then
+				echo "performance" > $f/governor;
+			fi;
+		done;
+	;;
+	*)
+		devfreq_soc_gov=default;
+	;;
+	esac;
+fi;
+
+echo ${devfreq_soc_gov};

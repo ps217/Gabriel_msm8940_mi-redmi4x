@@ -88,6 +88,25 @@
 
 	</settingsPane>
 
+	<settingsPane description="Set Power Policy to allows devfreq governors to scale the frequency of a device clock. it can scale any devfreq device based on the current policy. It can be the Reason of HEAT-UP and Core Throttle with Performance Based Policies." name="Clock Frequency Scale Policy">
+
+		<spinner description="Select a Policy. Default means Kernel Stock Parameters." name="Clock Frequency Scale Policy"
+			action="devfreq_soc_gov">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Power" value="power"/>
+			<spinnerItem name="Turbo" value="turbo"/>
+		</spinner>
+
+		<spinner description="Select a Policy for Screen OFF state." name="Suspend Clock Frequency Scale Policy"
+			action="generic_cortex /tmp/devfreq_soc_gov_suspend">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Power" value="power"/>
+			<spinnerItem name="Turbo" value="turbo"/>
+		</spinner>
+
+	</settingsPane>
+
+
 </settingsTab>
 
 <settingsTab name="CPU Tuning">
