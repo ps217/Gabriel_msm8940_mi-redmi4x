@@ -1,4 +1,4 @@
-/* Copyright (c) 2013-2016, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2013-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -185,7 +185,10 @@ static long ipa3_wan_ioctl(struct file *filp,
 		if (rmnet_ipa3_set_data_quota(
 		(struct wan_ioctl_set_data_quota *)param)) {
 			IPAWANERR("WAN_IOC_SET_DATA_QUOTA failed\n");
-			retval = -EFAULT;
+			if (rc == -ENODEV)
+				retval = -ENODEV;
+			else
+				retval = -EFAULT;
 			break;
 		}
 		if (copy_to_user((u8 *)arg, param, pyld_sz)) {
