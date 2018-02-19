@@ -124,9 +124,9 @@ case "${config_backup_restore}" in
 	;;
 	7)
 		(
-			$BB cp -a /res/customconfig/gaming.profile /data/.gabriel/;
-			echo "gaming" > /data/.gabriel/.active.profile;
-			echo "Restoring gaming config file, wait until app reloads.";
+			$BB cp -a /res/customconfig/extreme_performance.profile /data/.gabriel/;
+			echo "extreme_performance" > /data/.gabriel/.active.profile;
+			echo "Restoring extreme performance config file, wait until app reloads.";
 			$BB sh /res/uci.sh apply > /dev/null;
 			RELOAD_STWEAKS;
 		)&

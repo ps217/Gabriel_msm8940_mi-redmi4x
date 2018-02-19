@@ -733,7 +733,7 @@
 
 		<button description="Performance" name="Performance Profile" action="push-actions/config_backup_restore 6" label="Performance"/>
 
-		<button description="Gaming" name="gaming Profile" action="push-actions/config_backup_restore 7" label="Gaming"/>
+		<button description="Extreme Performance" name="extreme performance Profile" action="push-actions/config_backup_restore 7" label="Extreme Performance"/>
 
 	</settingsPane>
 
