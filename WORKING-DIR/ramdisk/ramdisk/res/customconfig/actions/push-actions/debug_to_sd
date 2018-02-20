@@ -14,7 +14,7 @@ DEBUG_FILE="/sdcard/gabriel_debug.txt";
 DEBUG_FILE_ZIP="/sdcard/gabriel_debug";
 DEBUG_FILE_USELESS_ZIP="/sdcard/gabriel_useless_debug";
 DEBUG_FILE_LOGCAT="/sdcard/gabriel_debug_logcat.txt"
-KERNEL_VER=$(uname -r | cut -c 24-29);
+KERNEL_VER=$(uname -r | cut -c 16-18);
 ACTIVE_DEBUG_FILE="/sdcard/gabriel_active_debug.txt";
 ACTIVE_DEBUG_FILE_ZIP="/sdcard/gabriel_active_debug";
 
