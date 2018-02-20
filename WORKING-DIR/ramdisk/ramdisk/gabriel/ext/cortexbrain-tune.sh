@@ -190,6 +190,23 @@ CLOCK_FREQ_SCALE()
 }
 
 # ==============================================================
+# BCL-STATE
+# ==============================================================
+
+BCL_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh bcl $bcl
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh bcl $bcl_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** BATTERY-CURRENT-LIMIT ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -431,6 +448,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	ENTROPY "awake";
 	IO_SCHEDULER "awake";
 	CLOCK_FREQ_SCALE "awake";
+	BCL_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -474,6 +492,7 @@ SLEEP_MODE()
 	ENTROPY "sleep";
 	IO_SCHEDULER "sleep";
 	CLOCK_FREQ_SCALE "sleep";
+	BCL_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";

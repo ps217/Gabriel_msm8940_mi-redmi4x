@@ -5,6 +5,7 @@ entropy_awake=low
 entropy_sleep=low
 allow_suspend=1
 bcl=enable
+bcl_suspend=enable
 devfreq_soc_gov=default
 devfreq_soc_gov_suspend=default
 default_cpu_l_gov=interactive
