@@ -103,6 +103,14 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
   mount -o ro,remount -t auto /system;
 fi;
 
+if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.system)" == 1 ]; then
+  ui_print " ";
+  ui_print "Pushing system...";
+  mount -o rw,remount -t auto /system;
+  $bb cp -rLf /tmp/anykernel/ramdisk/system/* $root/system/;
+  mount -o ro,remount -t auto /system;
+fi;
+
 debugging;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then

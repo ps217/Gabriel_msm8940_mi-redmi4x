@@ -7,6 +7,7 @@ properties() {
 kernel.string=Gabriel Kernel by mostafaz @ xda-developers
 do.devicecheck=1
 do.modules=1
+do.system=1
 do.cleanup=1
 do.cleanuponabort=1
 device.name1=santoni
