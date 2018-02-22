@@ -295,6 +295,8 @@
 			<spinnerItem name="Battery" value="battery"/>
 			<spinnerItem name="Performance" value="performance"/>
 			<spinnerItem name="Gaming" value="gaming"/>
+			<spinnerItem name="Stock" value="stock"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
 		</spinner>
 
 	</settingsPane>
