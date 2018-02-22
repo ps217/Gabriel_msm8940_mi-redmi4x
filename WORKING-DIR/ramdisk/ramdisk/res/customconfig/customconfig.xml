@@ -164,6 +164,7 @@
 			<spinnerItem name="XANAX Battery Extreme" value="xanax_battery_extreme"/>
 			<spinnerItem name="NLB Performance" value="nlb_performance"/>
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
 		</spinner>
 
 		<spinner description="Select the big cluster Profile." name="big cluster Interactive Profile"
@@ -173,6 +174,7 @@
 			<spinnerItem name="XANAX Battery Extreme" value="xanax_battery_extreme"/>
 			<spinnerItem name="NLB Performance" value="nlb_performance"/>
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
 		</spinner>
 
 	</settingsPane>
