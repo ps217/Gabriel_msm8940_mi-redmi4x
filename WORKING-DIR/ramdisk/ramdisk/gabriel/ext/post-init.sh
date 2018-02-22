@@ -34,6 +34,11 @@ $BB ln -sf /sbin/busybox /sbin/awk
 $BB ln -sf /sbin/busybox /sbin/sh
 $BB ln -sf /sbin/busybox /sbin/echo
 
+if [ ! -e /cache/sound_l ] || [ ! -e /cache/sound_r ]; then
+	touch /cache/sound_l;
+	touch /cache/sound_r;
+fi;
+
 # some nice thing for dev
 if [ ! -e /cpufreq ]; then
 	$BB ln -s /sys/devices/system/cpu/cpu0/cpufreq/ /cpufreq_b;

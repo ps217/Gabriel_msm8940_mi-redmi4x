@@ -1,0 +1,9 @@
+#!/sbin/busybox sh
+
+	LEFT=`cat /cache/sound_l`;
+	RIGHT=`cat /cache/sound_r`;
+
+	sleep 0.5;
+	echo "$LEFT"" ""$RIGHT" > /sys/kernel/sound_control/headphone_gain;
+
+echo done;
