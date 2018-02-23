@@ -307,6 +307,55 @@
 
 </settingsTab>
 
+<settingsTab name="CORE CONTROL">
+
+	<settingsPane description="Set the Core Control Parameters for Screen ON state. Kernel Scheduler will manage online cores for idle and workload state if you put it to Maximum. Maximum online core is 8 and Minimum is 1." name="Awake Core Control Tuning">
+
+		<spinner description="Set how many cores can be online for Little Cluster. (Default : 4)" name="Little Cluster Core Control"
+			action="core_ctrl_l">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<spinner description="Set how many cores can be online for Big Cluster. (Default : 4)" name="Big Cluster Core Control"
+			action="core_ctrl_b">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+	</settingsPane>
+
+	<settingsPane description="Set the Core Control Parameters for Screen OFF state." name="Suspend Core Control Tuning">
+
+		<spinner description="Set how many cores can be online for Little Cluster." name="Little Cluster Core Control"
+			action="generic_cortex /tmp/core_ctrl_l_suspend">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<spinner description="Set how many cores can be online for Big Cluster." name="Big Cluster Core Control"
+			action="generic_cortex /tmp/core_ctrl_b_suspend">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+	</settingsPane>
+
+
+</settingsTab>
+
 <settingsTab name="GPU CORE">
 
 	<settingsPane description="Select the GPU Governor. After doing some changes, hit button to update GPU Governor." name="GPU Governors And Settings">

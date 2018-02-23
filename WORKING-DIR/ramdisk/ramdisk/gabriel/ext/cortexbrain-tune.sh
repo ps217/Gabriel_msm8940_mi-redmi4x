@@ -207,6 +207,25 @@ BCL_STATE()
 }
 
 # ==============================================================
+# CORE-CONTROL-STATE
+# ==============================================================
+
+CORE_CTRL_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh core_ctrl_l $core_ctrl_l
+		/res/uci.sh core_ctrl_b $core_ctrl_b
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh core_ctrl_l $core_ctrl_l_suspend
+		/res/uci.sh core_ctrl_b $core_ctrl_b_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** CORE-CONTROL-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -437,8 +456,6 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	echo "$(cat /cache/fsync_enabled)" > /sys/module/sync/parameters/fsync_enabled;
 
-	echo "$(cat /cache/lc_corectl_state)" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-
 	if [ "$run" == "on" ]; then
 		echo "1" > /sys/kernel/mm/uksm/run # to be enable if sleep state was off.
 		echo "$uksm_gov_on" > /sys/kernel/mm/uksm/cpu_governor
@@ -449,6 +466,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	IO_SCHEDULER "awake";
 	CLOCK_FREQ_SCALE "awake";
 	BCL_STATE "awake";
+	CORE_CTRL_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -479,9 +497,6 @@ SLEEP_MODE()
 	echo "$(cat /sys/module/sync/parameters/fsync_enabled)" > /cache/fsync_enabled;
 	echo "1" > /sys/module/sync/parameters/fsync_enabled;
 
-	echo "$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)" > /cache/lc_corectl_state;
-	echo "2" > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-
 	if [ "$run" == "on" ] && [ "$uksm_sleep" == "on" ]; then
 		echo "$uksm_gov_sleep" > /sys/kernel/mm/uksm/cpu_governor
 		echo "$max_cpu_percentage_sleep" > /sys/kernel/mm/uksm/max_cpu_percentage
@@ -493,6 +508,7 @@ SLEEP_MODE()
 	IO_SCHEDULER "sleep";
 	CLOCK_FREQ_SCALE "sleep";
 	BCL_STATE "sleep";
+	CORE_CTRL_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";
