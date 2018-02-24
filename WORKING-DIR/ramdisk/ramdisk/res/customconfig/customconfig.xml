@@ -363,6 +363,7 @@
 		<spinner description="Select GPU Governor that will control GPU frequency. If selected Performance governor, then the GPU will be at Max frequency all the time (Default: MSM Adreno)." name="GPU Active Governor"
 			action="gpu_governor">
 			<spinnerItem name="MSM Adreno" value="msm-adreno-tz"/> 
+			<spinnerItem name="Simple Ondemand" value="simple_ondemand"/>
 			<spinnerItem name="Power Save" value="powersave"/> 
 			<spinnerItem name="Performance" value="performance"/> 
 		</spinner>
