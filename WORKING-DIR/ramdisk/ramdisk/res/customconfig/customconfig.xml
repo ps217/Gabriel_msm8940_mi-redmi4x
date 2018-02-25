@@ -648,8 +648,11 @@
 			<spinnerItem name="Enable" value="1"/>
 		</spinner>
 
-		<checkbox description="By enabling this option UKSM continue working in sleep mode and Disabling means it will stop working during sleep mode and back to work if UKSM Awake Switch has been enabled. Depends on Cortexbrain and Awake Switch !!" name="Ultra Kernel Samepage Merging"
-			action="generic_cortex /tmp/uksm_sleep" label="UKSM Sleep Switch"/>
+		<spinner description="By enabling this option UKSM continue or start working in sleep mode and Disabling means it will stop working during sleep mode and back to work if UKSM Awake Switch has been enabled. Depends on Cortexbrain." name="Suspend Ultra Kernel Samepage Merging"
+			action="generic_cortex /tmp/uksm_sleep">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
 
 		<spinner description="UKSM CPU Governor Power when screen is ON. You can set high or low operational power for scanning and sharing memory across apps (Default: Medium Power)." name="UKSM CPU AWAKE GOVERNOR"
 			action="uksm_gov_on">
@@ -659,7 +662,7 @@
 			<spinnerItem name="No Power (idle)" value="quiet"/> 
 		</spinner>
 
-		<spinner description="UKSM CPU Governor Power when screen is OFF. You can set high or low operational power for scanning and sharing memory across apps (Default: No Power)." name="UKSM CPU SLEEP GOVERNOR"
+		<spinner description="UKSM CPU Governor Power when screen is OFF. You can set high or low operational power for scanning and sharing memory across apps (Default: No Power)." name="Suspend UKSM CPU GOVERNOR"
 			action="generic_cortex /tmp/uksm_gov_sleep">
 			<spinnerItem name="Full Power" value="full"/> 
 			<spinnerItem name="Medium Power" value="medium"/> 
@@ -673,7 +676,7 @@
 		<seekBar description="Max CPU Usage when merging pages (Default: 10%)." name="UKSM Max CPU Usage"
 			action="generic /sys/kernel/mm/uksm/max_cpu_percentage" unit="%" min="0" reversed="false" step="1" max="100"/>
 
-		<seekBar description="Max CPU Usage when merging pages while in Sleep mode (Default: 1%)." name="UKSM Max CPU Usage Sleep"
+		<seekBar description="Max CPU Usage when merging pages while in Sleep mode (Default: 1%)." name="Suspend UKSM Max CPU Usage"
 			action="generic_cortex /tmp/uksm/max_cpu_percentage_sleep" unit="%" min="0" reversed="false" step="1" max="100"/>
 
 	</settingsPane>

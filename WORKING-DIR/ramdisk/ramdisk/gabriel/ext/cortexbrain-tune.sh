@@ -456,8 +456,12 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
 	echo "$(cat /cache/fsync_enabled)" > /sys/module/sync/parameters/fsync_enabled;
 
-	if [ "$run" == "on" ]; then
+	if [ "$run" -eq "1" ]; then
 		echo "1" > /sys/kernel/mm/uksm/run # to be enable if sleep state was off.
+		echo "$uksm_gov_on" > /sys/kernel/mm/uksm/cpu_governor
+		echo "$max_cpu_percentage" > /sys/kernel/mm/uksm/max_cpu_percentage
+	elif [ "$run" -eq "0" ]; then
+		echo "0" > /sys/kernel/mm/uksm/run
 		echo "$uksm_gov_on" > /sys/kernel/mm/uksm/cpu_governor
 		echo "$max_cpu_percentage" > /sys/kernel/mm/uksm/max_cpu_percentage
 	fi
@@ -497,10 +501,11 @@ SLEEP_MODE()
 	echo "$(cat /sys/module/sync/parameters/fsync_enabled)" > /cache/fsync_enabled;
 	echo "1" > /sys/module/sync/parameters/fsync_enabled;
 
-	if [ "$run" == "on" ] && [ "$uksm_sleep" == "on" ]; then
+	if [ "$uksm_sleep" -eq "1" ]; then
+		echo "1" > /sys/kernel/mm/uksm/run
 		echo "$uksm_gov_sleep" > /sys/kernel/mm/uksm/cpu_governor
 		echo "$max_cpu_percentage_sleep" > /sys/kernel/mm/uksm/max_cpu_percentage
-	elif [ "$run" == "on" ] && [ "$uksm_sleep" == "off" ]; then
+	elif [ "$uksm_sleep" -eq "0" ]; then
 		echo "0" > /sys/kernel/mm/uksm/run
 	fi
 
