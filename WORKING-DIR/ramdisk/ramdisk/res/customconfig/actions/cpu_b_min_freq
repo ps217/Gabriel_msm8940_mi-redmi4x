@@ -12,6 +12,10 @@ if [ "$cortexbrain_cpu" == "on" ]; then
 	if [ "a$2" != "a" ]; then
 		cpu_b_min_freq=$2;
 
+		for i in cpu0 cpu1 cpu2 cpu3; do
+			echo $cpu_b_min_freq > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+		done;
+
 		echo "0:$cpu_b_min_freq 1:$cpu_b_min_freq 2:$cpu_b_min_freq 3:$cpu_b_min_freq" > /sys/module/msm_performance/parameters/cpu_min_freq
 
 	fi;

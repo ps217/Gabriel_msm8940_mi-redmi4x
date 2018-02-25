@@ -237,16 +237,22 @@
 			<spinnerItem name="998 MHz" value="998400"/>
 			<spinnerItem name="902 MHz" value="902400"/>
 			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
 		</spinner>
 
 		<spinner description="Select Maximum big cluster frequency. It works only when CPU-Tweaks is enabled." name="Max big Cluster Frequency"
 			action="cpu_b_max_freq">
+			<spinnerItem name="1.53 GHz" value="1536000"/>
 			<spinnerItem name="1.40 GHz" value="1401000"/>
 			<spinnerItem name="1.34 GHz" value="1344000"/>
 			<spinnerItem name="1.24 GHz" value="1248000"/>
 			<spinnerItem name="1.20 GHz" value="1209600"/>
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
 		</spinner>
 
 	</settingsPane>
@@ -257,12 +263,17 @@
 			action="cpu_l_min_freq">
 			<spinnerItem name="902 MHz" value="902400"/>
 			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
 		</spinner>
 
 		<spinner description="Select minimum big cluster frequency. Note that, it can't be higher than Maximum big cluster freq. It works only when CPU-Tweaks is enabled." name="min big cluster Frequency"
 			action="cpu_b_min_freq">
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
 		</spinner>
 
 	</settingsPane>
@@ -275,6 +286,8 @@
 			<spinnerItem name="998 MHz" value="998400"/>
 			<spinnerItem name="902 MHz" value="902400"/>
 			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
 		</spinner>
 
 		<spinner description="Maximum Allowed Suspend CPU frequency for big Cluster" name="Max Screen OFF Big Cluster CPU Frequency"
@@ -285,7 +298,9 @@
 			<spinnerItem name="1.20 GHz" value="1209600"/>
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="906 MHz" value="960000"/>
-			<spinnerItem name="902 MHz" value="902000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
 		</spinner>
 
 	</settingsPane>

@@ -12,6 +12,10 @@ if [ "$cortexbrain_cpu" == "on" ]; then
 	if [ "a$2" != "a" ]; then
 		cpu_l_max_freq=$2;
 
+		for i in cpu4 cpu5 cpu6 cpu7; do
+			echo $cpu_l_max_freq > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
+		done;
+
 		echo "4:$cpu_l_max_freq 5:$cpu_l_max_freq 6:$cpu_l_max_freq 7:$cpu_l_max_freq" > /sys/module/msm_performance/parameters/cpu_max_freq
 
 	fi;
