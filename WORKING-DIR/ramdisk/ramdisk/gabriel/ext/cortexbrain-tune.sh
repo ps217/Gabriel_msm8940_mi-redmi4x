@@ -119,7 +119,7 @@ IO_SCHEDULER()
 		echo $scheduler_ext_sleep > /sys/block/mmcblk1/queue/scheduler;
 	fi;
 
-	log -p i -t $FILE_NAME "*** ENTROPY ***: $state - $PROFILE";
+	log -p i -t $FILE_NAME "*** IO_SCHEDULER ***: $state - $PROFILE";
 }
 
 # ==============================================================
