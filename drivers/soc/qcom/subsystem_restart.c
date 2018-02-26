@@ -53,6 +53,9 @@ module_param(enable_debug, int, S_IRUGO | S_IWUSR);
 #define SHUTDOWN_ACK_MAX_LOOPS	100
 #define SHUTDOWN_ACK_DELAY_MS	100
 
+/* Declare WT_SUBSYSTEM_REASTART_LEVEL, Fix Compilation */
+#define WT_SUBSYSTEM_REASTART_LEVEL "related"
+
 /**
  * enum p_subsys_state - state of a subsystem (private)
  * @SUBSYS_NORMAL: subsystem is operating normally
