@@ -827,6 +827,8 @@
 
 		<button description="Extreme Performance" name="extreme performance Profile" action="push-actions/config_backup_restore 7" label="Extreme Performance"/>
 
+		<button description="Gabriel" name="gabriel Profile" action="push-actions/config_backup_restore 8" label="Gabriel"/>
+
 	</settingsPane>
 
 	<settingsPane description="Backup or restore current profile after installing or updating kernel. Some settings will work only after reboot." name="Profile Backup or Restore">
