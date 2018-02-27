@@ -225,6 +225,12 @@
 		<seekBar description="Select little cluster CPU Governor Sample Rate which works in Power Save mode (Default: 20000)." name="Little Cluster CPU Governor Sample Rate"
 			action="sample_rate_c2" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
 
+		<seekBar description="Select big cluster Suspend Sample Rate (Default: 20000)." name="Big Cluster Suspend Sample Rate"
+			action="generic_cortex /tmp/sample_rate_c1_suspend" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+
+		<seekBar description="Select little cluster Suspend Sample Rate (Default: 20000)." name="Little Cluster Suspend Sample Rate"
+			action="generic_cortex /tmp/sample_rate_c2_suspend" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+
 		<spinner description="Select CPU Governor Power Control mode. Power Save mode activates options below, so you can set the CPU Governor Sample Rate as you like. When performance mode is selected, CPU Governor Sample Rate is set to it's Maximum response (10000 rate) and other rates will be ignored." name="Power Save Switch"
 			action="power_mode">
 			<spinnerItem name="Power Save" value="0"/>

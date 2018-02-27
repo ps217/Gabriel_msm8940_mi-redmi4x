@@ -226,6 +226,25 @@ CORE_CTRL_STATE()
 }
 
 # ==============================================================
+# SAMPLE-RATE-STATE
+# ==============================================================
+
+SAMPLE_RATE_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh sample_rate_c1 $sample_rate_c1
+		/res/uci.sh sample_rate_c2 $sample_rate_c2
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh sample_rate_c1 $sample_rate_c1_suspend
+		/res/uci.sh sample_rate_c2 $sample_rate_c2_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** SAMPLE-RATE-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -543,6 +562,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	CLOCK_FREQ_SCALE "awake";
 	BCL_STATE "awake";
 	CORE_CTRL_STATE "awake";
+	SAMPLE_RATE_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -586,6 +606,7 @@ SLEEP_MODE()
 	CLOCK_FREQ_SCALE "sleep";
 	BCL_STATE "sleep";
 	CORE_CTRL_STATE "sleep";
+	SAMPLE_RATE_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";
