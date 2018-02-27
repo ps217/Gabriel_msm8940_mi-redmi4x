@@ -245,6 +245,25 @@ SAMPLE_RATE_STATE()
 }
 
 # ==============================================================
+# HMP-SCHEDULER-STATE
+# ==============================================================
+
+HMP_SCHEDULER_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh hmp_scheduler $hmp_scheduler
+		/res/uci.sh hmp_scheduler $hmp_scheduler
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh hmp_scheduler $hmp_scheduler_suspend
+		/res/uci.sh hmp_scheduler $hmp_scheduler_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** HMP-SCHEDULER-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -563,6 +582,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	BCL_STATE "awake";
 	CORE_CTRL_STATE "awake";
 	SAMPLE_RATE_STATE "awake";
+	HMP_SCHEDULER_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -607,6 +627,7 @@ SLEEP_MODE()
 	BCL_STATE "sleep";
 	CORE_CTRL_STATE "sleep";
 	SAMPLE_RATE_STATE "sleep";
+	HMP_SCHEDULER_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";

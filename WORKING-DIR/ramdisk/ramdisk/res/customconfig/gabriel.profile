@@ -29,6 +29,7 @@ cpu_b_min_freq=422400
 suspend_max_freq_cl=1094400
 suspend_max_freq_cb=1094400
 hmp_scheduler=battery
+hmp_scheduler_suspend=battery
 core_ctrl_l=2
 core_ctrl_b=2
 core_ctrl_l_suspend=2

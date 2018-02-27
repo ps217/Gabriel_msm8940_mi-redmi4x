@@ -29,6 +29,7 @@ cpu_b_min_freq=960000
 suspend_max_freq_cl=1094400
 suspend_max_freq_cb=1401000
 hmp_scheduler=gabriel
+hmp_scheduler_suspend=gabriel
 core_ctrl_l=4
 core_ctrl_b=4
 core_ctrl_l_suspend=4
