@@ -232,6 +232,12 @@ else
 	$BB mv /res/uci_boot.sh /res/uci.sh;
 fi;
 
+if [ "$fstrim_boot" == "yes" ]; then
+	$BB fstrim -v /system > /data/.gabriel/fstrim_log;
+	$BB fstrim -v /data >> /data/.gabriel/fstrim_log;
+	$BB fstrim -v /cache >> /data/.gabriel/fstrim_log;
+fi;
+
 OPEN_RW;
 
 # set system tuning.

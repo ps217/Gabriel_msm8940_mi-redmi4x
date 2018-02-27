@@ -29,6 +29,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="Control Fstrim on boot. it will run fstrim for data, cache, system partitions at end of the boot process." name="Fstrim on Boot">
+
+		<spinner description="Select Fstrim state" name="Fstrim State"
+			action="generic_cortex /tmp/fstrim_boot">
+			<spinnerItem name="Fstrim on boot." value="yes"/>
+			<spinnerItem name="Don't Fstrim on boot." value="no"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Control double tap to wake function (Default: disabled)" name="DT2W control">
 
 		<spinner description="Select DT2W State" name="DT2W State"
