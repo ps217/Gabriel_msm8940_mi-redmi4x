@@ -296,7 +296,7 @@
 
 	<settingsPane description="Set the Suspend Frequency." name="CPU Suspend Frequency">
 
-		<spinner description="Maximum Allowed CPU frequency when screen is OFF, but phone is awake (cases like any app holds wakelock, music, radio etc.). It has effect ONLY when screen is OFF. If screen is ON, normal Maximum allowed frequency take place." name="Max Screen OFF Little Cluster CPU Frequency"
+		<spinner description="Maximum Allowed CPU frequency when screen is OFF, but phone is awake (cases like any app holds wakelock, music, radio etc.). It has effect ONLY when screen is OFF. If screen is ON, normal Maximum allowed frequency take place." name="Max Little Cluster CPU Frequency"
 			action="generic_cortex /tmp/suspend_max_freq_cl">
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="998 MHz" value="998400"/>
@@ -306,7 +306,7 @@
 			<spinnerItem name="345 MHz" value="345600"/>
 		</spinner>
 
-		<spinner description="Maximum Allowed Suspend CPU frequency for big Cluster" name="Max Screen OFF Big Cluster CPU Frequency"
+		<spinner description="Maximum Allowed CPU frequency." name="Max Big Cluster CPU Frequency"
 			action="generic_cortex /tmp/suspend_max_freq_cb">
 			<spinnerItem name="1.40 GHz" value="1401000"/>
 			<spinnerItem name="1.34 GHz" value="1344000"/>
@@ -319,7 +319,7 @@
 			<spinnerItem name="422 MHz" value="422400"/>
 		</spinner>
 
-		<spinner description="Minimum Allowed CPU frequency when screen is OFF." name="Min Screen OFF Little Cluster CPU Frequency"
+		<spinner description="Minimum Allowed CPU frequency." name="Min Little Cluster CPU Frequency"
 			action="generic_cortex /tmp/suspend_min_freq_cl">
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="998 MHz" value="998400"/>
@@ -329,7 +329,7 @@
 			<spinnerItem name="345 MHz" value="345600"/>
 		</spinner>
 
-		<spinner description="Minimum Allowed Suspend CPU frequency for big Cluster" name="Min Screen OFF Big Cluster CPU Frequency"
+		<spinner description="Minimum Allowed CPU frequency." name="Min Big Cluster CPU Frequency"
 			action="generic_cortex /tmp/suspend_min_freq_cb">
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="906 MHz" value="960000"/>
