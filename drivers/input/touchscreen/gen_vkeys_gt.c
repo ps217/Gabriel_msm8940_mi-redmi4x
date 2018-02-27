@@ -1,4 +1,5 @@
 /* Copyright (c) 2013, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -16,7 +17,7 @@
 #include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/input.h>
-#include <linux/input/gen_vkeys.h>
+#include <linux/input/gen_vkeys_gt.h>
 
 #define MAX_BUF_SIZE	256
 #define VKEY_VER_CODE	"0x01"
@@ -26,11 +27,11 @@
 
 #define VKEY_Y_OFFSET_DEFAULT 0
 
-/* numerator and denomenator for border equations */
+
 #define BORDER_ADJUST_NUM 3
 #define BORDER_ADJUST_DENOM 4
 
-struct kobject *vkey_obj;
+extern struct kobject *vkey_obj;
 static char *vkey_buf;
 
 static ssize_t vkey_show(struct kobject  *obj,
@@ -57,7 +58,7 @@ static struct attribute_group vkey_grp = {
 };
 
 static int vkey_parse_dt(struct device *dev,
-			struct vkeys_platform_data *pdata)
+		struct vkeys_platform_data *pdata)
 {
 	struct device_node *np = dev->of_node;
 	struct property *prop;
@@ -97,7 +98,7 @@ static int vkey_parse_dt(struct device *dev,
 	if (prop) {
 		pdata->num_keys = prop->length / sizeof(u32);
 		pdata->keycodes = devm_kzalloc(dev,
-			sizeof(u32) * pdata->num_keys, GFP_KERNEL);
+				sizeof(u32) * pdata->num_keys, GFP_KERNEL);
 		if (!pdata->keycodes)
 			return -ENOMEM;
 		rc = of_property_read_u32_array(np, "qcom,key-codes",
@@ -125,8 +126,7 @@ static int vkeys_probe(struct platform_device *pdev)
 	int width, height, center_x, center_y;
 	int x1 = 0, x2 = 0, i, c = 0, ret, border;
 	char *name;
-	
-	dev_err(&pdev->dev, "\n\ngen_vkeys: BITRVMPD ===========\n");
+
 	vkey_buf = devm_kzalloc(&pdev->dev, MAX_BUF_SIZE, GFP_KERNEL);
 	if (!vkey_buf) {
 		dev_err(&pdev->dev, "Failed to allocate memory\n");
@@ -150,7 +150,7 @@ static int vkeys_probe(struct platform_device *pdev)
 		pdata = pdev->dev.platform_data;
 
 	if (!pdata || !pdata->name || !pdata->keycodes || !pdata->num_keys ||
-		!pdata->disp_maxx || !pdata->disp_maxy || !pdata->panel_maxy) {
+			!pdata->disp_maxx || !pdata->disp_maxy || !pdata->panel_maxy) {
 		dev_err(&pdev->dev, "pdata is invalid\n");
 		return -EINVAL;
 	}
@@ -177,18 +177,17 @@ static int vkeys_probe(struct platform_device *pdev)
 	vkey_buf[c] = '\0';
 
 	name = devm_kzalloc(&pdev->dev, sizeof(*name) * MAX_BUF_SIZE,
-					GFP_KERNEL);
+			GFP_KERNEL);
 	if (!name)
 		return -ENOMEM;
 
 	snprintf(name, MAX_BUF_SIZE,
-				"virtualkeys.%s", pdata->name);
+			"virtualkeys.%s", pdata->name);
 	vkey_obj_attr.attr.name = name;
 
-	vkey_obj = kobject_create_and_add("board_properties", NULL);
+
 	if (!vkey_obj) {
-		dev_err(&pdev->dev, "unable to create kobject\n");
-		return -ENOMEM;
+		vkey_obj = kobject_create_and_add("board_properties", NULL);
 	}
 
 	ret = sysfs_create_group(vkey_obj, &vkey_grp);
@@ -196,7 +195,6 @@ static int vkeys_probe(struct platform_device *pdev)
 		dev_err(&pdev->dev, "failed to create attributes\n");
 		goto destroy_kobj;
 	}
-	dev_err(&pdev->dev, "\n\nBITRVMPD ======= COMPLETED! ====\n");
 	return 0;
 
 destroy_kobj:
@@ -214,7 +212,7 @@ static int vkeys_remove(struct platform_device *pdev)
 }
 
 static struct of_device_id vkey_match_table[] = {
-	{ .compatible = "qcom,gen-vkeys",},
+	{ .compatible = "qcom,gen-vkeys_gt",},
 	{ },
 };
 
@@ -223,7 +221,7 @@ static struct platform_driver vkeys_driver = {
 	.remove = vkeys_remove,
 	.driver = {
 		.owner = THIS_MODULE,
-		.name = "gen_vkeys",
+		.name = "gen_vkeys_gt",
 		.of_match_table = vkey_match_table,
 	},
 };
