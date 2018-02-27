@@ -294,7 +294,7 @@
 
 	</settingsPane>
 
-	<settingsPane description="Set the Suspend Max Frequency." name="CPU Suspend Frequency">
+	<settingsPane description="Set the Suspend Frequency." name="CPU Suspend Frequency">
 
 		<spinner description="Maximum Allowed CPU frequency when screen is OFF, but phone is awake (cases like any app holds wakelock, music, radio etc.). It has effect ONLY when screen is OFF. If screen is ON, normal Maximum allowed frequency take place." name="Max Screen OFF Little Cluster CPU Frequency"
 			action="generic_cortex /tmp/suspend_max_freq_cl">
@@ -312,6 +312,25 @@
 			<spinnerItem name="1.34 GHz" value="1344000"/>
 			<spinnerItem name="1.24 GHz" value="1248000"/>
 			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="906 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
+		</spinner>
+
+		<spinner description="Minimum Allowed CPU frequency when screen is OFF." name="Min Screen OFF Little Cluster CPU Frequency"
+			action="generic_cortex /tmp/suspend_min_freq_cl">
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="998 MHz" value="998400"/>
+			<spinnerItem name="902 MHz" value="902400"/>
+			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+		</spinner>
+
+		<spinner description="Minimum Allowed Suspend CPU frequency for big Cluster" name="Min Screen OFF Big Cluster CPU Frequency"
+			action="generic_cortex /tmp/suspend_min_freq_cb">
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="906 MHz" value="960000"/>
 			<spinnerItem name="806 MHz" value="806400"/>

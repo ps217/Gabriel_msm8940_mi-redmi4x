@@ -430,23 +430,6 @@ CPU_CENTRAL_CONTROL()
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 						echo $cpu_b_max_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
-						break
-					fi;
-				fi;
-			done;
-
-			for i in 4 5 6 7; do
-				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
-					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
-						echo $cpu_l_max_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
-						break
-					fi;
-				fi;
-			done;
-
-			for i in 0 1 2 3; do
-				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
-					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 						echo $cpu_b_min_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
 						break
 					fi;
@@ -456,6 +439,7 @@ CPU_CENTRAL_CONTROL()
 			for i in 4 5 6 7; do
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+						echo $cpu_l_max_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
 						echo $cpu_l_min_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
 						break
 					fi;
@@ -478,10 +462,19 @@ CPU_CENTRAL_CONTROL()
 				echo "4:$suspend_max_freq_cl 5:$suspend_max_freq_cl 6:$suspend_max_freq_cl 7:$suspend_max_freq_cl" > /sys/module/msm_performance/parameters/cpu_max_freq
 			fi;
 
+			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $1}' | cut -d : -f 2)" -ne "$suspend_min_freq_cb" ]; then
+				echo "0:$suspend_min_freq_cb 1:$suspend_min_freq_cb 2:$suspend_min_freq_cb 3:$suspend_min_freq_cb" > /sys/module/msm_performance/parameters/cpu_min_freq
+			fi;
+
+			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $5}' | cut -d : -f 2)" -ne "$suspend_min_freq_cl" ]; then
+				echo "4:$suspend_min_freq_cl 5:$suspend_min_freq_cl 6:$suspend_min_freq_cl 7:$suspend_min_freq_cl" > /sys/module/msm_performance/parameters/cpu_min_freq
+			fi;
+
 			for i in 0 1 2 3; do
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 						echo $suspend_max_freq_cb > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+						echo $suspend_min_freq_cb > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
 						break
 					fi;
 				fi;
@@ -491,16 +484,17 @@ CPU_CENTRAL_CONTROL()
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 						echo $suspend_max_freq_cl > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+						echo $suspend_min_freq_cl > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
 						break
 					fi;
 				fi;
 			done;
 
-			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $1}' | cut -d : -f 2)" -gt "902000" ]; then
+			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $1}' | cut -d : -f 2)" -gt "1094400" ]; then
 				echo "0:902000 1:902000 2:902000 3:902000" > /sys/module/msm_performance/parameters/cpu_min_freq
 			fi;
 
-			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $5}' | cut -d : -f 2)" -gt "768000" ]; then
+			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $5}' | cut -d : -f 2)" -gt "902400" ]; then
 				echo "4:768000 5:768000 6:768000 7:768000" > /sys/module/msm_performance/parameters/cpu_min_freq
 			fi;
 
@@ -542,9 +536,27 @@ CPU_CENTRAL_CONTROL()
 				echo "0:902000 1:902000 2:902000 3:902000" > /sys/module/msm_performance/parameters/cpu_min_freq
 			fi;
 
+			for i in 0 1 2 3; do
+				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
+					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+						echo 902000 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
+						break
+					fi;
+				fi;
+			done;
+
 			if [ "$(cat /sys/module/msm_performance/parameters/cpu_min_freq | awk '{print $5}' | cut -d : -f 2)" -gt "768000" ]; then
 				echo "4:768000 5:768000 6:768000 7:768000" > /sys/module/msm_performance/parameters/cpu_min_freq
 			fi;
+
+			for i in 4 5 6 7; do
+				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
+					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+						echo 768000 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
+						break
+					fi;
+				fi;
+			done;
 
 		fi;
 
