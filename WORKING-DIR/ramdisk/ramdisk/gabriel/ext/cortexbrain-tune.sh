@@ -481,7 +481,7 @@ CPU_CENTRAL_CONTROL()
 			for i in 0 1 2 3; do
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
-						echo $cpu_b_max_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+						echo $suspend_max_freq_cb > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
 						break
 					fi;
 				fi;
@@ -490,7 +490,7 @@ CPU_CENTRAL_CONTROL()
 			for i in 4 5 6 7; do
 				if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 					if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
-						echo $cpu_l_max_freq > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+						echo $suspend_max_freq_cl > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
 						break
 					fi;
 				fi;
