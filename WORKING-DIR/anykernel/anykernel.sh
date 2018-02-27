@@ -40,7 +40,9 @@ dump_boot;
 # begin ramdisk changes
 
 # fstab.qcom
-if [ -f /fstab.qcom ]; then
+if [ -e fstab.qcom ] && [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
+touch /tmp/anykernel/fstab.patch
+echo "do.fstab=1" > /tmp/anykernel/fstab.patch
 insert_line fstab.qcom "data        f2fs" before "data        ext4" "/dev/block/bootdevice/by-name/userdata     /data        f2fs    nosuid,nodev,noatime,inline_xattr,data_flush      wait,check,encryptable=footer,formattable,length=-16384";
 insert_line fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
 fi;
