@@ -37,6 +37,7 @@ core_ctrl_b=0
 core_ctrl_l_suspend=4
 core_ctrl_b_suspend=0
 gpu_governor=msm-adreno-tz
+gpu_governor_suspend=msm-adreno-tz
 max_freq=400000000
 min_freq=160000000
 default_pwrlevel=8

@@ -37,6 +37,7 @@ core_ctrl_b=0
 core_ctrl_l_suspend=4
 core_ctrl_b_suspend=0
 gpu_governor=powersave
+gpu_governor_suspend=powersave
 max_freq=100000000
 min_freq=100000000
 default_pwrlevel=8

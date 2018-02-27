@@ -429,6 +429,13 @@
 			<spinnerItem name="Performance" value="performance"/> 
 		</spinner>
 
+		<spinner description="Select Suspend GPU Governor." name="Suspend GPU Governor"
+			action="generic_cortex /tmp/gpu_governor_suspend">
+			<spinnerItem name="MSM Adreno" value="msm-adreno-tz"/> 
+			<spinnerItem name="Simple Ondemand" value="simple_ondemand"/>
+			<spinnerItem name="Power Save" value="powersave"/> 
+		</spinner>
+
 		<spinner description="Select GPU Maximum frequency only when needed because some higher frequencies can be unstable! and 657 MHz only available in Over Clocked version. Stock MIUI UI start lag under 160 MHz with msm-adreno governor. (Default: 475 MHz)." name="Max GPU Frequency"
 			action="generic /sys/class/kgsl/kgsl-3d0/devfreq/max_freq">
 			<spinnerItem name="475 MHz" value="475000000"/> 

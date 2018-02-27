@@ -264,6 +264,23 @@ HMP_SCHEDULER_STATE()
 }
 
 # ==============================================================
+# GPU-GOVERNOR-STATE
+# ==============================================================
+
+GPU_GOV_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh gpu_governor $gpu_governor
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh gpu_governor $gpu_governor_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** GPU-GOVERNOR-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # FIREWALL-TWEAKS
 # ==============================================================
 FIREWALL_TWEAKS()
@@ -595,6 +612,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	CORE_CTRL_STATE "awake";
 	SAMPLE_RATE_STATE "awake";
 	HMP_SCHEDULER_STATE "awake";
+	GPU_GOV_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
 	WIFI "awake";
@@ -640,6 +658,7 @@ SLEEP_MODE()
 	CORE_CTRL_STATE "sleep";
 	SAMPLE_RATE_STATE "sleep";
 	HMP_SCHEDULER_STATE "sleep";
+	GPU_GOV_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 
 	WIFI "sleep";
