@@ -232,6 +232,14 @@ else
 	$BB mv /res/uci_boot.sh /res/uci.sh;
 fi;
 
+if [ "$wifi_on_boot" == "no" ]; then
+	svc wifi disable;
+fi;
+
+if [ "$data_on_boot" == "no" ]; then
+	svc data disable;
+fi;
+
 if [ "$fstrim_boot" == "yes" ]; then
 	$BB fstrim -v /system > /data/.gabriel/fstrim_log;
 	$BB fstrim -v /data >> /data/.gabriel/fstrim_log;

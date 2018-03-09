@@ -80,6 +80,22 @@
 
 	</settingsPane>
 
+	<settingsPane description="Keep Wifi or Data state ON or OFF on boot. These will Turn on at screen on state If you enabled Force auto-data and wifi in Tweaks tab." name="Wifi and Data on Boot">
+
+		<spinner description="Select Wifi State" name="Wifi State"
+			action="generic_cortex /tmp/wifi_on_boot">
+			<spinnerItem name="Keep Wifi ON" value="yes"/>
+			<spinnerItem name="Keep Wifi OFF" value="no"/>
+		</spinner>
+
+		<spinner description="Select Data State" name="Data State"
+			action="generic_cortex /tmp/data_on_boot">
+			<spinnerItem name="Keep Data ON" value="yes"/>
+			<spinnerItem name="Keep Data OFF" value="no"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Here you can change the way kernel modem driver operate in suspend state, by default kernel put Modem to suspend state when screen is OFF for long time, and delay DATA traffic. This will save power, if you need instant notifications from your apps over DATA connection, you can switch the Modem state to Awake mode, it's will drain little more power as modem IRQ is not suspending." name="Modem Sleep State">
 
 		<spinner description="Select Modem Sleep State" name="Modem State"
