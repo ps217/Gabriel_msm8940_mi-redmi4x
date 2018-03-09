@@ -18,9 +18,6 @@ device.name3=Redmi 4X
 # shell variables
 block=/dev/block/bootdevice/by-name/boot;
 is_slot_device=0;
-ramdisk_compression=auto;
-
-## end setup
 
 
 ## AnyKernel methods (DO NOT CHANGE)
