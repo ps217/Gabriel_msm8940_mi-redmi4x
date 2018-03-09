@@ -111,13 +111,15 @@ if [ $? != "0" ]; then
 fi;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
-  ui_print " ";
-  ui_print "Pushing modules...";
-  mount -o rw,remount -t auto /system;
-  $bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
-  set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
-  chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
-  mount -o ro,remount -t auto /system;
+	if [ "$(find "/tmp/anykernel/modules/" -name "*ko")" ]; then
+		ui_print " ";
+		ui_print "Pushing modules...";
+		mount -o rw,remount -t auto /system;
+		$bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
+		set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
+		chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
+		mount -o ro,remount -t auto /system;
+	fi;
 fi;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.system)" == 1 ]; then
