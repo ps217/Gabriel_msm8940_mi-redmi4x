@@ -69,6 +69,14 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
   fi;
 fi;
 
+if [ "$(cat /dev/block/bootdevice/by-name/boot | grep -m 1 permissive | wc -l)" -gt "0" ]; then
+  ui_print "Permissive Selinux detected";
+  ui_print " ";
+else
+  ui_print "Enforcing Selinux detected";
+  ui_print " ";
+fi;
+
 ui_print "Installing kernel...";
 for i in $($bb --list); do
   $bb ln -s $bb /tmp/anykernel/bin/$i;
@@ -103,6 +111,7 @@ if [ "$(file_getprop /tmp/anykernel/fstab.patch do.fstab)" == 1 ]; then
   ui_print " ";
   ui_print "Patching fstab...";
 # anykernel.sh doing the fstab patch
+# anykernel run this if fstab has been patched
 fi;
 
 case $(basename "$ZIPFILE" .zip) in
