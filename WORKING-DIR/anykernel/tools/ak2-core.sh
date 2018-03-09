@@ -201,7 +201,7 @@ write_boot() {
   elif [ -f "$bin/pxa-mkbootimg" ]; then
     $bin/pxa-mkbootimg --kernel $kernel --ramdisk ramdisk-new.cpio.$compext $second --cmdline "$cmdline" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff $secondoff --tags_offset "$tagsoff" --unknown $unknown $dtb --output boot-new.img;
   else
-    $bin/mkbootimg --kernel $kernel --ramdisk ramdisk-new.cpio.$compext $second --cmdline "$cmdline androidboot.selinux=permissive" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff $secondoff --tags_offset "$tagsoff" --os_version "$osver" --os_patch_level "$oslvl" $hash $dtb --output boot-new.img;
+    $bin/mkbootimg --kernel $kernel --ramdisk ramdisk-new.cpio.$compext $second --cmdline "$cmdline" --board "$board" --base $base --pagesize $pagesize --kernel_offset $kerneloff --ramdisk_offset $ramdiskoff $secondoff --tags_offset "$tagsoff" --os_version "$osver" --os_patch_level "$oslvl" $hash $dtb --output boot-new.img;
   fi;
   if [ $? != 0 ]; then
     ui_print " "; ui_print "Repacking image failed. Aborting..."; exit 1;
