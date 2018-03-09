@@ -69,6 +69,27 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
   fi;
 fi;
 
+if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.osversion)" == 1 ]; then
+	mount -o rw,remount -t auto /system;
+		if [ "$(grep 'ro.build.version.sdk=27' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Oreo 8.1.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=26' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Oreo 8.0.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=25' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Nougat 7.1.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=24' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Nougat 7.0.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=23' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Marshmallow 6.0.1 detected";
+			ui_print " ";
+		fi;
+	mount -o ro,remount -t auto /system;
+fi;
+
 if [ "$(cat /dev/block/bootdevice/by-name/boot | grep -m 1 permissive | wc -l)" -gt "0" ]; then
   ui_print "Permissive Selinux detected";
   ui_print " ";

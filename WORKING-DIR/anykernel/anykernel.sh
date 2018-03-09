@@ -10,6 +10,7 @@ do.modules=1
 do.system=1
 do.cleanup=1
 do.cleanuponabort=1
+do.osversion=1
 device.name1=santoni
 device.name2=Xiaomi
 device.name3=Redmi 4X
