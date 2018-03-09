@@ -1399,6 +1399,9 @@ static int ft5x06_ts_suspend(struct device *dev)
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 	int err;
 
+	if (dt2w_switch > 0)
+		enable_irq_wake(data->client->irq);
+
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 	if (dt2w_switch > 0)
 		return 0;
@@ -1442,6 +1445,9 @@ static int ft5x06_ts_resume(struct device *dev)
 		dev_dbg(dev, "Already in awake state\n");
 		return 0;
 	}
+
+	if (dt2w_switch > 0)
+		disable_irq_wake(data->client->irq);
 
 	data->flash_enabled = true;
 	ft5x06_secure_touch_stop(data, true);
