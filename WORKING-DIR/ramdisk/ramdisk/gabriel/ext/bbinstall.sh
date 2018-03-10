@@ -2,6 +2,8 @@
 
 BB=/gabriel/busybox
 
+DO_NOT_RUN()
+{
 	if [ "$($BB mount | grep rootfs | cut -c 26-27 | grep -c ro)" -ge "0" ]; then
 		$BB mount -o remount,rw /;
 	fi;
@@ -64,5 +66,6 @@ fi;
 if [ -e /system/xbin/daemonsu ]; then
 	$BB chmod 06755 /system/xbin/daemonsu;
 fi;
+}
 
 $BB sh /gabriel/ext/post-init.sh;
