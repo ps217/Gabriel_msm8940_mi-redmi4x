@@ -384,25 +384,25 @@ case "${debug_to_sd}" in
 			SEPARATOR;
 
 			# HotPlug configuration
-			echo "HotPlugs Config:" >> $DEBUG_FILE;
+			echo "HotPlugs Config:" >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 
-			echo "Core Control big:" >> $DEBUG_FILE;
+			echo "Core Control big:" >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 			cd /sys/devices/system/cpu/cpu0/core_ctl;
-			grep "." * >> $DEBUG_FILE;
+			grep "." * >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 
-			echo "Core Control little:" >> $DEBUG_FILE;
+			echo "Core Control little:" >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 			cd /sys/devices/system/cpu/cpu4/core_ctl;
-			grep "." * >> $DEBUG_FILE;
+			grep "." * >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 
-			echo "MSM Performance:" >> $DEBUG_FILE;
+			echo "MSM Performance:" >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 			cd /sys/module/msm_performance/parameters;
-			grep "." * >> $DEBUG_FILE;
+			grep "." * >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 
 			cd /;
@@ -463,12 +463,12 @@ case "${debug_to_sd}" in
 			SEPARATOR;
 
 			# Partitions status
-			#echo "DATA Partition" >> $DEBUG_FILE;
-			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/userdata | grep 'Filesystem state' | cut -c 27-44 >> $DEBUG_FILE;
-			#echo "SYSTEM Partition" >> $DEBUG_FILE;
-			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/system | grep 'Filesystem state' | cut -c 27-44 >> $DEBUG_FILE;
-			#echo "CACHE Partition" >> $DEBUG_FILE;
-			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/cache | grep 'Filesystem state' | cut -c 27-44 >> $DEBUG_FILE;
+			#echo "DATA Partition" >> $ACTIVE_DEBUG_FILE;
+			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/userdata | grep 'Filesystem state' | cut -c 27-44 >> $ACTIVE_DEBUG_FILE;
+			#echo "SYSTEM Partition" >> $ACTIVE_DEBUG_FILE;
+			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/system | grep 'Filesystem state' | cut -c 27-44 >> $ACTIVE_DEBUG_FILE;
+			#echo "CACHE Partition" >> $ACTIVE_DEBUG_FILE;
+			#/system/bin/tune2fs -l /dev/block/platform/soc/7824900.sdhci/by-name/cache | grep 'Filesystem state' | cut -c 27-44 >> $ACTIVE_DEBUG_FILE;
 			#SEPARATOR;
 
 
