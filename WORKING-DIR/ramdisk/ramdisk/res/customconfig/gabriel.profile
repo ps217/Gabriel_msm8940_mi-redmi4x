@@ -88,6 +88,7 @@ backlight_max=255
 sound_l=0
 sound_r=0
 tcp_congestion_control=cubic
+usb_adb=rom
 init_d=off
 cortexbrain_background_process=1
 cortexbrain_memory=on

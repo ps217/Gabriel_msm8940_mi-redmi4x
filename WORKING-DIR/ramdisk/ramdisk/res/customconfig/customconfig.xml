@@ -832,6 +832,17 @@
 
 	</settingsPane>
 
+	<settingsPane description="Control Android Debugging Bridge (ADB)." name="Android Debugging">
+
+		<spinner description="Select ADB State" name="ADB State"
+			action="usb_adb">
+			<spinnerItem name="Rom Default Setting" value="rom"/>
+			<spinnerItem name="Disable" value="none"/>
+			<spinnerItem name="Enable" value="adb"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="INIT.D" name="INIT.D">
 
 		<checkbox description="Enable INIT.D scripts RUN on boot. If you put scripts in INIT.D and enable it, default SuperSu scripts will run on boot from INIT.D." name="INIT.D Scripts RUN control"
