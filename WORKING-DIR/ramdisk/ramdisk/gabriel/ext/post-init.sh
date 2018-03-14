@@ -280,14 +280,24 @@ CRITICAL_PERM_FIX;
 	. /data/.gabriel/"$PROFILE".profile;
 
 if [ "$stweaks_boot_control" == "no" ]; then
-	for i in cpu0 cpu1 cpu2 cpu3; do
-	echo 1401000 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
-	echo 960000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+	for i in 0 1 2 3; do
+		if [ -e /sys/devices/system/cpu/cpu$i/online ];then
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				echo 1401000 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+				echo 960000 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
+				break
+			fi;
+		fi;
 	done;
 
-	for i in cpu4 cpu5 cpu6 cpu7; do
-	echo 1094400 > /sys/devices/system/cpu/$i/cpufreq/scaling_max_freq
-	echo 768000 > /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq
+	for i in 4 5 6 7; do
+		if [ -e /sys/devices/system/cpu/cpu$i/online ];then
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				echo 1094400 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_max_freq
+				echo 768000 > /sys/devices/system/cpu/cpu$i/cpufreq/scaling_min_freq
+				break
+			fi;
+		fi;
 	done;
 fi;
 
