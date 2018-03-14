@@ -4,6 +4,7 @@ doubletap2wake=0
 fsync_enabled=1
 entropy_awake=low
 entropy_sleep=low
+frandom_control=yes
 wifi_on_boot=yes
 data_on_boot=yes
 allow_suspend=1

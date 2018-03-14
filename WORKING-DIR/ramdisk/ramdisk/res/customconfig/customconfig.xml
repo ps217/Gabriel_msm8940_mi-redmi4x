@@ -80,6 +80,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="Control Fentropy enForcer. Reboot needed." name="Frandom Control">
+
+		<spinner description="Select Frandom State" name="Frandom State"
+			action="generic_cortex /tmp/frandom_control">
+			<spinnerItem name="Enable" value="yes"/>
+			<spinnerItem name="Disable" value="no"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Keep Wifi or Data state ON or OFF on boot. These will Turn on at screen on state If you enabled Force auto-data and wifi in Tweaks tab." name="Wifi and Data on Boot">
 
 		<spinner description="Select Wifi State" name="Wifi State"

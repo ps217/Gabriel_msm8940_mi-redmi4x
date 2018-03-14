@@ -206,15 +206,17 @@ fi;
 
 # Fentropy enForcer
 # Thanks to ArjunrambZ (TweakDrypT)
-if [ -e "/dev/frandom" ]; then
-	chmod 666 /dev/frandom;
-	for dom in /dev/*random; do
-		if [ "\$dom" != "/dev/frandom" ] && [ ! "\`ls \$dom.*\`" ]; then
-			mv \$dom \$dom.unsuper;
-			ln /dev/frandom \$dom;
-			chmod 666 \$dom;
-		fi 2>/dev/null;
-	done;
+if [ "$frandom_control" == "yes" ]; then
+	if [ -e "/dev/frandom" ]; then
+		chmod 666 /dev/frandom;
+		for dom in /dev/*random; do
+			if [ "\$dom" != "/dev/frandom" ] && [ ! "\`ls \$dom.*\`" ]; then
+				mv \$dom \$dom.unsuper;
+				ln /dev/frandom \$dom;
+				chmod 666 \$dom;
+			fi 2>/dev/null;
+		done;
+	fi;
 fi;
 
 # Load parameters for Synapse
