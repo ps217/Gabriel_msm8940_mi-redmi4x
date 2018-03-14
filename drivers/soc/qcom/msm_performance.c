@@ -539,7 +539,7 @@ static int set_cpu_max_freq(const char *buf, const struct kernel_param *kp)
 	struct cpufreq_policy policy;
 	cpumask_var_t limit_mask;
 	int ret;
-	const char *reset = "0:2188800 1:2188800 2:2419200 3:2419200";
+	const char *reset = "0:1651200 1:1651200 2:1651200 3:1651200 4:1267200 5:1267200 6:1267200 7:1267200";
 
 	if (freqlimit == 0)
 		cp = reset;
