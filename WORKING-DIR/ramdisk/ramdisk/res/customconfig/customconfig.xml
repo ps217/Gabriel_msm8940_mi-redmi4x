@@ -413,6 +413,53 @@
 
 	</settingsPane>
 
+	<settingsPane description="Customize the Touch Boost Control settings. Touch Boost means, the CPU frequency is boosted to a higher level when the touch screen is being used. It gives smoother UI but use slightly more power." name="Touch Boost Controls">
+
+		<spinner description="Boost the CPU when a touch is Detected." name="Main Cpu Boost Switch"
+			action="generic /sys/module/cpu_boost/parameters/input_boost_enabled">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
+		<spinner description="Boost HMP Scheduler on Touch event." name="HMP boost"
+			action="generic /sys/module/cpu_boost/parameters/sched_boost_on_input">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
+		<spinner description="Set the Maximum CPU Boost frequency for Little Cluster. When touch is being detected, CPU frequency will be locked to selected frequency for the defined CPU Touch Boost duration." name="Little Cluster Boost Frequency"
+			action="generic /sys/module/cpu_boost/parameters/input_boost_freq_lc">
+			<spinnerItem name="1.20 GHz" value="4:1209600"/>
+			<spinnerItem name="1.09 GHz" value="4:1094400"/>
+			<spinnerItem name="998 MHz" value="4:998400"/>
+			<spinnerItem name="902 MHz" value="4:902400"/>
+			<spinnerItem name="768 MHz" value="4:768000"/>
+			<spinnerItem name="518 MHz" value="4:518400"/>
+			<spinnerItem name="345 MHz" value="4:345600"/>
+			<spinnerItem name="Disable" value="4:0"/>
+		</spinner>
+
+		<spinner description="Set the Maximum CPU Boost frequency for big Cluster." name="big Cluster Boost Frequency"
+			action="generic /sys/module/cpu_boost/parameters/input_boost_freq">
+			<spinnerItem name="1.53 GHz" value="0:1536000"/>
+			<spinnerItem name="1.49 GHz" value="0:1497600"/>
+			<spinnerItem name="1.40 GHz" value="0:1401000"/>
+			<spinnerItem name="1.34 GHz" value="0:1344000"/>
+			<spinnerItem name="1.24 GHz" value="0:1248000"/>
+			<spinnerItem name="1.20 GHz" value="0:1209600"/>
+			<spinnerItem name="1.09 GHz" value="0:1094400"/>
+			<spinnerItem name="960 MHz" value="0:960000"/>
+			<spinnerItem name="806 MHz" value="0:806400"/>
+			<spinnerItem name="652 MHz" value="0:652800"/>
+			<spinnerItem name="422 MHz" value="0:422400"/>
+			<spinnerItem name="Disable" value="0:0"/>
+		</spinner>
+
+		<seekBar description="Set the time that core is locked on Maximum Boost frequency. 10 ms is equal to 0.01 sec (Default: 500 ms)." name="CPU Touch Boost duration"
+			action="generic /sys/module/cpu_boost/parameters/input_boost_ms" unit="ms" min="0" reversed="false" step="10" max="2000"/>
+
+	</settingsPane>
+	
 	<settingsPane description="Customize the CPU Power Saving settings." name="CPU Power Controls">
 
 		<seekBar description="Select big cluster CPU Governor Sample Rate which works in Power Save mode. The lower the value, the faster response you'll get, but quicker battery will be discharging (Default: 20000)." name="Big Cluster CPU Governor Sample Rate"
