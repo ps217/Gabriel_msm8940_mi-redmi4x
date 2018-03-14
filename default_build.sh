@@ -9,6 +9,7 @@ restore='\033[0m'
 export MODEL=santoni
 export ARCH=arm64
 export BUILD_CROSS_COMPILE=android-toolchain-arm64/bin/arm-eabi-
+export CROSS_COMPILE_ARM32=android-toolchain-arm64/arm32/bin/arm-eabi-
 export SYSROOT=android-toolchain-arm64/aarch64-MIR4X-linux-gnu/sysroot/
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
