@@ -37,6 +37,12 @@ $BB ln -sf /sbin/busybox /sbin/echo
 if [ ! -e /cache/sound_l ] || [ ! -e /cache/sound_r ]; then
 	touch /cache/sound_l;
 	touch /cache/sound_r;
+else
+	LEFT=`cat /cache/sound_l`;
+	RIGHT=`cat /cache/sound_r`;
+
+	sleep 0.5;
+	echo "$LEFT"" ""$RIGHT" > /sys/kernel/sound_control/headphone_gain;
 fi;
 
 # some nice thing for dev
