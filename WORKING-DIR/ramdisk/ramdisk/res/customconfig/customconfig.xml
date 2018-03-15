@@ -398,8 +398,14 @@
 
 	<settingsPane description="Set the Core Control Parameters for Screen ON state. Kernel Scheduler will manage online cores for idle and workload state if you put it to Maximum. Maximum online core is 8 and Minimum is 1." name="Awake Core Control Tuning">
 
-		<spinner description="Set how many cores can be online for Little Cluster. (Default : 4)" name="Little Cluster Core Control"
-			action="core_ctrl_l">
+		<spinner description="By selecting this option Core Control Preference little cluster to be more online." name="Little Cluster Online Preference"
+			action="core_ctrl_l_preference">
+			<spinnerItem name="Yes" value="yes"/>
+			<spinnerItem name="No" value="no"/>
+		</spinner>
+
+		<spinner description="Set min cores online for Little Cluster. (Default : 4)" name="Little Cluster Min Core Control"
+			action="core_ctrl_l_min">
 			<spinnerItem name="0" value="0"/>
 			<spinnerItem name="1" value="1"/>
 			<spinnerItem name="2" value="2"/>
@@ -407,21 +413,75 @@
 			<spinnerItem name="4" value="4"/>
 		</spinner>
 
-		<spinner description="Set how many cores can be online for Big Cluster. (Default : 4)" name="Big Cluster Core Control"
-			action="core_ctrl_b">
+		<spinner description="Set max cores online for Little Cluster. (Default : 4)" name="Little Cluster Max Core Control"
+			action="core_ctrl_l_max">
 			<spinnerItem name="0" value="0"/>
 			<spinnerItem name="1" value="1"/>
 			<spinnerItem name="2" value="2"/>
 			<spinnerItem name="3" value="3"/>
 			<spinnerItem name="4" value="4"/>
 		</spinner>
+
+		<spinner description="By selecting this option Core Control Preference big cluster to be more online." name="big Cluster Online Preference"
+			action="core_ctrl_b_preference">
+			<spinnerItem name="Yes" value="yes"/>
+			<spinnerItem name="No" value="no"/>
+		</spinner>
+
+		<spinner description="Set min cores online for Big Cluster. (Default : 2)" name="Big Cluster Min Core Control"
+			action="core_ctrl_b_min">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<spinner description="Set max cores online for Big Cluster. (Default : 4)" name="Big Cluster Max Core Control"
+			action="core_ctrl_b_max">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<seekBar description="Select little cluster Core Control Busy Down Threshold." name="Little Cluster Down Threshold"
+			action="core_ctrl_l_down_thres" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select little cluster Core Control Busy Up Threshold." name="Little Cluster Up Threshold"
+			action="core_ctrl_l_up_thres" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select big cluster Core Control Busy Down Threshold." name="big Cluster Down Threshold"
+			action="core_ctrl_b_down_thres" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select big cluster Core Control Busy Up Threshold." name="big Cluster Up Threshold"
+			action="core_ctrl_b_up_thres" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select little cluster Core Control offline delay." name="Little Cluster offline delay"
+			action="core_ctrl_l_off_delay" unit="ms" min="0" reversed="false" step="10" max="1000"/>
+
+		<seekBar description="Select big cluster Core Control offline delay." name="big Cluster offline delay"
+			action="core_ctrl_b_off_delay" unit="ms" min="0" reversed="false" step="10" max="1000"/>
+
+		<seekBar description="Select little cluster Core Control Task Threshold." name="Little Cluster Task Threshold"
+			action="core_ctrl_l_task_thres" unit="" min="0" reversed="false" step="1" max="10"/>
+
+		<seekBar description="Select big cluster Core Control Task Threshold." name="big Cluster Task Threshold"
+			action="core_ctrl_b_task_thres" unit="" min="0" reversed="false" step="1" max="10"/>
 
 	</settingsPane>
 
 	<settingsPane description="Set the Core Control Parameters for Screen OFF state." name="Suspend Core Control Tuning">
 
-		<spinner description="Set how many cores can be online for Little Cluster." name="Little Cluster Core Control"
-			action="generic_cortex /tmp/core_ctrl_l_suspend">
+		<spinner description="By selecting this option Core Control Preference little cluster to be more online." name="Little Cluster Online Preference"
+			action="generic_cortex /tmp/core_ctrl_l_preference_suspend">
+			<spinnerItem name="Yes" value="yes"/>
+			<spinnerItem name="No" value="no"/>
+		</spinner>
+
+		<spinner description="Set min cores online for Little Cluster." name="Little Cluster Min Core Control"
+			action="generic_cortex /tmp/core_ctrl_l_min_suspend">
 			<spinnerItem name="0" value="0"/>
 			<spinnerItem name="1" value="1"/>
 			<spinnerItem name="2" value="2"/>
@@ -429,8 +489,8 @@
 			<spinnerItem name="4" value="4"/>
 		</spinner>
 
-		<spinner description="Set how many cores can be online for Big Cluster." name="Big Cluster Core Control"
-			action="generic_cortex /tmp/core_ctrl_b_suspend">
+		<spinner description="Set max cores online for Little Cluster." name="Little Cluster Max Core Control"
+			action="generic_cortex /tmp/core_ctrl_l_max_suspend">
 			<spinnerItem name="0" value="0"/>
 			<spinnerItem name="1" value="1"/>
 			<spinnerItem name="2" value="2"/>
@@ -438,6 +498,53 @@
 			<spinnerItem name="4" value="4"/>
 		</spinner>
 
+		<spinner description="By selecting this option Core Control Preference big cluster to be more online." name="big Cluster Online Preference"
+			action="generic_cortex /tmp/core_ctrl_b_preference_suspend">
+			<spinnerItem name="Yes" value="yes"/>
+			<spinnerItem name="No" value="no"/>
+		</spinner>
+
+		<spinner description="Set min cores online for Big Cluster." name="Big Cluster Min Core Control"
+			action="generic_cortex /tmp/core_ctrl_b_min_suspend">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<spinner description="Set max cores online for Big Cluster." name="Big Cluster Max Core Control"
+			action="generic_cortex /tmp/core_ctrl_b_max_suspend">
+			<spinnerItem name="0" value="0"/>
+			<spinnerItem name="1" value="1"/>
+			<spinnerItem name="2" value="2"/>
+			<spinnerItem name="3" value="3"/>
+			<spinnerItem name="4" value="4"/>
+		</spinner>
+
+		<seekBar description="Select little cluster Core Control Busy Down Threshold." name="Little Cluster Down Threshold"
+			action="generic_cortex /tmp/core_ctrl_l_down_thres_suspend" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select little cluster Core Control Busy Up Threshold." name="Little Cluster Up Threshold"
+			action="generic_cortex /tmp/core_ctrl_l_up_thres_suspend" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select big cluster Core Control Busy Down Threshold." name="big Cluster Down Threshold"
+			action="generic_cortex /tmp/core_ctrl_b_down_thres_suspend" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select big cluster Core Control Busy Up Threshold." name="big Cluster Up Threshold"
+			action="generic_cortex /tmp/core_ctrl_b_up_thres_suspend" unit="%" min="0" reversed="false" step="1" max="200"/>
+
+		<seekBar description="Select little cluster Core Control offline delay." name="Little Cluster offline delay"
+			action="generic_cortex /tmp/core_ctrl_l_off_delay_suspend" unit="ms" min="0" reversed="false" step="10" max="1000"/>
+
+		<seekBar description="Select big cluster Core Control offline delay." name="big Cluster offline delay"
+			action="generic_cortex /tmp/core_ctrl_b_off_delay_suspend" unit="ms" min="0" reversed="false" step="10" max="1000"/>
+
+		<seekBar description="Select little cluster Core Control Task Threshold." name="Little Cluster Task Threshold"
+			action="generic_cortex /tmp/core_ctrl_l_task_thres_suspend" unit="" min="0" reversed="false" step="1" max="10"/>
+
+		<seekBar description="Select big cluster Core Control Task Threshold." name="big Cluster Task Threshold"
+			action="generic_cortex /tmp/core_ctrl_b_task_thres_suspend" unit="" min="0" reversed="false" step="1" max="10"/>
 	</settingsPane>
 
 
