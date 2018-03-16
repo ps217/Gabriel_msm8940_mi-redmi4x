@@ -112,10 +112,10 @@ IO_SCHEDULER()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		/res/uci.sh scheduler $scheduler
+		echo $scheduler > /sys/block/mmcblk0/queue/scheduler;
 		echo $scheduler_ext_awake > /sys/block/mmcblk1/queue/scheduler;
 	elif [ "$state" == "sleep" ]; then
-		/res/uci.sh scheduler $scheduler_int_sleep
+		echo $scheduler_int_sleep > /sys/block/mmcblk0/queue/scheduler;
 		echo $scheduler_ext_sleep > /sys/block/mmcblk1/queue/scheduler;
 	fi;
 
