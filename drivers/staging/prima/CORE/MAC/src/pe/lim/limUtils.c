@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2018 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2924,12 +2924,12 @@ static inline int lim_select_cbmode(tDphHashNode *sta_ds, uint8_t channel,
              channel == 64 || channel == 104 || channel == 112 ||
              channel == 120 || channel == 128 || channel == 136 ||
              channel == 144 || channel == 153 || channel == 161)
-           return PHY_DOUBLE_CHANNEL_LOW_PRIMARY;
+           return PHY_DOUBLE_CHANNEL_HIGH_PRIMARY;
         else if (channel== 36 || channel == 44 || channel == 52 ||
              channel == 60 || channel == 100 || channel == 108 ||
              channel == 116 || channel == 124 || channel == 132 ||
              channel == 140 || channel == 149 || channel == 157)
-           return PHY_DOUBLE_CHANNEL_HIGH_PRIMARY;
+           return PHY_DOUBLE_CHANNEL_LOW_PRIMARY;
         else if (channel == 165)
            return PHY_SINGLE_CHANNEL_CENTERED;
     }
@@ -6038,29 +6038,6 @@ void limDelAllBASessions(tpAniSirGlobal pMac)
             limDeleteBASessions(pMac, pSessionEntry, BA_BOTH_DIRECTIONS,
                                 eSIR_MAC_UNSPEC_FAILURE_REASON);
         }
-    }
-}
-
-/** -------------------------------------------------------------
-\fn     limDelAllBASessionsBtc
-\brief  Deletes all the exisitng BA receipent sessions in 2.4GHz
-        band.
-\param  tpAniSirGlobal pMac
-\return None
--------------------------------------------------------------*/
-
-void limDelPerBssBASessionsBtc(tpAniSirGlobal pMac)
-{
-    tANI_U8 sessionId;
-    tpPESession pSessionEntry;
-    pSessionEntry = peFindSessionByBssid(pMac,pMac->btc.btcBssfordisableaggr,
-                                                                &sessionId);
-    if (pSessionEntry)
-    {
-        PELOGW(limLog(pMac, LOGW,
-        "Deleting the BA for session %d as host got BTC event", sessionId);)
-        limDeleteBASessions(pMac, pSessionEntry, BA_BOTH_DIRECTIONS,
-                            eSIR_MAC_PEER_TIMEDOUT_REASON);
     }
 }
 
@@ -9433,4 +9410,20 @@ int peFindBssIdxFromSmeSessionId(tpAniSirGlobal pMac, tANI_U8 sme_sessionId)
 
     limLog(pMac, LOG4, FL("Session lookup fails for sme_sessionId: "));
     return(0xFF);
+}
+void limStaDelBASession(tpAniSirGlobal pMac)
+{
+    tANI_U32 i;
+    tpPESession pSessionEntry;
+
+    for (i = 0; i < pMac->lim.maxBssId; i++)
+    {
+        pSessionEntry = peFindSessionBySessionId(pMac, i);
+        if (pSessionEntry &&
+            pSessionEntry->limSystemRole == eLIM_STA_ROLE)
+        {
+            limDeleteBASessions(pMac, pSessionEntry, BA_BOTH_DIRECTIONS,
+                                eSIR_MAC_UNSPEC_FAILURE_REASON);
+        }
+    }
 }
