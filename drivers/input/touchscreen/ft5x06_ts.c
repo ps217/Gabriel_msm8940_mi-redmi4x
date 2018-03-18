@@ -345,6 +345,7 @@ struct ft5x06_ts_data {
 	bool force_reflash;
 	u8 fw_id[FT_FW_ID_LEN];
 	bool irq_enabled;
+	bool irq_wake_enabled;
 	/* moto TP modifiers */
 	bool patching_enabled;
 	struct ft5x06_modifiers modifiers;
@@ -1398,9 +1399,16 @@ static int ft5x06_ts_suspend(struct device *dev)
 {
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 	int err;
+	int wake_status;
 
-	if (dt2w_switch > 0)
-		enable_irq_wake(data->client->irq);
+	if (dt2w_switch > 0) {
+		wake_status = enable_irq_wake(data->client->irq);
+		if (!wake_status)
+			data->irq_wake_enabled = true;
+		else
+			dev_warn(dev, "Failed to enable irq wake: %d\n",
+				wake_status);
+	}
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 	if (dt2w_switch > 0)
@@ -1440,14 +1448,21 @@ static int ft5x06_ts_resume(struct device *dev)
 {
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 	int err;
+	int wake_status;
 
 	if (!data->suspended) {
 		dev_dbg(dev, "Already in awake state\n");
 		return 0;
 	}
 
-	if (dt2w_switch > 0)
-		disable_irq_wake(data->client->irq);
+	if ((dt2w_switch > 0) && data->irq_wake_enabled) {
+		wake_status = disable_irq_wake(data->client->irq);
+		if (!wake_status)
+			data->irq_wake_enabled = false;
+		else
+			dev_warn(dev, "Failed to disable irq wake: %d\n",
+				wake_status);
+	}
 
 	data->flash_enabled = true;
 	ft5x06_secure_touch_stop(data, true);
