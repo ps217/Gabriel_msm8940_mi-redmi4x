@@ -103,6 +103,37 @@ if [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
   ui_print " ";
 fi;
 
+ui_print "Looking for installed kernel...";
+ui_print " ";
+
+if [ "$(cat /dev/block/bootdevice/by-name/boot | grep -m 1 sched_enable_hmp | grep gabriel | wc -l)" -gt "0" ]; then
+  ui_print "Gabriel Kernel detected";
+  if [ ! -e /sdcard/gabriel/backup/boot_backup.img ]; then
+    ui_print "- Boot backup not found !";
+  else
+    ui_print "- Boot backup founded";
+    ui_print "- /sdcard/gabriel/backup/boot_backup.img";
+    ui_print "- Use boot_backup.img to restore previous kernel";
+  fi;
+  ui_print " ";
+else
+  if [ ! -d /sdcard/gabriel/backup ]; then
+      mkdir -p /sdcard/gabriel/backup/;
+      chmod 755 /sdcard/gabriel/backup/;
+  fi;
+
+  if [ ! -e /sdcard/gabriel/backup/boot_backup.img ]; then
+    ui_print "Backup boot partition to internal storage";
+    ui_print "- /sdcard/gabriel/backup/boot_backup.img";
+    dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/gabriel/backup/boot_backup.img;
+  else
+    ui_print "- Boot backup in sdcard detected. skipped";
+  fi;
+
+  ui_print "- Use boot_backup.img to restore previous kernel";
+  ui_print " ";
+fi;
+
 ui_print "Installing kernel...";
 for i in $($bb --list); do
   $bb ln -s $bb /tmp/anykernel/bin/$i;
