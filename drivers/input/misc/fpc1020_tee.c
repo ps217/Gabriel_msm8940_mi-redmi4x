@@ -53,6 +53,7 @@
 #define PWR_ON_STEP_RANGE2 900
 #define FPC_TTW_HOLD_TIME 1000
 #define NUM_PARAMS_REG_ENABLE_SET 2
+#define LINUX_CONTROL_SPI_CLK
 
 static const char * const pctl_names[] = {
 
