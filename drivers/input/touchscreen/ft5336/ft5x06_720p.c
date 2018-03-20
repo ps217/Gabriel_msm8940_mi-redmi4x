@@ -51,6 +51,10 @@ do { 				\
 		pr_info(msg);	\
 } while (0)
 
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/doubletap2wake.h>
+#endif
+
 #if CTP_CHARGER_DETECT
 #include <linux/power_supply.h>
 #endif
@@ -122,10 +126,6 @@ static struct Upgrade_Info fts_updateinfo[] = {
 #define CTP_LOCKDOWN_INFOR_NAME   "lockdown_info"
 
 #define CTP_COLOR_INFOR_NAME   "panel_color"
-
-
-
-
 
 static struct semaphore g_device_mutex;
 
@@ -609,6 +609,21 @@ static int ft5x06_ts_suspend(struct device *dev)
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 	char txbuf[2], i;
 	int err;
+	int wake_status;
+
+	if (dt2w_switch > 0) {
+		wake_status = enable_irq_wake(data->client->irq);
+		if (!wake_status)
+			data->irq_wake_enabled = true;
+		else
+			dev_warn(dev, "Failed to enable irq wake: %d\n",
+				wake_status);
+	}
+
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	if (dt2w_switch > 0)
+		return 0;
+#endif
 
 	if (data->loading_fw) {
 		dev_info(dev, "Firmware loading in process...\n");
@@ -673,6 +688,16 @@ static int ft5x06_ts_resume(struct device *dev)
 {
 	struct ft5x06_ts_data *data = dev_get_drvdata(dev);
 	int err;
+	int wake_status;
+
+	if ((dt2w_switch > 0) && data->irq_wake_enabled) {
+		wake_status = disable_irq_wake(data->client->irq);
+		if (!wake_status)
+			data->irq_wake_enabled = false;
+		else
+			dev_warn(dev, "Failed to disable irq wake: %d\n",
+				wake_status);
+	}
 
 	if (!data->suspended) {
 		dev_dbg(dev, "Already in awake state\n");
