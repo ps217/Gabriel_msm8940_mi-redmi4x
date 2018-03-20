@@ -277,12 +277,14 @@
 
 		<spinner description="Select Maximum little cluster frequency. It works only when CPU-Tweaks is enabled." name="Max little Cluster Frequency"
 			action="cpu_l_max_freq">
+			<spinnerItem name="1.20 GHz" value="1209600"/>
 			<spinnerItem name="1.09 GHz" value="1094400"/>
 			<spinnerItem name="998 MHz" value="998400"/>
 			<spinnerItem name="902 MHz" value="902400"/>
 			<spinnerItem name="768 MHz" value="768000"/>
 			<spinnerItem name="518 MHz" value="518400"/>
 			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 		<spinner description="Select Maximum big cluster frequency. It works only when CPU-Tweaks is enabled." name="Max big Cluster Frequency"
@@ -297,6 +299,8 @@
 			<spinnerItem name="806 MHz" value="806400"/>
 			<spinnerItem name="652 MHz" value="652800"/>
 			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 	</settingsPane>
@@ -309,6 +313,7 @@
 			<spinnerItem name="768 MHz" value="768000"/>
 			<spinnerItem name="518 MHz" value="518400"/>
 			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 		<spinner description="Select minimum big cluster frequency. Note that, it can't be higher than Maximum big cluster freq. It works only when CPU-Tweaks is enabled." name="min big cluster Frequency"
@@ -318,6 +323,8 @@
 			<spinnerItem name="806 MHz" value="806400"/>
 			<spinnerItem name="652 MHz" value="652800"/>
 			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 	</settingsPane>
@@ -332,6 +339,7 @@
 			<spinnerItem name="768 MHz" value="768000"/>
 			<spinnerItem name="518 MHz" value="518400"/>
 			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 		<spinner description="Maximum Allowed CPU frequency." name="Max Big Cluster CPU Frequency"
@@ -345,6 +353,8 @@
 			<spinnerItem name="806 MHz" value="806400"/>
 			<spinnerItem name="652 MHz" value="652800"/>
 			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 		<spinner description="Minimum Allowed CPU frequency." name="Min Little Cluster CPU Frequency"
@@ -355,6 +365,7 @@
 			<spinnerItem name="768 MHz" value="768000"/>
 			<spinnerItem name="518 MHz" value="518400"/>
 			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 		<spinner description="Minimum Allowed CPU frequency." name="Min Big Cluster CPU Frequency"
@@ -364,6 +375,8 @@
 			<spinnerItem name="806 MHz" value="806400"/>
 			<spinnerItem name="652 MHz" value="652800"/>
 			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
 	</settingsPane>
