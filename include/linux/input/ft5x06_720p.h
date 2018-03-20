@@ -281,6 +281,7 @@ struct ft5x06_ts_data {
 	struct dentry *dir;
 	u16 addr;
 	bool suspended;
+	bool irq_wake_enabled;
 	char *ts_info;
 	u8 *tch_data;
 	u32 tch_data_len;
