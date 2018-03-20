@@ -34,13 +34,13 @@ cortexbrain_background_process=1;
 if [ "$cortexbrain_background_process" -eq "1" ]; then
 	while :
 		do
-		while [ "$(cat /sys/module/ft5x06_ts/parameters/sleep_state)" -ne "0" ]; do
+		while [ "$(cat /sys/module/ft5x06_720p/parameters/sleep_state)" -ne "0" ]; do
 			sleep "0.1"
 		done
 		# AWAKE State. all system ON
 		AWAKE_MODE;
 
-		while [ "$(cat /sys/module/ft5x06_ts/parameters/sleep_state)" -ne "1" ]; do
+		while [ "$(cat /sys/module/ft5x06_720p/parameters/sleep_state)" -ne "1" ]; do
 			sleep "1"
 		done
 		# SLEEP state. All system OFF
