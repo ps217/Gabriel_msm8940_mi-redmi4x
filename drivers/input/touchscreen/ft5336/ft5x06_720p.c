@@ -34,10 +34,22 @@
 #include <linux/fs.h>
 #include <asm/uaccess.h>
 
-
 #include <linux/hardware_info.h>
 
+/*
+ * debug = 1 will print all
+ */
+static unsigned int debug = 2;
+module_param_named(debug_mask, debug, uint, 0644);
 
+static unsigned int sleep_state = 0;
+module_param_named(sleep_state, sleep_state, uint, 0644);
+
+#define dprintk(msg...)		\
+do { 				\
+	if (debug)		\
+		pr_info(msg);	\
+} while (0)
 
 #if CTP_CHARGER_DETECT
 #include <linux/power_supply.h>
@@ -757,11 +769,17 @@ static int fb_notifier_callback(struct notifier_block *self,
 		blank = evdata->data;
 		if (*blank == FB_BLANK_UNBLANK
 				|| *blank == FB_BLANK_NORMAL
-				|| *blank == FB_BLANK_VSYNC_SUSPEND)
+				|| *blank == FB_BLANK_VSYNC_SUSPEND) {
 				schedule_work(&ft5x06_data->fb_notify_work);
-		else if (*blank == FB_BLANK_POWERDOWN) {
-			flush_work(&ft5x06_data->fb_notify_work);
-			ft5x06_ts_suspend(&ft5x06_data->client->dev);
+				dprintk("[ft5x06_ts] screen is on ...\n");
+				sleep_state = 0;
+		} else {
+				if (*blank == FB_BLANK_POWERDOWN) {
+				flush_work(&ft5x06_data->fb_notify_work);
+				ft5x06_ts_suspend(&ft5x06_data->client->dev);
+				dprintk("[ft5x06_ts] screen is off ...\n");
+				sleep_state = 1;
+				}
 		}
 	}
 
