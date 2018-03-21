@@ -111,8 +111,6 @@ enum vdd_sr2_pll_levels {
 	VDD_SR2_PLL_NOM,
 	VDD_SR2_PLL_TUR,
 	VDD_SR2_PLL_SUPER_TUR,
-	VDD_SR2_PLL_FUSION_TUR,
-	VDD_SR2_PLL_NUCLEAR_TUR,
 	VDD_SR2_PLL_NUM,
 };
 
@@ -122,8 +120,6 @@ static int vdd_sr2_levels[] = {
 	1800000, RPM_REGULATOR_LEVEL_NOM,	/* VDD_SR2_PLL_NOM */
 	1800000, RPM_REGULATOR_LEVEL_TURBO,	/* VDD_SR2_PLL_TUR */
 	1800000, RPM_REGULATOR_LEVEL_BINNING,	/* VDD_SR2_PLL_SUPER_TUR */
-	1800000, RPM_REGULATOR_LEVEL_FUSION,	/* VDD_SR2_PLL_FUSION_TUR */
-	1800000, RPM_REGULATOR_LEVEL_NUCLEAR,	/* VDD_SR2_PLL_NUCLEAR_TUR */
 };
 
 static DEFINE_VDD_REGULATORS(vdd_sr2_pll, VDD_SR2_PLL_NUM, 2,
@@ -135,8 +131,6 @@ enum vdd_hf_pll_levels {
 	VDD_HF_PLL_NOM,
 	VDD_HF_PLL_TUR,
 	VDD_HF_PLL_SUPER_TUR,
-	VDD_HF_PLL_FUSION_TUR,
-	VDD_HF_PLL_NUCLEAR_TUR,
 	VDD_HF_PLL_NUM,
 };
 
@@ -146,8 +140,6 @@ static int vdd_hf_levels[] = {
 	1800000, RPM_REGULATOR_LEVEL_NOM,	/* VDD_HF_PLL_NOM */
 	1800000, RPM_REGULATOR_LEVEL_TURBO,	/* VDD_HF_PLL_TUR */
 	1800000, RPM_REGULATOR_LEVEL_BINNING,	/* VDD_HF_PLL_SUPER_TUR */
-	1800000, RPM_REGULATOR_LEVEL_FUSION,	/* VDD_HF_PLL_FUSION_TUR */
-	1800000, RPM_REGULATOR_LEVEL_NUCLEAR,	/* VDD_HF_PLL_NUCLEAR_TUR */
 };
 static DEFINE_VDD_REGULATORS(vdd_hf_pll, VDD_HF_PLL_NUM, 2,
 				vdd_hf_levels, NULL);
@@ -760,7 +752,7 @@ static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8937[] = {
 	F_END
 };
 
-static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8937_600MHz[] = {
+static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8937_475MHz[] = {
 	F_SLEW( 19200000,  FIXED_CLK_SRC, xo,		1,	0,	0),
 	F_SLEW( 50000000,  FIXED_CLK_SRC, gpll0,	16,	0,	0),
 	F_SLEW( 80000000,  FIXED_CLK_SRC, gpll0,	10,	0,	0),
@@ -777,12 +769,10 @@ static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8937_600MHz[] = {
 	F_SLEW( 400000000, FIXED_CLK_SRC, gpll0,	2,	0,	0),
 	F_SLEW( 450000000, 900000000,	  gpll3,	1,	0,	0),
 	F_SLEW( 475000000, 950000000,	  gpll3,	1,	0,	0),
-	F_SLEW( 520000000, 1000000000,	  gpll3,	1,	0,	0),
-	F_SLEW( 600000000, 1050000000,	  gpll3,	1,	0,	0),
 	F_END
 };
 
-static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8940_600MHz[] = {
+static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8940_500MHz[] = {
 	F_SLEW( 19200000,  FIXED_CLK_SRC, xo,		1,	0,	0),
 	F_SLEW( 50000000,  FIXED_CLK_SRC, gpll0,	16,	0,	0),
 	F_SLEW( 80000000,  FIXED_CLK_SRC, gpll0,	10,	0,	0),
@@ -800,8 +790,6 @@ static struct clk_freq_tbl ftbl_gcc_oxili_gfx3d_clk_8940_600MHz[] = {
 	F_SLEW( 450000000, 900000000,	  gpll3,	1,	0,	0),
 	F_SLEW( 475000000, 950000000,	  gpll3,	1,	0,	0),
 	F_SLEW( 500000000, 1000000000,	  gpll3,	1,	0,	0),
-	F_SLEW( 520000000, 1000000000,	  gpll3,	1,	0,	0),
-	F_SLEW( 600000000, 1000000000,	  gpll3,	1,	0,	0),
 	F_END
 };
 
@@ -4251,22 +4239,16 @@ static void override_for_8937(int speed_bin)
 
 	if (speed_bin) {
 		OVERRIDE_FMAX6(gfx3d,
-			LOWER, 19200000,
-			LOWER, 100000000, LOWER, 160000000,
 			LOWER, 216000000, LOW, 300000000,
 			NOMINAL, 375000000, NOM_PLUS, 400000000,
-			HIGH, 450000000, SUPER_TUR, 475000000,
-			FUSION_TUR, 520000000, NUCLEAR_TUR, 600000000);
-		OVERRIDE_FTABLE(gfx3d, ftbl_gcc_oxili_gfx3d_clk, 8937_600MHz);
+			HIGH, 450000000, SUPER_TUR, 475000000);
+		OVERRIDE_FTABLE(gfx3d, ftbl_gcc_oxili_gfx3d_clk, 8937_475MHz);
 	} else {
-		OVERRIDE_FMAX6(gfx3d,
-			LOWER, 19200000,
-			LOWER, 100000000, LOWER, 160000000,
+		OVERRIDE_FMAX5(gfx3d,
 			LOWER, 216000000, LOW, 300000000,
 			NOMINAL, 375000000, NOM_PLUS, 400000000,
-			HIGH, 450000000, SUPER_TUR, 475000000,
-			FUSION_TUR, 520000000, NUCLEAR_TUR, 600000000);
-		OVERRIDE_FTABLE(gfx3d, ftbl_gcc_oxili_gfx3d_clk, 8940_600MHz);
+			HIGH, 450000000);
+		OVERRIDE_FTABLE(gfx3d, ftbl_gcc_oxili_gfx3d_clk, 8937);
 	}
 
 	OVERRIDE_FMAX5(cpp,
@@ -4438,14 +4420,14 @@ static int msm_gcc_probe(struct platform_device *pdev)
 		if (compat_bin3) {
 			if (speed_bin) {
 				gfx3d_clk_src.freq_tbl =
-					ftbl_gcc_oxili_gfx3d_clk_8940_600MHz;
-				gfx3d_clk_src.c.fmax[VDD_DIG_NUCLEAR_TUR] =
-								600000000;
+					ftbl_gcc_oxili_gfx3d_clk_8940_500MHz;
+				gfx3d_clk_src.c.fmax[VDD_DIG_SUPER_TUR] =
+								500000000;
 			} else {
 				gfx3d_clk_src.freq_tbl =
-					ftbl_gcc_oxili_gfx3d_clk_8937_600MHz;
-				gfx3d_clk_src.c.fmax[VDD_DIG_NUCLEAR_TUR] =
-								600000000;
+					ftbl_gcc_oxili_gfx3d_clk_8937_475MHz;
+				gfx3d_clk_src.c.fmax[VDD_DIG_SUPER_TUR] =
+								475000000;
 			}
 		}
 	} else if (compat_bin2 || compat_bin4) {
