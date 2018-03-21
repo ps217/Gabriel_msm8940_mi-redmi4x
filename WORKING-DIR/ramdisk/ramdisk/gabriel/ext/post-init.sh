@@ -187,9 +187,19 @@ CRITICAL_PERM_FIX;
 [ ! -f /data/.gabriel/battery.profile ] && cp -a /res/customconfig/battery.profile /data/.gabriel/battery.profile;
 [ ! -f /data/.gabriel/extreme_battery.profile ] && cp -a /res/customconfig/extreme_battery.profile /data/.gabriel/extreme_battery.profile;
 [ ! -f /data/.gabriel/performance.profile ] && cp -a /res/customconfig/performance.profile /data/.gabriel/performance.profile;
-[ ! -f /data/.gabriel/gaming.profile ] && cp -a /res/customconfig/gaming.profile /data/.gabriel/gaming.profile;
+[ ! -f /data/.gabriel/extreme_performance.profile ] && cp -a /res/customconfig/extreme_performance.profile /data/.gabriel/extreme_performance.profile;
+[ ! -f /data/.gabriel/gabriel.profile ] && cp -a /res/customconfig/gabriel.profile /data/.gabriel/gabriel.profile;
+[ ! -f /data/.gabriel/salvation.profile ] && cp -a /res/customconfig/salvation.profile /data/.gabriel/salvation.profile;
 
 $BB chmod -R 0777 /data/.gabriel/;
+
+if [ ! -e init.miui.rc ]; then
+	if [ ! -e /data/.gabriel/logs/boot_key_layout ] || [ `cat /data/.gabriel/logs/boot_key_layout` -eq "0" ]; then
+		# to not restore menu layout if user restore a config
+		sed -i 's/recent_key_fix=menu/recent_key_fix=app_switch/g' /data/.gabriel/*profile;
+		echo 1 > /data/.gabriel/logs/boot_key_layout;
+	fi;
+fi;
 
 . /res/customconfig/customconfig-helper;
 read_defaults;
@@ -200,15 +210,6 @@ sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=1
 if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
 	nohup sh /gabriel/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
 fi;
-
-if [ "$(cat /system/build.prop | grep "ro.build.version.release" | cut -c 26)" -eq "7" ]; then
-	echo 1 > /sys/fs/selinux/enforce;
-fi;
-
-# Fix titanium backup root access
-#if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
-#	\cp /sbin/su /system/xbin/su;
-#fi;
 
 # Fentropy enForcer
 # Thanks to ArjunrambZ (TweakDrypT)
