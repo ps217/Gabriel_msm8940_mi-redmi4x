@@ -596,9 +596,7 @@
 
 		<spinner description="Select GPU Maximum frequency only when needed because some higher frequencies can be unstable! and 657 MHz only available in Over Clocked version. Stock MIUI UI start lag under 160 MHz with msm-adreno governor. (Default: 475 MHz)." name="Max GPU Frequency"
 			action="generic /sys/class/kgsl/kgsl-3d0/devfreq/max_freq">
-			<spinnerItem name="600 MHz" value="600000000"/>
 			<spinnerItem name="520 MHz" value="520000000"/>
-			<spinnerItem name="475 MHz" value="475000000"/> 
 			<spinnerItem name="450 MHz" value="450000000"/> 
 			<spinnerItem name="400 MHz" value="400000000"/> 
 			<spinnerItem name="375 MHz" value="375000000"/> 
@@ -619,22 +617,20 @@
 			<spinnerItem name="375 MHz" value="375000000"/> 
 			<spinnerItem name="400 MHz" value="400000000"/> 
 			<spinnerItem name="450 MHz" value="450000000"/> 
-			<spinnerItem name="475 MHz" value="475000000"/> 
+			<spinnerItem name="520 MHz" value="520000000"/>
 		</spinner>
 
 		<spinner description="Select GPU Initial Frequency (Power Level). (Default: 375 MHz)." name="GPU Initial Frequency"
 			action="generic /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel">
-			<spinnerItem name="19 MHz" value="10"/> 
-			<spinnerItem name="100 MHz" value="9"/> 
-			<spinnerItem name="160 MHz" value="8"/> 
-			<spinnerItem name="216 MHz" value="7"/> 
-			<spinnerItem name="300 MHz" value="6"/> 
-			<spinnerItem name="375 MHz" value="5"/> 
-			<spinnerItem name="400 MHz" value="4"/> 
-			<spinnerItem name="450 MHz" value="3"/> 
-			<spinnerItem name="475 MHz" value="2"/>
-			<spinnerItem name="520 MHz" value="1"/>
-			<spinnerItem name="600 MHz" value="0"/> 
+			<spinnerItem name="19 MHz" value="8"/>
+			<spinnerItem name="100 MHz" value="7"/>
+			<spinnerItem name="160 MHz" value="6"/>
+			<spinnerItem name="216 MHz" value="5"/>
+			<spinnerItem name="300 MHz" value="4"/>
+			<spinnerItem name="375 MHz" value="3"/>
+			<spinnerItem name="400 MHz" value="2"/>
+			<spinnerItem name="450 MHz" value="1"/>
+			<spinnerItem name="520 MHz" value="0"/>
 		</spinner>
 
 	</settingsPane>
