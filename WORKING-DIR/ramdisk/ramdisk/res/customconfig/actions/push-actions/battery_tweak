@@ -1,0 +1,6 @@
+#!/sbin/busybox sh
+
+# Created By Mostafa-z
+
+	rm -f /data/system/batterystats.bin;
+	echo "Battery-calibration done";

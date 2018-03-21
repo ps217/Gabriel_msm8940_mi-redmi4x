@@ -886,6 +886,12 @@
 
 <settingsTab name="Other">
 
+	<settingsPane description="Battery Tweaks." name="Battery Tweaks Control">
+
+		<button description="Calibrate Battery. Push this button if you installed Rom recently or Battery Diagram have Flat Drop Energy status or Increase While not Charging or battery indicator stucked at a value." name="Remove batterystats.bin" action="push-actions/battery_tweak" label="Calibrate Battery"/>
+
+	</settingsPane>
+
 	<settingsPane description="Here you can set Driver Message logging options for kernel debugging." name="Drivers Logging">
 
 		<checkbox description="Kernel Logging can be switched ON and OFF. if you Turn this OFF kernel no more logging it's activities and DEV can't help you in case of Panic or etc." name="DMESG logging ON and OFF"
