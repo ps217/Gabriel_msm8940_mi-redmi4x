@@ -391,13 +391,19 @@
 	clkname##_clk_src.c.fmax[VDD_DIG_##l5] = (f5)
 
 #define OVERRIDE_FMAX6(clkname, \
-		l1, f1, l2, f2, l3, f3, l4, f4, l5, f5, l6, f6) \
+		l1, f1, l2, f2, l3, f3, l4, f4, l5, f5, l6, f6, \
+		l7, f7, l8, f8, l9, f9, l10, f10, l11, f11) \
 	clkname##_clk_src.c.fmax[VDD_DIG_##l1] = (f1);\
 	clkname##_clk_src.c.fmax[VDD_DIG_##l2] = (f2);\
 	clkname##_clk_src.c.fmax[VDD_DIG_##l3] = (f3);\
 	clkname##_clk_src.c.fmax[VDD_DIG_##l4] = (f4);\
 	clkname##_clk_src.c.fmax[VDD_DIG_##l5] = (f5);\
-	clkname##_clk_src.c.fmax[VDD_DIG_##l6] = (f6)
+	clkname##_clk_src.c.fmax[VDD_DIG_##l6] = (f6);\
+	clkname##_clk_src.c.fmax[VDD_DIG_##l7] = (f7);\
+	clkname##_clk_src.c.fmax[VDD_DIG_##l8] = (f8);\
+	clkname##_clk_src.c.fmax[VDD_DIG_##l9] = (f9);\
+	clkname##_clk_src.c.fmax[VDD_DIG_##l10] = (f10);\
+	clkname##_clk_src.c.fmax[VDD_DIG_##l11] = (f11)
 
 #define OVERRIDE_FTABLE(clkname, ftable, name) \
 	clkname##_clk_src.freq_tbl = ftable##_##name
@@ -410,6 +416,8 @@ enum vdd_dig_levels {
 	VDD_DIG_NOM_PLUS,
 	VDD_DIG_HIGH,
 	VDD_DIG_SUPER_TUR,
+	VDD_DIG_FUSION_TUR,
+	VDD_DIG_NUCLEAR_TUR,
 	VDD_DIG_NUM
 };
 
@@ -438,6 +446,8 @@ int vdd_corner[] = {
 	RPM_REGULATOR_LEVEL_NOM,		/* VDD_DIG_NOM */
 	RPM_REGULATOR_LEVEL_NOM_PLUS,		/* VDD_DIG_NOM_PLUS */
 	RPM_REGULATOR_LEVEL_TURBO,		/* VDD_DIG_TURBO */
+	RPM_REGULATOR_LEVEL_FUSION,		/* VDD_DIG_FUSION */
+	RPM_REGULATOR_LEVEL_NUCLEAR,		/* VDD_DIG_NUCLEAR */
 	RPM_REGULATOR_LEVEL_BINNING,		/* VDD_DIG_SUPER_TUR */
 };
 #endif
