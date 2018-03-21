@@ -1,4 +1,5 @@
 stweaks_boot_control=yes
+recent_key_fix=menu
 fstrim_boot=no
 doubletap2wake=0
 fsync_enabled=0

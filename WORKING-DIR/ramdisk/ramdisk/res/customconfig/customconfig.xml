@@ -29,6 +29,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="Set Overview Hardware Button layout to show Menu or Recent App menu. AOSP based roms using overview button as recent app menu by default. Reboot needed." name="Overview Button Layout">
+
+		<spinner description="Select a Layout." name="Overview Button Layout"
+			action="recent_key_fix">
+			<spinnerItem name="Menu" value="menu"/>
+			<spinnerItem name="App Switch" value="app_switch"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Control Fstrim on boot. it will run fstrim for data, cache, system partitions at end of the boot process." name="Fstrim on Boot">
 
 		<spinner description="Select Fstrim state" name="Fstrim State"
