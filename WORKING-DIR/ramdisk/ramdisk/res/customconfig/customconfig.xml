@@ -213,6 +213,7 @@
 			<spinnerItem name="NLB Performance" value="nlb_performance"/>
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Glassfish" value="glassfish"/>
 		</spinner>
 
 		<spinner description="Select the big cluster Profile." name="big cluster Interactive Profile"
@@ -223,6 +224,7 @@
 			<spinnerItem name="NLB Performance" value="nlb_performance"/>
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Glassfish" value="glassfish"/>
 		</spinner>
 
 	</settingsPane>

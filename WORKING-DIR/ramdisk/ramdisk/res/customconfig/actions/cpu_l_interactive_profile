@@ -178,6 +178,38 @@ if [ "a$2" != "a" ]; then
 
 			$BB sync
 		;;
+		glassfish)
+			TARGET4="80 768000:70 902400:99"
+
+			for i in 4 5 6 7; do
+				CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+			    if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+					GOV=$(cat /$CPUL/scaling_governor);
+					chmod 644 /$CPUL/$GOV/*
+					echo 0 > /$CPUL/$GOV/use_sched_load
+					echo 1 > /$CPUL/$GOV/use_migration_notif
+					echo 0 > /$CPUL/$GOV/enable_prediction
+					echo 0 > /$CPUL/$GOV/above_hispeed_delay
+					echo 91 > /$CPUL/$GOV/go_hispeed_load
+					echo 902400 > /$CPUL/$GOV/hispeed_freq
+					echo "$TARGET4" > /$CPUL/$GOV/target_loads
+					echo 60000 > /$CPUL/$GOV/timer_rate
+					echo 40000 > /$CPUL/$GOV/sleep_timer_rate
+					echo 0 > /$CPUL/$GOV/min_sample_time
+					echo 1 > /$CPUL/$GOV/ignore_hispeed_on_notif
+					echo 0 > /$CPUL/$GOV/max_freq_hysteresis
+					echo 480000 > /$CPUL/$GOV/timer_slack
+					echo 0 > /$CPUL/$GOV/io_is_busy
+					echo 0 > /$CPUL/$GOV/boost
+					echo 0 > /$CPUL/$GOV/boostpulse_duration
+					echo 0 > /$CPUL/$GOV/fast_ramp_down
+					echo 1094400 > /$CPUL/scaling_max_freq
+					break
+				fi;
+			done;
+
+			$BB sync
+		;;
 		*)
 			cpu_l_interactive_profile=off;
 		;;
