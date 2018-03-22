@@ -72,7 +72,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 	pr_warn("--------gf_parse_dts start.--------\n");
 
 
-	rc = gf3208_request_named_gpio(gf_dev, "goodix,gpio_reset",  &gf_dev->reset_gpio);
+	rc = gf3208_request_named_gpio(gf_dev, "goodix,gpio_reset", &gf_dev->reset_gpio);
 	if (rc) {
 
 		gf_dbg("Failed to request RESET GPIO. rc = %d\n", rc);
@@ -81,7 +81,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 
 
 
-	rc = gf3208_request_named_gpio(gf_dev, "goodix,gpio_irq",  &gf_dev->irq_gpio);
+	rc = gf3208_request_named_gpio(gf_dev, "goodix,gpio_irq", &gf_dev->irq_gpio);
 	if (rc) {
 
 		gf_dbg("Failed to request IRQ GPIO. rc = %d\n", rc);
@@ -114,7 +114,7 @@ int gf_parse_dts(struct gf_dev *gf_dev)
 	return rc;
 }
 
-void gf_cleanup(struct gf_dev	*gf_dev)
+void gf_cleanup(struct gf_dev *gf_dev)
 {
 	gf_dbg("[info]  enter%s\n", __func__);
 

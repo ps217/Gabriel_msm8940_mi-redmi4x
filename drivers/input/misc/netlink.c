@@ -77,7 +77,7 @@ int netlink_init(void)
 
 	nl_sk = netlink_kernel_create(&init_net, NETLINK_TEST, &netlink_cfg);
 
-	if (!nl_sk)  {
+	if (!nl_sk) {
 		printk(KERN_ERR "my_net_link: create netlink socket error.\n");
 		return 1;
 	}
@@ -87,7 +87,7 @@ int netlink_init(void)
 
 void netlink_exit(void)
 {
-	if (nl_sk != NULL)  {
+	if (nl_sk != NULL) {
 		sock_release(nl_sk->sk_socket);
 	}
 
