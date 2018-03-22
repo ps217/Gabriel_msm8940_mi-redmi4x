@@ -105,9 +105,7 @@ struct cpufreq_cultivation_tunables {
 	 * The sample rate of the timer used to increase frequency
 	 */
 	unsigned long timer_rate;
-	unsigned long prev_timer_rate;
-#define DEFAULT_TIMER_RATE_SCREENOFF (50 * USEC_PER_MSEC)
-	unsigned long timer_rate_screenoff;
+
 	/*
 	 * Wait this long before raising speed above hispeed, by default a
 	 * single timer interval.
@@ -429,19 +427,6 @@ static void cpufreq_cultivation_timer(unsigned long data)
 	int_info.sampling_rate_us = tunables->timer_rate;
 	atomic_notifier_call_chain(&cpufreq_govinfo_notifier_list,
 					CPUFREQ_LOAD_CHANGE, &int_info);
-
-#ifdef CONFIG_STATE_NOTIFIER
-	if (!state_suspended &&
-		tunables->timer_rate != tunables->prev_timer_rate)
-		tunables->timer_rate = tunables->prev_timer_rate;
-	else if (state_suspended &&
-#endif
-		tunables->timer_rate != tunables->timer_rate_screenoff) {
-		tunables->prev_timer_rate = tunables->timer_rate;
-		tunables->timer_rate
-			= max(tunables->timer_rate,
-				tunables->timer_rate_screenoff);
-	}
 
 	spin_lock_irqsave(&pcpu->target_freq_lock, flags);
 	cpu_load = loadadjfreq / pcpu->policy->cur;
@@ -931,7 +916,6 @@ static ssize_t store_timer_rate(struct cpufreq_cultivation_tunables *tunables,
 			val_round);
 
 	tunables->timer_rate = val_round;
-	tunables->prev_timer_rate = val_round;
 	return count;
 }
 
@@ -1033,32 +1017,6 @@ static ssize_t store_fastlane_threshold(
 	return count;
 }
 
-static ssize_t show_timer_rate_screenoff(struct cpufreq_cultivation_tunables
-               *tunables, char *buf)
-{
-       return sprintf(buf, "%lu\n", tunables->timer_rate_screenoff);
-}
-
-static ssize_t store_timer_rate_screenoff(struct cpufreq_cultivation_tunables
-               *tunables, const char *buf, size_t count)
-{
-       int ret;
-       unsigned long val, val_round;
-
-       ret = kstrtoul(buf, 0, &val);
-       if (ret < 0)
-               return ret;
-
-       val_round = jiffies_to_usecs(usecs_to_jiffies(val));
-       if (val != val_round)
-               pr_warn("timer_rate_screenoff not aligned to jiffy. Rounded up to %lu\n",
-                       val_round);
-
-       tunables->timer_rate_screenoff = val_round;
-
-       return count;
-}
-
 static ssize_t show_powersave_bias(struct cpufreq_cultivation_tunables *tunables,
 		char *buf)
 {
@@ -1140,7 +1098,6 @@ show_store_gov_pol_sys(go_hispeed_load);
 show_store_gov_pol_sys(go_lowspeed_load);
 show_store_gov_pol_sys(min_sample_time);
 show_store_gov_pol_sys(timer_rate);
-show_store_gov_pol_sys(timer_rate_screenoff);
 show_store_gov_pol_sys(timer_slack);
 show_store_gov_pol_sys(io_is_busy);
 show_store_gov_pol_sys(align_windows);
@@ -1168,7 +1125,6 @@ gov_sys_pol_attr_rw(go_hispeed_load);
 gov_sys_pol_attr_rw(go_lowspeed_load);
 gov_sys_pol_attr_rw(min_sample_time);
 gov_sys_pol_attr_rw(timer_rate);
-gov_sys_pol_attr_rw(timer_rate_screenoff);
 gov_sys_pol_attr_rw(timer_slack);
 gov_sys_pol_attr_rw(io_is_busy);
 gov_sys_pol_attr_rw(align_windows);
@@ -1186,7 +1142,6 @@ static struct attribute *cultivation_attributes_gov_sys[] = {
 	&go_lowspeed_load_gov_sys.attr,
 	&min_sample_time_gov_sys.attr,
 	&timer_rate_gov_sys.attr,
-	&timer_rate_screenoff_gov_sys.attr,
 	&timer_slack_gov_sys.attr,
 	&io_is_busy_gov_sys.attr,
 	&align_windows_gov_sys.attr,
@@ -1211,7 +1166,6 @@ static struct attribute *cultivation_attributes_gov_pol[] = {
 	&go_lowspeed_load_gov_pol.attr,
 	&min_sample_time_gov_pol.attr,
 	&timer_rate_gov_pol.attr,
-	&timer_rate_screenoff_gov_pol.attr,
 	&timer_slack_gov_pol.attr,
 	&io_is_busy_gov_pol.attr,
 	&align_windows_gov_pol.attr,
@@ -1285,8 +1239,6 @@ static struct cpufreq_cultivation_tunables *alloc_tunable(
 	tunables->ntarget_loads = ARRAY_SIZE(default_target_loads);
 	tunables->min_sample_time = DEFAULT_MIN_SAMPLE_TIME;
 	tunables->timer_rate = DEFAULT_TIMER_RATE;
-	tunables->prev_timer_rate = DEFAULT_TIMER_RATE;
-	tunables->timer_rate_screenoff = DEFAULT_TIMER_RATE_SCREENOFF;
 	tunables->timer_slack_val = DEFAULT_TIMER_SLACK;
 	tunables->fastlane = false;
 	tunables->fastlane_threshold = 50;
