@@ -187,7 +187,9 @@ CRITICAL_PERM_FIX;
 [ ! -f /data/.gabriel/battery.profile ] && cp -a /res/customconfig/battery.profile /data/.gabriel/battery.profile;
 [ ! -f /data/.gabriel/extreme_battery.profile ] && cp -a /res/customconfig/extreme_battery.profile /data/.gabriel/extreme_battery.profile;
 [ ! -f /data/.gabriel/performance.profile ] && cp -a /res/customconfig/performance.profile /data/.gabriel/performance.profile;
-[ ! -f /data/.gabriel/gaming.profile ] && cp -a /res/customconfig/gaming.profile /data/.gabriel/gaming.profile;
+[ ! -f /data/.gabriel/extreme_performance.profile ] && cp -a /res/customconfig/extreme_performance.profile /data/.gabriel/extreme_performance.profile;
+[ ! -f /data/.gabriel/gabriel.profile ] && cp -a /res/customconfig/gabriel.profile /data/.gabriel/gabriel.profile;
+[ ! -f /data/.gabriel/salvation.profile ] && cp -a /res/customconfig/salvation.profile /data/.gabriel/salvation.profile;
 
 $BB chmod -R 0777 /data/.gabriel/;
 
