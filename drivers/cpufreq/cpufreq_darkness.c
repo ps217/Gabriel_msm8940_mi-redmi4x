@@ -60,7 +60,6 @@ static spinlock_t speedchange_cpumask_lock;
 static struct mutex gov_lock;
 
 #define DEFAULT_TIMER_RATE (20 * USEC_PER_MSEC)
-#define DEFAULT_TIMER_RATE_SUSP ((unsigned long)(50 * USEC_PER_MSEC))
 #define LOAD_MODE					1
 
 enum {
@@ -75,9 +74,7 @@ struct cpufreq_darkness_tunables {
 	 * The sample rate of the timer used to increase frequency
 	 */
 	unsigned long timer_rate;
-#ifdef CONFIG_STATE_NOTIFIER
-	unsigned long timer_rate_prev;
-#endif
+
 	/*
 	 * Max additional time to wait in idle, beyond timer_rate, at speeds
 	 * above minimum before wakeup to reduce speed, or -1 if unnecessary.
@@ -282,19 +279,6 @@ static void cpufreq_darkness_timer(unsigned long data)
 	spin_lock_irqsave(&ppol->load_lock, flags);
 	ppol->last_evaluated_jiffy = get_jiffies_64();
 
-#ifdef CONFIG_STATE_NOTIFIER
-	if (!state_suspended &&
-		tunables->timer_rate != tunables->timer_rate_prev)
-		tunables->timer_rate = tunables->timer_rate_prev;
-	else if (state_suspended &&
-		tunables->timer_rate != DEFAULT_TIMER_RATE_SUSP) {
-		tunables->timer_rate_prev = tunables->timer_rate;
-		tunables->timer_rate
-			= max(tunables->timer_rate,
-				DEFAULT_TIMER_RATE_SUSP);
-	}
-#endif
-
 	max_cpu = cpumask_first(ppol->policy->cpus);
 	for_each_cpu(i, ppol->policy->related_cpus) {
 		if (!cpu_online(i))
@@ -488,9 +472,6 @@ static ssize_t store_timer_rate(struct cpufreq_darkness_tunables *tunables,
 		pr_warn("timer_rate not aligned to jiffy. Rounded up to %lu\n",
 			val_round);
 	tunables->timer_rate = val_round;
-#ifdef CONFIG_STATE_NOTIFIER
-	tunables->timer_rate_prev = val_round;
-#endif
 
 	return count;
 }
@@ -674,9 +655,6 @@ static struct cpufreq_darkness_tunables *alloc_tunable(
 		return ERR_PTR(-ENOMEM);
 
 	tunables->timer_rate = DEFAULT_TIMER_RATE;
-#ifdef CONFIG_STATE_NOTIFIER
-	tunables->timer_rate_prev = DEFAULT_TIMER_RATE;
-#endif
 	tunables->timer_slack_val = DEFAULT_TIMER_SLACK;
 	tunables->load_mode = LOAD_MODE;
 
