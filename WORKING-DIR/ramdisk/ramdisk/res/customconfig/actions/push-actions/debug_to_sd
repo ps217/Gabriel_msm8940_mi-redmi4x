@@ -381,6 +381,8 @@ case "${debug_to_sd}" in
 					cat /proc/$i/cmdline >> $ACTIVE_DEBUG_FILE;
 				fi;
 			done;
+			echo "low mem count:" >> $ACTIVE_DEBUG_FILE;
+			cat /sys/module/lowmemorykiller/parameters/lmkcount >> $ACTIVE_DEBUG_FILE;
 			SEPARATOR;
 
 			# HotPlug configuration
