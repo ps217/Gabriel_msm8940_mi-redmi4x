@@ -63,6 +63,7 @@
 #define	CLASS_NAME		    "goodix_fp"
 #define SPIDEV_MAJOR		225	/* assigned */
 #define N_SPI_MINORS		32	/* ... up to 256 */
+#define AP_CONTROL_CLK
 
 
 struct gf_key_map key_map[] = {
