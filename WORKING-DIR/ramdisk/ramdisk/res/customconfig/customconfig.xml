@@ -981,6 +981,24 @@
 
 	</settingsPane>
 
+	<settingsPane description="Change GPS settings." name="GPS">
+
+		<spinner description="Set GPS Time Zone for faster GPS lock. Use your current time zone." name="GPS Region"
+			action="gpsregion">
+			<spinnerItem name="No GPS Zone changes (default)" value="No_GPS_Zone_changes"/> 
+			<spinnerItem name="Asia Zone" value="Asia"/> 
+			<spinnerItem name="Europe Zone" value="Europe"/> 
+			<spinnerItem name="Oceania Zone" value="Oceania"/> 
+			<spinnerItem name="North America Zone" value="North-America"/> 
+			<spinnerItem name="South America Zone" value="South-America"/> 
+			<spinnerItem name="Africa Zone" value="Africa"/> 
+			<spinnerItem name="Restore Original ROM Config" value="Original_ROM_GPS_Restored"/> 
+		</spinner>
+
+		<button description="Check for current GPS ZONE." name="GPS ZONE" action="push-actions/gpszonecheck" label="GPS Zone Check"/>
+
+	</settingsPane>
+
 	<settingsPane description="INIT.D" name="INIT.D">
 
 		<checkbox description="Enable INIT.D scripts RUN on boot. If you put scripts in INIT.D and enable it, default SuperSu scripts will run on boot from INIT.D." name="INIT.D Scripts RUN control"
