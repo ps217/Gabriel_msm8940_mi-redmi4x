@@ -1,0 +1,6 @@
+#!/sbin/busybox sh
+
+(
+	GPS="/system/vendor/etc/gps.conf"
+	cat $GPS | grep NTP
+)&

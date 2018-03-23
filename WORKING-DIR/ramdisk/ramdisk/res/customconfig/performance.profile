@@ -115,6 +115,7 @@ sound_l=0
 sound_r=0
 tcp_congestion_control=westwood
 usb_adb=rom
+gpsregion=No_GPS_Zone_changes
 init_d=off
 cortexbrain_background_process=1
 cortexbrain_memory=on
