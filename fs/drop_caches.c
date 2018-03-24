@@ -11,7 +11,20 @@
 #include <linux/syscalls.h>
 #include <linux/fb.h>
 #include <linux/delay.h>
+#include <linux/module.h>
 #include "internal.h"
+
+int suspend_drop_cache = 0;
+static unsigned int debug = 1;
+
+module_param(suspend_drop_cache, int, 0755);
+module_param_named(debug_mask, debug, uint, 0644);
+
+#define dprintk(msg...)		\
+do { 				\
+	if (debug)		\
+		pr_info(msg);	\
+} while (0)
 
 /* A global variable is a bit ugly, but it keeps the code simple */
 int sysctl_drop_caches;
@@ -90,13 +103,16 @@ static DECLARE_WORK(drop_caches_suspend_work, drop_caches_suspend);
 
 static void drop_caches_suspend(struct work_struct *work)
 {
-	/* sleep for 200ms */
-	msleep(200);
-	/* sync */
-	emergency_sync();
-	/* echo "3" > /proc/sys/vm/drop_caches */
-	iterate_supers(drop_pagecache_sb, NULL);
-        drop_slab();
+	if (suspend_drop_cache > 0) {
+		/* sleep for 200ms */
+		msleep(200);
+		/* sync */
+		emergency_sync();
+		/* echo "3" > /proc/sys/vm/drop_caches */
+		iterate_supers(drop_pagecache_sb, NULL);
+			drop_slab();
+		dprintk("Clearing PageCache, dentries and inodes\n");
+	}
 }
 
 static int fb_notifier(struct notifier_block *self,
