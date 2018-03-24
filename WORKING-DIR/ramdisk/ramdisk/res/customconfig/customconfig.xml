@@ -827,6 +827,12 @@
 
 		<button description="Release all cached and buffered files from RAM. WAIT some sec for getting cleanup report. stweak will FREEZE, don't panic and wait some sec." name="Clear RAM Cache" action="push-actions/clean_ram_cache" label="Clear RAM Cache"/>
 
+		<spinner description="Release all cached and buffered files from RAM every time Screen goes OFF." name="Auto Clear Ram Cache"
+			action="generic /sys/module/drop_caches/parameters/suspend_drop_cache">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="SWAP function is using swap storage placed in /data folder in order to expand RAM and leave more physical RAM for apps working in the background. Enable this option only, if you have free space and you really need that RAM expansion. You will notice slightly faster battery discharging and slower I/O read/write operations. It can be combined with ZRAM." name="Linux SWAP">
