@@ -911,6 +911,8 @@
 
 		<button description="Calibrate Battery. Push this button if you installed Rom recently or Battery Diagram have Flat Drop Energy status or Increase While not Charging or battery indicator stucked at a value." name="Remove batterystats.bin" action="push-actions/battery_tweak" label="Calibrate Battery"/>
 
+		<button description="Check charge/drain status. Battery will charge faster if there are few Power Eater Resources like Screen on,Downloding via Mobile data,etc and the Battery Temperature is not High. It takes a while to calculate current when un/plug the charger or new resource has been activated." name="Battery Current Status" action="push-actions/current_now" label="Battery Current Check"/>
+
 	</settingsPane>
 
 	<settingsPane description="Here you can set Driver Message logging options for kernel debugging." name="Drivers Logging">
