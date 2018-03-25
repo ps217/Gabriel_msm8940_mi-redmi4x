@@ -204,6 +204,7 @@
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Glassfish" value="glassfish"/>
+			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
 		<spinner description="Select the big cluster Profile." name="big cluster Interactive Profile"
@@ -215,6 +216,7 @@
 			<spinnerItem name="BEF Gaming" value="bef_gaming"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Glassfish" value="glassfish"/>
+			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
 	</settingsPane>
