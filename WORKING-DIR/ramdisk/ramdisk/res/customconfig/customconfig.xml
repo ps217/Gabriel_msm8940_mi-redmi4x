@@ -33,13 +33,13 @@
 
 		<spinner description="Select Fstrim state" name="Fstrim State"
 			action="generic_cortex /tmp/fstrim_boot">
-			<spinnerItem name="Fstrim on boot." value="yes"/>
-			<spinnerItem name="Don't Fstrim on boot." value="no"/>
+			<spinnerItem name="Fstrim on boot" value="yes"/>
+			<spinnerItem name="Don't Fstrim on boot" value="no"/>
 		</spinner>
 
 	</settingsPane>
 
-	<settingsPane description="Control double tap to wake function (Default: disabled)" name="DT2W control">
+	<settingsPane description="Control double tap to wake function. by enabling dt2w system always listening to Touch screen and will be awake if you even put a finger on the LCD. (Default: disabled)" name="DT2W control">
 
 		<spinner description="Select DT2W State" name="DT2W State"
 			action="generic /sys/android_touch/doubletap2wake">
