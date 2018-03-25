@@ -1,0 +1,19 @@
+#!/sbin/busybox sh
+
+(
+	BB=/gabriel/busybox
+
+	CURRENT=`$BB cat /sys/class/qns/current_now | tr -d "-";`
+	VOLTAGE=`$BB cat /sys/class/qns/voltage;`
+	TEMP=`$BB cat /sys/class/qns/temp;`
+
+	if [ $(cat /sys/class/qns/charging_state) -eq "1" ]; then
+		echo "Charging";
+	else
+		echo "not Charging";
+	fi;
+
+	echo $CURRENT "ma";
+	echo $VOLTAGE "V";
+	echo ${TEMP:0:2}.${TEMP:2:1} "C"
+)&
