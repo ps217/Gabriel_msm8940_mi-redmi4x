@@ -394,6 +394,7 @@
 			<spinnerItem name="Gaming" value="gaming"/>
 			<spinnerItem name="Stock" value="stock"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
 		<spinner description="Suspend HMP Scheduler for Cluster utilization." name="Suspend HMP Scheduler"
@@ -405,6 +406,7 @@
 			<spinnerItem name="Gaming" value="gaming"/>
 			<spinnerItem name="Stock" value="stock"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
 	</settingsPane>
