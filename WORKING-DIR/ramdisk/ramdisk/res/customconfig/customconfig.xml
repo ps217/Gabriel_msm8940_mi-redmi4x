@@ -783,6 +783,7 @@
 			<spinnerItem name="Light" value="light"/>
 			<spinnerItem name="Medium" value="medium"/>
 			<spinnerItem name="Stock" value="stock"/>
+			<spinnerItem name="Miui" value="miui"/>
 			<spinnerItem name="Aggressive" value="aggressive"/>
 			<spinnerItem name="Exterminate" value="exterminate"/>
 		</spinner>
