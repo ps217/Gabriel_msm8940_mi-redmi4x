@@ -1,6 +1,11 @@
 #!/sbin/busybox sh
 
 (
-	GPS="/system/vendor/etc/gps.conf"
+	if [ -e /system/vendor/etc/gps.conf ]; then
+		GPS="/system/vendor/etc/gps.conf"
+	else
+		GPS="/system/etc/gps.conf"
+	fi;
+
 	cat $GPS | grep NTP
 )&

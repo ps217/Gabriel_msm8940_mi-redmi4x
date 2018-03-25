@@ -9,7 +9,11 @@ if [ "$($BB mount | grep system | grep -c ro)" -gt "0" ]; then
 	$BB mount -o remount,rw /system;
 fi;
 
-var_gps="/system/vendor/etc/gps.conf";
+if [ -e /system/vendor/etc/gps.conf ]; then
+	var_gps="/system/vendor/etc/gps.conf";
+else
+	var_gps="/system/etc/gps.conf";
+fi;
 
 # Backup original gps.conf in case of user revert by using 7 case.
 if [ ! -e $var_gps.bkp ]; then
