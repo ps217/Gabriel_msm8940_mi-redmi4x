@@ -603,13 +603,16 @@
 		interrupts = <0 299 0>;
 		qcom,clk-freq-out = <400000>;
 		qcom,clk-freq-in  = <19200000>;
+		qcom,i2c-clk = <&tlmm 18 0>;
+		qcom,i2c-dat = <&tlmm 19 0>;
 		clock-names = "iface_clk", "core_clk";
 		clocks = <&clock_gcc clk_gcc_blsp2_ahb_clk>,
 			<&clock_gcc clk_gcc_blsp2_qup1_i2c_apps_clk>;
 
-		pinctrl-names = "i2c_active", "i2c_sleep";
+		pinctrl-names = "i2c_active", "i2c_sleep", "i2c_bitbang";
 		pinctrl-0 = <&i2c_5_active>;
 		pinctrl-1 = <&i2c_5_sleep>;
+		pinctrl-2 = <&i2c_5_bitbang>;
 		qcom,noise-rjct-scl = <0>;
 		qcom,noise-rjct-sda = <0>;
 		qcom,master-id = <84>;
