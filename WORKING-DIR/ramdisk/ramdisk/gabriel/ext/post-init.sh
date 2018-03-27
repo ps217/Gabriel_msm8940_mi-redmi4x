@@ -110,6 +110,13 @@ SYSTEM_TUNING()
 {
 echo 1 > /sys/module/msm_thermal/core_control/enabled;
 echo 0 > /cputemp/enabled;
+
+# cpu-set tuning
+echo "0-1,4-6" > /dev/cpuset/foreground/cpus; # 0-2,4-5
+echo "0-2" > /dev/cpuset/foreground/boost/cpus;
+echo "2-7" > /dev/cpuset/top-app/cpus; # 2-5
+echo "4-5" > /dev/cpuset/system-background/cpus;
+echo "4-5" > /dev/cpuset/background/cpus;
 }
 
 OPEN_RW;
