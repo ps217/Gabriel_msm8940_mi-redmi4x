@@ -349,6 +349,7 @@ struct ft5x06_ts_data {
 	/* moto TP modifiers */
 	bool patching_enabled;
 	struct ft5x06_modifiers modifiers;
+	struct workqueue_struct *wq;
 };
 
 static int ft5x06_ts_start(struct device *dev);
@@ -2817,6 +2818,27 @@ static int ft5x06_parse_dt(struct device *dev,
 	return -ENODEV;
 }
 #endif
+
+static struct ft5x06_ts_data *ft5x06_ts_data(void)
+{
+	struct ft5x06_ts_data *data;
+
+	data = kzalloc(sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return NULL;
+
+	data->wq = alloc_workqueue("ft5x06_ts_data_wq", WQ_HIGHPRI, 0);
+	if (!data->wq) {
+		pr_err("Failed to allocate workqueue\n");
+		goto free_data;
+	}
+
+	return data;
+
+free_data:
+	kfree(data);
+	return NULL;
+}
 
 static int ft5x06_ts_probe(struct i2c_client *client,
 			   const struct i2c_device_id *id)
