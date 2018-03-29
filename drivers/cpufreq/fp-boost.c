@@ -281,7 +281,7 @@ static void update_online_cpu_policy(void)
 	put_online_cpus();
 }
 
-static ssize_t enabled_write(struct device *dev,
+static ssize_t fpb_enabled_write(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t size)
 {
 	struct boost_policy *b = boost_policy_g;
@@ -303,7 +303,7 @@ static ssize_t enabled_write(struct device *dev,
 	return size;
 }
 
-static ssize_t enabled_read(struct device *dev,
+static ssize_t fpb_enabled_read(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	struct boost_policy *b = boost_policy_g;
@@ -312,11 +312,11 @@ static ssize_t enabled_read(struct device *dev,
 				get_boost_state(b) & DRIVER_ENABLED);
 }
 
-static DEVICE_ATTR(enabled, 0644,
-			enabled_read, enabled_write);
+static DEVICE_ATTR(fpb_enabled, 0644,
+			fpb_enabled_read, fpb_enabled_write);
 
 static struct attribute *cpu_fp_attr[] = {
-	&dev_attr_enabled.attr,
+	&dev_attr_fpb_enabled.attr,
 	NULL
 };
 
