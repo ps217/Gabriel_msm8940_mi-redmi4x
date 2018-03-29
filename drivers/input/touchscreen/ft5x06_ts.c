@@ -1548,10 +1548,14 @@ static int fb_notifier_callback(struct notifier_block *self,
 					return 0;
 				flush_work(&ft5x06_data->fb_notify_work);
 				ft5x06_ts_suspend(&ft5x06_data->client->dev);
+				dprintk("[ft5x06_ts] screen is off ...\n");
+				sleep_state = 1;
 			} else if (*blank == FB_BLANK_UNBLANK ||
 				(*blank == FB_BLANK_NORMAL &&
 				ft5x06_data->suspended)) {
 				schedule_work(&ft5x06_data->fb_notify_work);
+				dprintk("[ft5x06_ts] screen is on ...\n");
+				sleep_state = 0;
 			}
 		} else {
 			if (event == FB_EARLY_EVENT_BLANK) {
