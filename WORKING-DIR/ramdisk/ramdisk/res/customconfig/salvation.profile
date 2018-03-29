@@ -33,6 +33,7 @@ suspend_max_freq_cl=1094400
 suspend_max_freq_cb=960000
 suspend_min_freq_cl=768000
 suspend_min_freq_cb=960000
+fpb_enabled=0
 hmp_scheduler=gabriel
 hmp_scheduler_suspend=gabriel
 core_ctrl_l_preference=no

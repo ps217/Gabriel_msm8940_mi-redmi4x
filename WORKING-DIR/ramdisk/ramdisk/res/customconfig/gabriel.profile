@@ -33,6 +33,7 @@ suspend_max_freq_cl=1094400
 suspend_max_freq_cb=1094400
 suspend_min_freq_cl=768000
 suspend_min_freq_cb=652800
+fpb_enabled=0
 hmp_scheduler=balance
 hmp_scheduler_suspend=battery
 core_ctrl_l_preference=yes

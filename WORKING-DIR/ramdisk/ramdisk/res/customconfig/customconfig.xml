@@ -383,6 +383,16 @@
 
 	</settingsPane>
 
+	<settingsPane description="Boosts all available cpus to max frequency after recieving an input notification from the fingerprint sensor to reduce lag. (Default: disabled)" name="Fingerprint Boost">
+
+		<spinner description="Select fingerprint boost state." name="Fingerprint Boost State"
+			action="generic /sys/kernel/fp_boost/fpb_enabled">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Set the HMP Scheduler Profile." name="HMP Scheduler">
 
 		<spinner description="Tweak HMP Scheduler for Cluster utilization. kernel will load it's default hmp parameters if you select default profile but reboot needed." name="HMP Scheduler"
