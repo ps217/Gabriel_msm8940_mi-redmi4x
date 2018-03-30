@@ -421,6 +421,28 @@
 
 	</settingsPane>
 
+	<settingsPane description="The cpuset subsystem assigns individual CPUs to group of Tasks like top apps, system background tasks, foreground tasks, etc." name="CPUSET Tuning">
+
+		<spinner description="Select cpuset Profile." name="CPUSET Tuning"
+			action="cpuset_tuning">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Battery" value="battery"/>
+			<spinnerItem name="Balance" value="balance"/>
+			<spinnerItem name="Performance" value="performance"/>
+			<spinnerItem name="Gaming" value="gaming"/>
+		</spinner>
+
+		<spinner description="Suspend cpuset Profile." name="Suspend cpuset Tuning"
+			action="generic_cortex /tmp/cpuset_tuning_suspend">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Battery" value="battery"/>
+			<spinnerItem name="Balance" value="balance"/>
+			<spinnerItem name="Performance" value="performance"/>
+			<spinnerItem name="Gaming" value="gaming"/>
+		</spinner>
+
+	</settingsPane>
+
 </settingsTab>
 
 <settingsTab name="CORE CONTROL">

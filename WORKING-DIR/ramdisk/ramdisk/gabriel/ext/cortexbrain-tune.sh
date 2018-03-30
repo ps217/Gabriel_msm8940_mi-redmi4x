@@ -284,13 +284,28 @@ HMP_SCHEDULER_STATE()
 
 	if [ "$state" == "awake" ]; then
 		/res/uci.sh hmp_scheduler $hmp_scheduler
-		/res/uci.sh hmp_scheduler $hmp_scheduler
 	elif [ "$state" == "sleep" ]; then
-		/res/uci.sh hmp_scheduler $hmp_scheduler_suspend
 		/res/uci.sh hmp_scheduler $hmp_scheduler_suspend
 	fi;
 
 	log -p i -t $FILE_NAME "*** HMP-SCHEDULER-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
+# CPUSET-STATE
+# ==============================================================
+
+CPUSET_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		/res/uci.sh cpuset_tuning $cpuset_tuning
+	elif [ "$state" == "sleep" ]; then
+		/res/uci.sh cpuset_tuning $cpuset_tuning_suspend
+	fi;
+
+	log -p i -t $FILE_NAME "*** CPUSET-STATE ***: $state - $PROFILE";
 }
 
 # ==============================================================
@@ -642,6 +657,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	CORE_CTRL_STATE "awake";
 	SAMPLE_RATE_STATE "awake";
 	HMP_SCHEDULER_STATE "awake";
+	CPUSET_STATE "awake";
 	GPU_GOV_STATE "awake";
 	CPU_CENTRAL_CONTROL "awake";
 
@@ -688,6 +704,7 @@ SLEEP_MODE()
 	CORE_CTRL_STATE "sleep";
 	SAMPLE_RATE_STATE "sleep";
 	HMP_SCHEDULER_STATE "sleep";
+	CPUSET_STATE "sleep";
 	GPU_GOV_STATE "sleep";
 	CPU_CENTRAL_CONTROL "sleep";
 

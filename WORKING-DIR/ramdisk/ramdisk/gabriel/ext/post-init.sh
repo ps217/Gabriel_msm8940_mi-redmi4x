@@ -111,12 +111,12 @@ SYSTEM_TUNING()
 echo 1 > /sys/module/msm_thermal/core_control/enabled;
 echo 0 > /cputemp/enabled;
 
-# cpu-set tuning
-echo "0-1,4-6" > /dev/cpuset/foreground/cpus; # 0-2,4-5
-echo "0-2" > /dev/cpuset/foreground/boost/cpus;
-echo "2-7" > /dev/cpuset/top-app/cpus; # 2-5
-echo "4-5" > /dev/cpuset/system-background/cpus;
-echo "4-5" > /dev/cpuset/background/cpus;
+# cpuset tuning
+echo "$(cat /dev/cpuset/foreground/cpus)" > /cache/fore_cpu;
+echo "$(cat /dev/cpuset/foreground/boost/cpus)" > /cache/fore_b_cpu;
+echo "$(cat /dev/cpuset/top-app/cpus)" > /cache/top_cpu;
+echo "$(cat /dev/cpuset/system-background/cpus)" > /cache/sysb_cpu;
+echo "$(cat /dev/cpuset/background/cpus)" > /cache/backg_cpu;
 }
 
 OPEN_RW;
@@ -129,7 +129,6 @@ done;
 if [ ! -d /data/.gabriel ]; then
 	$BB mkdir -p /data/.gabriel;
 fi;
-
 if [ ! -d /data/.gabriel/logs ]; then
 	$BB mkdir -p /data/.gabriel/logs;
 fi;
@@ -140,7 +139,7 @@ SYSTEM_TUNING;
 # just set numer $RESET_MAGIC + 1 and profiles will be reset one time on next boot with new kernel.
 # incase that ADMIN feel that something wrong with global STweaks config and profiles, then ADMIN can add +1 to CLEAN_gabriel_DIR
 # to clean all files on first boot from /data/.gabriel/ folder.
-RESET_MAGIC=4;
+RESET_MAGIC=5;
 CLEAN_gabriel_DIR=1;
 
 if [ ! -e /data/.gabriel/reset_profiles ]; then
