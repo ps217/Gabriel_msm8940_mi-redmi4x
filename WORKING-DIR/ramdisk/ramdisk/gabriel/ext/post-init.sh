@@ -264,9 +264,6 @@ fi;
 
 OPEN_RW;
 
-# set system tuning.
-SYSTEM_TUNING;
-
 # Start any init.d scripts that may be present in the rom or added by the user
 $BB chmod -R 755 /system/etc/init.d/;
 if [ "$init_d" == "on" ]; then
