@@ -34,7 +34,7 @@
 
 /************************** type definitions ****************************/
 struct lf_cpu_dbs_info_s {
-	struct cpu_dbs_common_info cdbs;
+	struct cpu_dbs_info cdbs;
 	unsigned int up_ticks;
 	unsigned int down_ticks;
 	unsigned int requested_freq;
@@ -145,6 +145,19 @@ static DEFINE_PER_CPU(struct lf_cpu_dbs_info_s, lf_cpu_dbs_info);
 static struct lf_dbs_data lf_dbs_cdata;
 /* there are more globals declared after the sysfs code */
 
+static int lf_cpufreq_governor_dbs(struct cpufreq_policy *policy,
+				   unsigned int event);
+
+#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_LIONFISH
+static
+#endif
+struct cpufreq_governor cpufreq_gov_lionfish = {
+	.name			= "lionfish",
+	.governor		= lf_cpufreq_governor_dbs,
+	.max_transition_latency	= TRANSITION_LATENCY_LIMIT,
+	.owner			= THIS_MODULE,
+};
+
 /*********************** lionfish governor logic ************************/
 static inline unsigned int get_freq_target(struct lf_dbs_tuners *lf_tuners,
 					   struct cpufreq_policy *policy)
@@ -161,13 +174,13 @@ static inline unsigned int get_freq_target(struct lf_dbs_tuners *lf_tuners,
 
 /* Computes the maximum absolute load for the policy  */
 static unsigned int lf_get_load(cpumask_var_t cpus, unsigned int sampling_rate,
-	unsigned int ignore_nice_load, struct cpu_dbs_common_info *cdbs)
+	unsigned int ignore_nice_load, struct cpu_dbs_info *cdbs)
 {
 	unsigned int j;
 	unsigned int load = 0;
 
 	for_each_cpu(j, cpus) {
-		struct cpu_dbs_common_info *j_cdbs;
+		struct cpu_dbs_info *j_cdbs;
 		u64 cur_wall_time, cur_idle_time;
 		unsigned int idle_time, wall_time;
 		unsigned int cpu_load;
@@ -248,8 +261,8 @@ static unsigned int lf_get_load(cpumask_var_t cpus, unsigned int sampling_rate,
 static void lf_check_cpu(struct lf_gdbs_data *dbs_data, int cpu)
 {
 	struct lf_cpu_dbs_info_s *dbs_info = &per_cpu(lf_cpu_dbs_info, cpu);
-	struct cpu_dbs_common_info *cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
-	struct cpufreq_policy *policy = dbs_info->cdbs.cur_policy;
+	struct cpu_dbs_info *cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
+	struct cpufreq_policy *policy = dbs_info->cdbs.shared->policy;
 	struct lf_dbs_tuners *lf_tuners = dbs_data->tuners;
 	unsigned int freq_shift;
 	unsigned int hispeed;
@@ -345,26 +358,53 @@ static void lf_check_cpu(struct lf_gdbs_data *dbs_data, int cpu)
 	}
 }
 
+/* Will return if we need to evaluate cpu load again or not */
+static bool need_load_eval(struct cpu_common_dbs_info *shared,
+			   unsigned int sampling_rate)
+{
+	if (policy_is_shared(shared->policy)) {
+		ktime_t time_now = ktime_get();
+		s64 delta_us = ktime_us_delta(time_now, shared->time_stamp);
+
+		/* Do nothing if we recently have sampled */
+		if (delta_us < (s64)(sampling_rate / 2))
+			return false;
+		else
+			shared->time_stamp = time_now;
+	}
+
+	return true;
+}
+
 static void lf_dbs_timer(struct work_struct *work)
 {
-	struct lf_cpu_dbs_info_s *dbs_info = container_of(work,
-			struct lf_cpu_dbs_info_s, cdbs.work.work);
-	unsigned int cpu = dbs_info->cdbs.cur_policy->cpu;
-	struct lf_cpu_dbs_info_s *core_dbs_info = &per_cpu(lf_cpu_dbs_info,
-			cpu);
-	struct lf_gdbs_data *dbs_data = dbs_info->cdbs.cur_policy->governor_data;
-	struct lf_dbs_tuners *lf_tuners = dbs_data->tuners;
-	int delay = delay_for_sampling_rate(lf_tuners->sampling_rate);
+	struct cpu_dbs_info *cdbs = container_of(work, struct cpu_dbs_info,
+						 dwork.work);
+	struct cpu_common_dbs_info *shared = cdbs->shared;
+	struct cpufreq_policy *policy = shared->policy;
+	struct dbs_data *dbs_data = policy->governor_data;
+	unsigned int sampling_rate, delay;
 	bool modify_all = true;
 
-	mutex_lock(&core_dbs_info->cdbs.timer_mutex);
-	if (!need_load_eval(&core_dbs_info->cdbs, lf_tuners->sampling_rate))
-		modify_all = false;
-	else
-		lf_check_cpu(dbs_data, cpu);
+	mutex_lock(&shared->timer_mutex);
 
-	lf_gov_queue_work(dbs_data, dbs_info->cdbs.cur_policy, delay, modify_all);
-	mutex_unlock(&core_dbs_info->cdbs.timer_mutex);
+	if (dbs_data->cdata->governor == GOV_CONSERVATIVE) {
+		struct cs_dbs_tuners *cs_tuners = dbs_data->tuners;
+
+		sampling_rate = cs_tuners->sampling_rate;
+	} else {
+		struct od_dbs_tuners *od_tuners = dbs_data->tuners;
+
+		sampling_rate = od_tuners->sampling_rate;
+	}
+
+	if (!need_load_eval(cdbs->shared, sampling_rate))
+		modify_all = false;
+
+	delay = dbs_data->cdata->gov_dbs_timer(cdbs, dbs_data, modify_all);
+	gov_queue_work(dbs_data, policy, delay, modify_all);
+
+	mutex_unlock(&shared->timer_mutex);
 }
 
 static int dbs_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
@@ -373,12 +413,14 @@ static int dbs_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
 	struct cpufreq_freqs *freq = data;
 	struct lf_cpu_dbs_info_s *dbs_info =
 					&per_cpu(lf_cpu_dbs_info, freq->cpu);
-	struct cpufreq_policy *policy;
+	struct cpufreq_policy *policy = cpufreq_cpu_get_raw(freq->cpu);
 
-	if (!dbs_info->enable)
+	if (!policy)
 		return 0;
 
-	policy = dbs_info->cdbs.cur_policy;
+	/* policy isn't governed by lionfish governor */
+	if (policy->governor != &cpufreq_gov_lionfish)
+		return 0;
 
 	/*
 	 * we only care if our internally tracked freq moves outside the 'valid'
@@ -612,9 +654,9 @@ static struct attribute_group *get_sysfs_attr(struct lf_gdbs_data *dbs_data)
 static inline void __lf_gov_queue_work(int cpu, struct lf_gdbs_data *dbs_data,
 		unsigned int delay)
 {
-	struct cpu_dbs_common_info *cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
+	struct cpu_dbs_info *cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
 
-	mod_delayed_work_on(cpu, system_wq, &cdbs->work, delay);
+	mod_delayed_work_on(cpu, system_wq, &cdbs->dwork, delay);
 }
 
 static void lf_gov_queue_work(struct lf_gdbs_data *dbs_data,
@@ -643,12 +685,12 @@ static void lf_gov_queue_work(struct lf_gdbs_data *dbs_data,
 static inline void lf_gov_cancel_work(struct lf_gdbs_data *dbs_data,
 		struct cpufreq_policy *policy)
 {
-	struct cpu_dbs_common_info *cdbs;
+	struct cpu_dbs_info *cdbs;
 	int i;
 
 	for_each_cpu(i, policy->cpus) {
 		cdbs = &per_cpu(lf_cpu_dbs_info, i).cdbs;
-		cancel_delayed_work_sync(&cdbs->work);
+		cancel_delayed_work_sync(&cdbs->dwork);
 	}
 }
 
@@ -695,6 +737,8 @@ static int lf_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 	struct lf_cpu_dbs_info_s *lf_dbs_info = NULL;
 	struct lf_dbs_tuners *lf_tuners = NULL;
 	struct cpu_dbs_common_info *cpu_cdbs;
+	struct cpu_common_dbs_info *shared;
+	struct cpu_dbs_info *cdbs;
 	unsigned int sampling_rate, latency, ignore_nice, j, cpu = policy->cpu;
 	int rc;
 
@@ -788,28 +832,27 @@ static int lf_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		if (!policy->cur)
 			return -EINVAL;
 
-		cpu_cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
+		cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
 		lf_tuners = dbs_data->tuners;
 		lf_dbs_info = &per_cpu(lf_cpu_dbs_info, cpu);
 		sampling_rate = lf_tuners->sampling_rate;
 		ignore_nice = lf_tuners->ignore_nice_load;
 
-		mutex_lock(&dbs_data->mutex);
+		shared->policy = policy;
+		shared->time_stamp = ktime_get();
+		mutex_init(&shared->timer_mutex);
 
 		for_each_cpu(j, policy->cpus) {
-			struct cpu_dbs_common_info *j_cdbs =
+			struct cpu_dbs_info *j_cdbs =
 				&per_cpu(lf_cpu_dbs_info, j).cdbs;
 
-			j_cdbs->cpu = j;
-			j_cdbs->cur_policy = policy;
 			j_cdbs->prev_cpu_idle = get_cpu_idle_time(j,
 					       &j_cdbs->prev_cpu_wall, 0);
 			if (ignore_nice)
 				j_cdbs->prev_cpu_nice =
 					kcpustat_cpu(j).cpustat[CPUTIME_NICE];
 
-			mutex_init(&j_cdbs->timer_mutex);
-			INIT_DEFERRABLE_WORK(&j_cdbs->work, lf_dbs_timer);
+			INIT_DEFERRABLE_WORK(&j_cdbs->dwork, lf_dbs_timer);
 		}
 
 		lf_dbs_info->up_ticks = 0;
@@ -819,39 +862,35 @@ static int lf_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 		mutex_unlock(&dbs_data->mutex);
 
-		/* Initiate timer time stamp */
-		cpu_cdbs->time_stamp = ktime_get();
-
 		lf_gov_queue_work(dbs_data, policy,
 				delay_for_sampling_rate(sampling_rate), true);
 		break;
 
 	case CPUFREQ_GOV_STOP:
-		cpu_cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
+		cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
 		lf_dbs_info = &per_cpu(lf_cpu_dbs_info, cpu);
 		lf_dbs_info->enable = 0;
 
 		lf_gov_cancel_work(dbs_data, policy);
 
 		mutex_lock(&dbs_data->mutex);
-		mutex_destroy(&cpu_cdbs->timer_mutex);
-		cpu_cdbs->cur_policy = NULL;
+		mutex_destroy(&cdbs->shared->timer_mutex);
 
 		mutex_unlock(&dbs_data->mutex);
 
 		break;
 
 	case CPUFREQ_GOV_LIMITS:
-		cpu_cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
-		mutex_lock(&cpu_cdbs->timer_mutex);
-		if (policy->max < cpu_cdbs->cur_policy->cur)
-			__cpufreq_driver_target(cpu_cdbs->cur_policy,
+		cdbs = &per_cpu(lf_cpu_dbs_info, cpu).cdbs;
+		mutex_lock(&cdbs->shared->timer_mutex);
+		if (policy->max < cdbs->shared->policy->cur)
+			__cpufreq_driver_target(cdbs->shared->policy,
 					policy->max, CPUFREQ_RELATION_H);
-		else if (policy->min > cpu_cdbs->cur_policy->cur)
-			__cpufreq_driver_target(cpu_cdbs->cur_policy,
+		else if (policy->min > cdbs->shared->policy->cur)
+			__cpufreq_driver_target(cdbs->shared->policy,
 					policy->min, CPUFREQ_RELATION_L);
 		lf_check_cpu(dbs_data, cpu);
-		mutex_unlock(&cpu_cdbs->timer_mutex);
+		mutex_unlock(&cdbs->shared->timer_mutex);
 		break;
 	default:
 		break;
@@ -859,16 +898,6 @@ static int lf_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 	return 0;
 }
-
-#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_LIONFISH
-static
-#endif
-struct cpufreq_governor cpufreq_gov_lionfish = {
-	.name			= "lionfish",
-	.governor		= lf_cpufreq_governor_dbs,
-	.max_transition_latency	= TRANSITION_LATENCY_LIMIT,
-	.owner			= THIS_MODULE,
-};
 
 static int __init cpufreq_gov_dbs_init(void)
 {
@@ -893,3 +922,4 @@ fs_initcall(cpufreq_gov_dbs_init);
 module_init(cpufreq_gov_dbs_init);
 #endif
 module_exit(cpufreq_gov_dbs_exit);
+
