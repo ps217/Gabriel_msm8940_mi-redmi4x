@@ -4612,6 +4612,13 @@ static int ipa3_pre_init(const struct ipa3_plat_drv_res *resource_p,
 		goto fail_create_apps_resource;
 	}
 
+	result = ipa3_alloc_pkt_init();
+	if (result) {
+		IPAERR("Failed to alloc pkt_init payload\n");
+		result = -ENODEV;
+		goto fail_allok_pkt_init;
+	}
+
 	if (!ipa3_ctx->apply_rg10_wa) {
 		result = ipa3_init_interrupts();
 		if (result) {
@@ -4627,6 +4634,13 @@ static int ipa3_pre_init(const struct ipa3_plat_drv_res *resource_p,
 
 	init_completion(&ipa3_ctx->init_completion_obj);
 
+	result = ipa3_dma_setup();
+	if (result) {
+		IPAERR("Failed to setup IPA DMA\n");
+		result = -ENODEV;
+		goto fail_ipa_dma_setup;
+	}
+
 	/*
 	 * For GSI, we can't register the GSI driver yet, as it expects
 	 * the GSI FW to be up and running before the registration.
@@ -4641,8 +4655,18 @@ static int ipa3_pre_init(const struct ipa3_plat_drv_res *resource_p,
 			if (result) {
 				IPAERR("gsi pre FW loading config failed\n");
 				result = -ENODEV;
-				goto fail_ipa_init_interrupts;
+				goto fail_gsi_pre_fw_load_init;
 			}
+		}
+	} else {
+		/*
+		 * For BAM (No other mode),
+		 * we can just carry on with initialization
+		 */
+		result = ipa3_post_init(resource_p, ipa_dev);
+		if (result) {
+			IPAERR("ipa3_post_init failed\n");
+			goto fail_gsi_pre_fw_load_init;
 		}
 	}
 	/* For BAM (No other mode), we can just carry on with initialization */
@@ -4651,6 +4675,11 @@ static int ipa3_pre_init(const struct ipa3_plat_drv_res *resource_p,
 
 	return 0;
 
+fail_cdev_add:
+fail_gsi_pre_fw_load_init:
+	ipa3_dma_shutdown();
+fail_ipa_dma_setup:
+fail_allok_pkt_init:
 fail_ipa_init_interrupts:
 	ipa_rm_delete_resource(IPA_RM_RESOURCE_APPS_CONS);
 fail_create_apps_resource:
@@ -4696,17 +4725,24 @@ fail_flt_rule_cache:
 fail_create_transport_wq:
 	destroy_workqueue(ipa3_ctx->power_mgmt_wq);
 fail_init_hw:
+	ipahal_destroy();
+fail_ipahal:
 	iounmap(ipa3_ctx->mmio);
 fail_remap:
 	ipa3_disable_clks();
-fail_init_active_client:
 	ipa3_active_clients_log_destroy();
+fail_init_active_client:
 fail_clk:
 	msm_bus_scale_unregister_client(ipa3_ctx->ipa_bus_hdl);
 fail_ipahal:
 	ipa3_bus_scale_table = NULL;
+	if (ipa3_ctx->ipa3_hw_mode != IPA_HW_MODE_VIRTUAL)
+		msm_bus_scale_unregister_client(ipa3_ctx->ipa_bus_hdl);
 fail_bus_reg:
-	ipahal_destroy();
+	if (ipa3_bus_scale_table) {
+		msm_bus_cl_clear_pdata(ipa3_bus_scale_table);
+		ipa3_bus_scale_table = NULL;
+	}
 fail_bind:
 	kfree(ipa3_ctx->ctrl);
 fail_mem_ctrl:
