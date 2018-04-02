@@ -169,7 +169,6 @@
 			<spinnerItem name="Conservative" value="conservative"/>
 			<spinnerItem name="Chill" value="chill"/>
 			<spinnerItem name="Relaxed" value="relaxed"/>
-			<spinnerItem name="Lionfish" value="lionfish"/>
 			<spinnerItem name="Powersave" value="powersave"/>
 			<spinnerItem name="Performance" value="performance"/>
 		</spinner>
@@ -186,7 +185,6 @@
 			<spinnerItem name="Conservative" value="conservative"/>
 			<spinnerItem name="Chill" value="chill"/>
 			<spinnerItem name="Relaxed" value="relaxed"/>
-			<spinnerItem name="Lionfish" value="lionfish"/>
 			<spinnerItem name="Powersave" value="powersave"/>
 			<spinnerItem name="Performance" value="performance"/>
 		</spinner>
