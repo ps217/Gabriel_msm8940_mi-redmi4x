@@ -45,6 +45,7 @@
 #include <asm/arch_timer.h>
 #include <asm/cacheflush.h>
 #include <asm/suspend.h>
+#include <asm/cpuidle.h>
 #include "lpm-levels.h"
 #include "lpm-workarounds.h"
 #include <trace/events/power.h>
