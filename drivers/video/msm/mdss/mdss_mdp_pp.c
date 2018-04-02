@@ -3617,7 +3617,7 @@ int mdss_mdp_pcc_config(struct msm_fb_data_type *mfd,
 	if (config->ops & MDP_PP_OPS_READ) {
 		ret = pp_get_dspp_num(disp_num, &dspp_num);
 		if (ret) {
-			pr_err("%s, no dspp connects to disp %d\n",
+			pr_debug("%s, no dspp connects to disp %d\n",
 				__func__, disp_num);
 			goto pcc_config_exit;
 		}
@@ -3641,7 +3641,7 @@ int mdss_mdp_pcc_config(struct msm_fb_data_type *mfd,
 			ret = pp_ops[PCC].pp_get_config(addr, config,
 					DSPP, disp_num);
 			if (ret)
-				pr_err("pcc get config failed %d\n", ret);
+				pr_debug("pcc get config failed %d\n", ret);
 			goto pcc_clk_off;
 		}
 

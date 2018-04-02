@@ -1056,7 +1056,7 @@ static int pp_pcc_get_config(char __iomem *base_addr, void *cfg_data,
 
 	pcc_cfg = (struct mdp_pcc_cfg_data *) cfg_data;
 	if (pcc_cfg->version != mdp_pcc_v1_7) {
-		pr_err("unsupported version of pcc %d\n",
+		pr_debug("unsupported version of pcc %d\n",
 		       pcc_cfg->version);
 		return -EINVAL;
 	}
