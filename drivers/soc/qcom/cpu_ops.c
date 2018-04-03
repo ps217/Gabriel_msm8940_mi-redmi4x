@@ -238,7 +238,10 @@ static void msm_wfi_cpu_die(unsigned int cpu)
 		BUG();
 	}
 	for (;;) {
+/* to terminate hotplug in a low power mode */
+#if 0
 		lpm_cpu_hotplug_enter(cpu);
+#endif
 		if (secondary_holding_pen_release == cpu_logical_map(cpu)) {
 			/*Proper wake up */
 			break;
