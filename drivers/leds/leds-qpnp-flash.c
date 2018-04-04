@@ -249,8 +249,9 @@ struct qpnp_flash_led {
 	struct power_supply		*battery_psy;
 	struct workqueue_struct		*ordered_workq;
 	struct qpnp_vadc_chip		*vadc_dev;
-	struct wake_lock		flashlight_led_lock;
 	struct mutex			flash_led_lock;
+	struct wake_lock		flashlight_led_lock;
+	struct qpnp_flash_led_buffer		*log;
 	struct dentry			*dbgfs_root;
 	int				num_leds;
 	u16				base;
@@ -661,7 +662,6 @@ static int qpnp_get_pmic_revid(struct qpnp_flash_led *led)
 
 	return 0;
 }
-
 
 static int
 qpnp_flash_led_get_max_avail_current(struct flash_node_data *flash_node,
@@ -1314,11 +1314,10 @@ static void qpnp_flash_led_work(struct work_struct *work)
 
 	/* Global lock is to synchronize between the flash leds and torch */
 	mutex_lock(&led->flash_led_lock);
+
+	dev_dbg(&led->spmi_dev->dev, "wt flash_node.cdev.name=%s\n", flash_node->cdev.name);
 	/* Local lock is to synchronize for one led instance */
 	mutex_lock(&flash_node->cdev.led_access);
-
-	dev_dbg(&led->spmi_dev->dev, "wt flash_node.cdev.name=%s\n",
-		flash_node->cdev.name);
 
 	brightness = flash_node->cdev.brightness;
 	if (!brightness)
@@ -1872,7 +1871,7 @@ error_enable_gpio:
 	return;
 }
 
-extern int32_t wt_flash_flashlight(bool boolean);
+extern  int32_t wt_flash_flashlight(bool boolean);
 static void qpnp_flash_led_brightness_set(struct led_classdev *led_cdev,
 						enum led_brightness value)
 {
@@ -1890,23 +1889,22 @@ static void qpnp_flash_led_brightness_set(struct led_classdev *led_cdev,
 		value = flash_node->cdev.max_brightness;
 
 	flash_node->cdev.brightness = value;
-	pr_debug
-	    ("WT flash_node.cdev.name=%s,brightness=%d,id=%d,flash_node->type=%d\n",
-	     flash_node->cdev.name, flash_node->cdev.brightness, flash_node->id,
-	     flash_node->type);
+	pr_debug("WT flash_node.cdev.name=%s, brightness=%d, id=%d, flash_node->type=%d\n", flash_node->cdev.name,
+			flash_node->cdev.brightness, flash_node->id, flash_node->type);
 
 	if (!strcmp(flash_node->cdev.name, "flashlight")) {
 		pr_info("wt_flash_flashlight  enter value=%d\n", value);
-		if (value > 0) {
+		if (value > 0)  {
 			wt_flash_flashlight(true);
 			wake_lock(&led->flashlight_led_lock);
-		} else {
+		} else{
 			wt_flash_flashlight(false);
 			wake_unlock(&led->flashlight_led_lock);
 		}
 	}
 
-	if (led->flash_node[led->num_leds - 1].id == FLASH_LED_SWITCH) {
+	if (led->flash_node[led->num_leds - 1].id ==
+						FLASH_LED_SWITCH) {
 		if (flash_node->type == TORCH)
 			led->flash_node[led->num_leds - 1].type = TORCH;
 		else if (flash_node->type == FLASH)
@@ -2593,7 +2591,8 @@ static int qpnp_flash_led_probe(struct spmi_device *spmi)
 	}
 
 	mutex_init(&led->flash_led_lock);
-	wake_lock_init(&led->flashlight_led_lock, WAKE_LOCK_SUSPEND, "flashlight_led_lock_wt");
+	wake_lock_init(&led->flashlight_led_lock, WAKE_LOCK_SUSPEND,
+			"flashlight_led_lock_wt");
 
 	led->ordered_workq = alloc_ordered_workqueue("flash_led_workqueue", 0);
 	if (!led->ordered_workq) {
