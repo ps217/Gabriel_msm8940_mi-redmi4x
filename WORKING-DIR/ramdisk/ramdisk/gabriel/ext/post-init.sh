@@ -216,15 +216,6 @@ if [ "$(grep 'ro.miui*' /system/build.prop | wc -l)" -gt "0" ]; then
 	fi;
 fi;
 
-if [ "$(cat /system/build.prop | grep "ro.build.version.release" | cut -c 26)" -eq "7" ]; then
-	echo 1 > /sys/fs/selinux/enforce;
-fi;
-
-# Fix titanium backup root access
-#if [ -e /sbin/su ] && [ -e /system/xbin/su ];then
-#	\cp /sbin/su /system/xbin/su;
-#fi;
-
 # Fentropy enForcer
 # Thanks to ArjunrambZ (TweakDrypT)
 if [ "$frandom_control" == "yes" ]; then
@@ -253,6 +244,7 @@ if [ "$stweaks_boot_control" == "yes" ]; then
 	$BB mv /res/uci_boot.sh /res/uci.sh;
 else
 	$BB mv /res/uci_boot.sh /res/uci.sh;
+	$BB pkill -f "/gabriel/ext/cortexbrain-tune.sh";
 fi;
 
 if [ "$wifi_on_boot" == "no" ]; then
@@ -298,6 +290,9 @@ CRITICAL_PERM_FIX;
 	. /data/.gabriel/"$PROFILE".profile;
 
 if [ "$stweaks_boot_control" == "no" ]; then
+	$BB pkill -f "/gabriel/ext/cortexbrain-tune.sh";
+	echo cfq > /sys/block/mmcblk0/queue/scheduler;
+
 	for i in 0 1 2 3; do
 		if [ -e /sys/devices/system/cpu/cpu$i/online ];then
 			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
@@ -317,6 +312,11 @@ if [ "$stweaks_boot_control" == "no" ]; then
 			fi;
 		fi;
 	done;
+
+	echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+	echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+	echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
+	echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 fi;
 
 	# script finish here, so let me know when
