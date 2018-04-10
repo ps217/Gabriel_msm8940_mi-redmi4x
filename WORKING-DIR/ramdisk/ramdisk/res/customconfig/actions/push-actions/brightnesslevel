@@ -1,0 +1,5 @@
+#!/sbin/busybox sh
+
+(
+	cat /sys/class/leds/lcd-backlight/brightness
+)&

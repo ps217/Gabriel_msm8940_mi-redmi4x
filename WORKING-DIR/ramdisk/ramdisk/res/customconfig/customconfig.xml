@@ -979,6 +979,8 @@
 		<seekBar description="Set the max auto backlight allowable value." name="max Backlight Level"
 			action="generic /sys/module/mdss_fb/parameters/backlight_max" unit="lum" min="1" reversed="false" step="1" max="255"/>
 
+		<button description="Check for current Brightness Level." name="Brightness Level" action="push-actions/brightnesslevel" label="Brightness Level Check"/>
+
 	</settingsPane>
 
 	<settingsPane description="Customize Headphone/Speaker Loudness." name="Sound Control">
