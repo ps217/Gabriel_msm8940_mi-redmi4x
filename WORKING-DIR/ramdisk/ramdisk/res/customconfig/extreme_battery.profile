@@ -38,6 +38,7 @@ hmp_scheduler=battery
 hmp_scheduler_suspend=battery
 cpuset_tuning=battery
 cpuset_tuning_suspend=battery
+perfd_control=disable
 core_ctrl_l_preference=yes
 core_ctrl_l_min=2
 core_ctrl_l_max=4

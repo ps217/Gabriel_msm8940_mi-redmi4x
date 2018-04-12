@@ -38,6 +38,7 @@ hmp_scheduler=miui
 hmp_scheduler_suspend=gabriel
 cpuset_tuning=balance
 cpuset_tuning_suspend=balance
+perfd_control=disable
 core_ctrl_l_preference=yes
 core_ctrl_l_min=4
 core_ctrl_l_max=4

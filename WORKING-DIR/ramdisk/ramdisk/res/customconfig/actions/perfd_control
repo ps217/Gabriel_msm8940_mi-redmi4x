@@ -1,0 +1,34 @@
+#!/sbin/busybox sh
+
+# $1 - "perfd_control"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/gabriel/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	perfd_control=$2;
+
+	case "${perfd_control}" in
+		enable)
+			if [ "$(pgrep -f "perfd" | wc -l)" -eq "0" ] || [ "$(pgrep -f "/system/vendor/bin/perfd" | wc -l)" -eq "0" ]; then
+				/system/bin/start perfd;
+			fi;
+		;;
+		disable)
+			if [ "$(pgrep -f "perfd" | wc -l)" -gt "0" ] || [ "$(pgrep -f "/system/vendor/bin/perfd" | wc -l)" -gt "0" ]; then
+				/system/bin/stop perfd;
+				echo $core_ctrl_b_min > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+			fi;
+		;;
+		*)
+			perfd_control=disable;
+		;;
+	esac;
+fi;
+
+echo ${perfd_control};

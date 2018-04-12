@@ -448,6 +448,12 @@
 
 	<settingsPane description="Set the Core Control Parameters for Screen ON state. Kernel Scheduler will manage online cores for idle and workload state if you put it to Maximum. Maximum online core is 8 and Minimum is 1." name="Awake Core Control Tuning">
 
+		<spinner description="Perfd is a system performance daemon that provides real-time access to system performance metrics, locally or remotely. it will change minimum big cores online if enabled, mostly in miui. miui default is enabled." name="Performance Daemon Control"
+			action="perfd_control">
+			<spinnerItem name="Enable" value="enable"/>
+			<spinnerItem name="Disable" value="disable"/>
+		</spinner>
+
 		<spinner description="By selecting this option Core Control Preference little cluster to be more online." name="Little Cluster Online Preference"
 			action="core_ctrl_l_preference">
 			<spinnerItem name="Yes" value="yes"/>

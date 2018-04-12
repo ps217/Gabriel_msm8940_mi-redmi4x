@@ -38,6 +38,7 @@ hmp_scheduler=gabriel
 hmp_scheduler_suspend=gabriel
 cpuset_tuning=balance
 cpuset_tuning_suspend=battery
+perfd_control=disable
 core_ctrl_l_preference=no
 core_ctrl_l_min=0
 core_ctrl_l_max=0

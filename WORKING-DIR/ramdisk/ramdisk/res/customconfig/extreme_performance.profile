@@ -38,6 +38,7 @@ hmp_scheduler=gaming
 hmp_scheduler_suspend=balance
 cpuset_tuning=gaming
 cpuset_tuning_suspend=battery
+perfd_control=disable
 core_ctrl_l_preference=no
 core_ctrl_l_min=2
 core_ctrl_l_max=4
