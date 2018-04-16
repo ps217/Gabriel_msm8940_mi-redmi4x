@@ -217,6 +217,47 @@
 			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
+		<spinner description="Select the little cluster Boost. Enable means indefinite speed boost active. set it to disable to save power or Enable if you enabled extreme power saving profile to compensate performance drop." name="little cluster Interactive Boost"
+			action="cpu_l_interactive_profile_boost">
+			<spinnerItem name="Enable" value="enable"/>
+			<spinnerItem name="Disable" value="disable"/>
+		</spinner>
+
+		<spinner description="Select the big cluster Boost." name="big cluster Interactive Boost"
+			action="cpu_b_interactive_profile_boost">
+			<spinnerItem name="Enable" value="enable"/>
+			<spinnerItem name="Disable" value="disable"/>
+		</spinner>
+
+		<spinner description="Select Hispeed Frequency. It is Hi speed to bump to from low speed when load burst. set it to low frequency to save power." name="Little Cluster Hispeed Frequency"
+			action="cpu_l_interactive_profile_hisp_freq">
+			<spinnerItem name="1.34 GHz" value="1344000"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="998 MHz" value="998400"/>
+			<spinnerItem name="902 MHz" value="902400"/>
+			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
+		<spinner description="Select Hispeed Frequency." name="big Cluster Hispeed Frequency"
+			action="cpu_b_interactive_profile_hisp_freq">
+			<spinnerItem name="1.53 GHz" value="1536000"/>
+			<spinnerItem name="1.40 GHz" value="1401000"/>
+			<spinnerItem name="1.34 GHz" value="1344000"/>
+			<spinnerItem name="1.24 GHz" value="1248000"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="Set the profile for custom governors. Set here if you chosen same cpu governor in CPU Active Governor section." name="Custom CPU Governor Profile">

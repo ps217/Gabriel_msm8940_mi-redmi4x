@@ -93,7 +93,7 @@ if [ "a$2" != "a" ]; then
 					echo 0 > /$CPUB/$GOV/enable_prediction
 					echo 0 > /$CPUB/$GOV/above_hispeed_delay
 					echo 300 > /$CPUB/$GOV/go_hispeed_load
-					echo 998400 > /$CPUB/$GOV/hispeed_freq
+					echo 1209600 > /$CPUB/$GOV/hispeed_freq
 					echo "$TARGET0" > /$CPUB/$GOV/target_loads
 					echo 20000 > /$CPUB/$GOV/timer_rate
 					echo 40000 > /$CPUB/$GOV/sleep_timer_rate
