@@ -275,6 +275,111 @@ SAMPLE_RATE_STATE()
 }
 
 # ==============================================================
+# HISPEED-STATE
+# ==============================================================
+
+HISPEED_STATE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+
+	if [ "$cpu_b_interactive_profile" != "off" ]; then
+		for i in 0 1 2 3; do
+			CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUB/scaling_governor);
+				echo $cpu_b_interactive_profile_hisp_freq > /$CPUB/$GOV/hispeed_freq
+				break
+			fi;
+		done;
+	fi;
+
+	if [ "$cpu_l_interactive_profile" != "off" ]; then
+		for i in 4 5 6 7; do
+			CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUL/scaling_governor);
+				echo $cpu_l_interactive_profile_hisp_freq > /$CPUL/$GOV/hispeed_freq
+				break
+			fi;
+		done;
+	fi;
+
+	if [ "$cpu_b_interactive_profile_boost" == "enable" ]; then
+		for i in 0 1 2 3; do
+			CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUB/scaling_governor);
+				echo 1 > /$CPUB/$GOV/boost
+				break
+			fi;
+		done;
+	fi
+
+	if [ "$cpu_l_interactive_profile_boost" == "enable" ]; then
+		for i in 4 5 6 7; do
+			CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUL/scaling_governor);
+				echo 1 > /$CPUL/$GOV/boost
+				break
+			fi;
+		done;
+	fi
+
+	elif [ "$state" == "sleep" ]; then
+
+	if [ "$cpu_b_interactive_profile" != "off" ]; then
+		for i in 0 1 2 3; do
+			CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUB/scaling_governor);
+				echo $suspend_cpu_b_interactive_profile_hisp_freq > /$CPUB/$GOV/hispeed_freq
+				break
+			fi;
+		done;
+	fi;
+
+	if [ "$cpu_l_interactive_profile" != "off" ]; then
+		for i in 4 5 6 7; do
+			CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUL/scaling_governor);
+				echo $suspend_cpu_l_interactive_profile_hisp_freq > /$CPUL/$GOV/hispeed_freq
+				break
+			fi;
+		done;
+	fi;
+
+	if [ "$cpu_b_interactive_profile_boost" == "enable" ]; then
+		for i in 0 1 2 3; do
+			CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUB/scaling_governor);
+				echo 0 > /$CPUB/$GOV/boost
+				break
+			fi;
+		done;
+	fi
+
+	if [ "$cpu_l_interactive_profile_boost" == "enable" ]; then
+		for i in 4 5 6 7; do
+			CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+			if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+				GOV=$(cat /$CPUL/scaling_governor);
+				echo 0 > /$CPUL/$GOV/boost
+				break
+			fi;
+		done;
+	fi
+
+	fi;
+
+	log -p i -t $FILE_NAME "*** HISPEED-STATE ***: $state - $PROFILE";
+}
+
+# ==============================================================
 # HMP-SCHEDULER-STATE
 # ==============================================================
 
@@ -656,6 +761,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	BCL_STATE "awake";
 	CORE_CTRL_STATE "awake";
 	SAMPLE_RATE_STATE "awake";
+	HISPEED_STATE "awake";
 	HMP_SCHEDULER_STATE "awake";
 	CPUSET_STATE "awake";
 	GPU_GOV_STATE "awake";
@@ -703,6 +809,7 @@ SLEEP_MODE()
 	BCL_STATE "sleep";
 	CORE_CTRL_STATE "sleep";
 	SAMPLE_RATE_STATE "sleep";
+	HISPEED_STATE "sleep";
 	HMP_SCHEDULER_STATE "sleep";
 	CPUSET_STATE "sleep";
 	GPU_GOV_STATE "sleep";
