@@ -16,7 +16,7 @@
 
 #include "scsi_priv.h"
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int do_scsi_runtime_resume(struct device *dev,
 				   const struct dev_pm_ops *pm);
 #endif
@@ -230,7 +230,7 @@ static int scsi_bus_restore(struct device *dev)
 
 #endif /* CONFIG_PM_SLEEP */
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 static int do_scsi_runtime_suspend(struct device *dev,
 				   const struct dev_pm_ops *pm)
@@ -378,7 +378,7 @@ void scsi_autopm_put_host(struct Scsi_Host *shost)
 #define scsi_runtime_resume	NULL
 #define scsi_runtime_idle	NULL
 
-#endif /* CONFIG_PM_RUNTIME */
+#endif /* CONFIG_PM */
 
 const struct dev_pm_ops scsi_bus_pm_ops = {
 	.prepare =		scsi_bus_prepare,

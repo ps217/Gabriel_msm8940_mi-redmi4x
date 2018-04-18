@@ -4949,7 +4949,7 @@ static int mdss_mdp_resume(struct platform_device *pdev)
 #define mdss_mdp_resume NULL
 #endif
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int mdss_mdp_runtime_resume(struct device *dev)
 {
 	struct mdss_data_type *mdata = dev_get_drvdata(dev);

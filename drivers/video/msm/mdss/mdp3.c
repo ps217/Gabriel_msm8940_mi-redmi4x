@@ -3051,7 +3051,7 @@ static int mdp3_resume(struct platform_device *pdev)
 #endif
 
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int mdp3_runtime_resume(struct device *dev)
 {
 	bool device_on = true;

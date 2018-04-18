@@ -4301,7 +4301,7 @@ static int dwc3_msm_pm_resume(struct device *dev)
 }
 #endif
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int dwc3_msm_runtime_idle(struct device *dev)
 {
 	struct dwc3_msm *mdwc = dev_get_drvdata(dev);

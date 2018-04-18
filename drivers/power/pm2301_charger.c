@@ -951,7 +951,7 @@ static int pm2xxx_wall_charger_suspend(struct device *dev)
 
 #endif
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 static int  pm2xxx_runtime_suspend(struct device *dev)
 {

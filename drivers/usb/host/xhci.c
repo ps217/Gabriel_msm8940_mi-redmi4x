@@ -4105,7 +4105,7 @@ static int __maybe_unused xhci_change_max_exit_latency(struct xhci_hcd *xhci,
 	return ret;
 }
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 /* BESL to HIRD Encoding array for USB2 LPM */
 static int xhci_besl_encoding[16] = {125, 150, 200, 300, 400, 500, 1000, 2000,
@@ -4333,7 +4333,7 @@ int xhci_update_device(struct usb_hcd *hcd, struct usb_device *udev)
 	return 0;
 }
 
-#endif /* CONFIG_PM_RUNTIME */
+#endif /* CONFIG_PM */
 
 /*---------------------- USB 3.0 Link PM functions ------------------------*/
 

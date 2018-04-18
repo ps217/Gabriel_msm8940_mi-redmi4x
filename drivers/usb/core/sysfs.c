@@ -341,7 +341,7 @@ static void remove_persist_attributes(struct device *dev)
 
 #endif	/* CONFIG_PM */
 
-#ifdef	CONFIG_PM_RUNTIME
+#ifdef	CONFIG_PM
 
 static ssize_t connected_duration_show(struct device *dev,
 				       struct device_attribute *attr, char *buf)
@@ -588,7 +588,7 @@ static void remove_power_attributes(struct device *dev)
 #define add_power_attributes(dev)	0
 #define remove_power_attributes(dev)	do {} while (0)
 
-#endif	/* CONFIG_PM_RUNTIME */
+#endif	/* CONFIG_PM */
 
 
 /* Descriptor fields */

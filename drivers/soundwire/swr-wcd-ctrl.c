@@ -1530,7 +1530,7 @@ static int swrm_clk_pause(struct swr_mstr_ctrl *swrm)
 	return 0;
 }
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int swrm_runtime_resume(struct device *dev)
 {
 	struct platform_device *pdev = to_platform_device(dev);
@@ -1603,7 +1603,7 @@ exit:
 	mutex_unlock(&swrm->reslock);
 	return ret;
 }
-#endif /* CONFIG_PM_RUNTIME */
+#endif /* CONFIG_PM */
 
 static int swrm_device_down(struct device *dev)
 {
