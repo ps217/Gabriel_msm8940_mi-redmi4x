@@ -5212,7 +5212,7 @@ static void msm_otg_shutdown(struct platform_device *pdev)
 	msm_hsusb_vbus_power(motg, 0);
 }
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int msm_otg_runtime_idle(struct device *dev)
 {
 	struct msm_otg *motg = dev_get_drvdata(dev);

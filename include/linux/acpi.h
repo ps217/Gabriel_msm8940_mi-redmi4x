@@ -556,7 +556,7 @@ static inline void arch_reserve_mem_area(acpi_physical_address addr,
 #define acpi_os_set_prepare_sleep(func, pm1a_ctrl, pm1b_ctrl) do { } while (0)
 #endif
 
-#if defined(CONFIG_ACPI) && defined(CONFIG_PM_RUNTIME)
+#if defined(CONFIG_ACPI) && defined(CONFIG_PM)
 int acpi_dev_runtime_suspend(struct device *dev);
 int acpi_dev_runtime_resume(struct device *dev);
 int acpi_subsys_runtime_suspend(struct device *dev);

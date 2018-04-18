@@ -67,7 +67,7 @@ static void sdhci_show_adma_error(struct sdhci_host *host);
 static bool sdhci_check_state(struct sdhci_host *);
 static void sdhci_enable_sdio_irq_nolock(struct sdhci_host *host, int enable);
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int sdhci_runtime_pm_get(struct sdhci_host *host);
 static int sdhci_runtime_pm_put(struct sdhci_host *host);
 static void sdhci_runtime_pm_bus_on(struct sdhci_host *host);
@@ -3493,7 +3493,7 @@ int sdhci_resume_host(struct sdhci_host *host)
 EXPORT_SYMBOL_GPL(sdhci_resume_host);
 #endif /* CONFIG_PM */
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 static int sdhci_runtime_pm_get(struct sdhci_host *host)
 {

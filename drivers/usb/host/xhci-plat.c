@@ -294,7 +294,7 @@ static int xhci_plat_remove(struct platform_device *dev)
 }
 
 #ifdef CONFIG_PM_SLEEP
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int xhci_plat_runtime_idle(struct device *dev)
 {
 	/*

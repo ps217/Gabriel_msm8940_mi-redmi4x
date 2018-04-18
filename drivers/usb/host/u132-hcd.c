@@ -3145,7 +3145,7 @@ static int u132_probe(struct platform_device *pdev)
 /*
  * for this device there's no useful distinction between the controller
  * and its root hub, except that the root hub only gets direct PM calls
- * when CONFIG_PM_RUNTIME is enabled.
+ * when CONFIG_PM is enabled.
  */
 static int u132_suspend(struct platform_device *pdev, pm_message_t state)
 {

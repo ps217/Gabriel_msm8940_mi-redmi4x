@@ -157,7 +157,7 @@ static int msm_nand_setup_clocks_and_bus_bw(struct msm_nand_info *info,
 }
 #endif
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int msm_nand_runtime_suspend(struct device *dev)
 {
 	int ret = 0;
@@ -234,7 +234,7 @@ static int msm_nand_resume(struct device *dev)
 }
 #endif
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 static int msm_nand_get_device(struct device *dev)
 {
 	int ret = 0;

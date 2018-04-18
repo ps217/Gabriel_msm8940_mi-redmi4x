@@ -134,7 +134,7 @@ static int pch_hc_probe_slot(struct sdhci_pci_slot *slot)
 	return 0;
 }
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 static irqreturn_t sdhci_pci_sd_cd(int irq, void *dev_id)
 {
@@ -1237,7 +1237,7 @@ static int sdhci_pci_resume(struct device *dev)
 
 #endif /* CONFIG_PM */
 
-#ifdef CONFIG_PM_RUNTIME
+#ifdef CONFIG_PM
 
 static int sdhci_pci_runtime_suspend(struct device *dev)
 {
