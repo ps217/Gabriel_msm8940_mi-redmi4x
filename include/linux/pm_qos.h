@@ -187,7 +187,7 @@ void dev_pm_qos_hide_latency_tolerance(struct device *dev);
 
 static inline s32 dev_pm_qos_requested_resume_latency(struct device *dev)
 {
-	return dev->power.qos->resume_latency_req->data.pnode.prio;
+	return dev->power.qos->resume_latency_req->data.lat.node.prio;
 }
 
 static inline s32 dev_pm_qos_requested_flags(struct device *dev)
