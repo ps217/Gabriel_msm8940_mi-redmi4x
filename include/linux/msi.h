@@ -14,6 +14,7 @@ extern int pci_msi_ignore_mask;
 /* Helper functions */
 struct irq_data;
 struct msi_desc;
+struct pci_dev;
 void __get_cached_msi_msg(struct msi_desc *entry, struct msi_msg *msg);
 #ifdef CONFIG_GENERIC_MSI_IRQ
 void get_cached_msi_msg(unsigned int irq, struct msi_msg *msg);
@@ -43,14 +44,14 @@ struct msi_desc {
 		void __iomem *mask_base;
 		u8 mask_pos;
 	};
-	struct pci_dev *dev;
+	struct device *dev;
 
 	/* Last set MSI message */
 	struct msi_msg msg;
 };
 
 /* Helpers to hide struct msi_desc implementation details */
-#define msi_desc_to_dev(desc)		(&(desc)->dev.dev)
+#define msi_desc_to_dev(desc)		((desc)->dev)
 #define dev_to_msi_list(dev)		(&to_pci_dev((dev))->msi_list)
 #define first_msi_entry(dev)		\
 	list_first_entry(dev_to_msi_list((dev)), struct msi_desc, list)
@@ -62,11 +63,7 @@ struct msi_desc {
 #define for_each_pci_msi_entry(desc, pdev)	\
 	for_each_msi_entry((desc), &(pdev)->dev)
 
-static inline struct pci_dev *msi_desc_to_pci_dev(struct msi_desc *desc)
-{
-	return desc->dev;
-}
-
+struct pci_dev *msi_desc_to_pci_dev(struct msi_desc *desc);
 void *msi_desc_to_pci_sysdata(struct msi_desc *desc);
 void pci_write_msi_msg(unsigned int irq, struct msi_msg *msg);
 #else /* CONFIG_PCI_MSI */
