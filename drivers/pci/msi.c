@@ -1122,6 +1122,11 @@ int pci_enable_msix_range(struct pci_dev *dev, struct msix_entry *entries,
 }
 EXPORT_SYMBOL(pci_enable_msix_range);
 
+struct pci_dev *msi_desc_to_pci_dev(struct msi_desc *desc)
+{
+	return to_pci_dev(desc->dev);
+}
+
 void *msi_desc_to_pci_sysdata(struct msi_desc *desc)
 {
 	struct pci_dev *dev = msi_desc_to_pci_dev(desc);
