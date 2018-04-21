@@ -299,8 +299,9 @@ static inline bool need_pull_dl_task(struct rq *rq, struct task_struct *prev)
 	return false;
 }
 
-static inline void pull_dl_task(struct rq *rq)
+static inline int pull_dl_task(struct rq *rq)
 {
+	return 0;
 }
 
 static inline void queue_push_tasks(struct rq *rq)
@@ -1072,7 +1073,7 @@ static void check_preempt_equal_dl(struct rq *rq, struct task_struct *p)
 	resched_curr(rq);
 }
 
-static void pull_dl_task(struct rq *this_rq);
+static int pull_dl_task(struct rq *this_rq);
 
 #endif /* CONFIG_SMP */
 
@@ -1508,16 +1509,15 @@ static void push_dl_tasks(struct rq *rq)
 		;
 }
 
-static void pull_dl_task(struct rq *this_rq)
+static int pull_dl_task(struct rq *this_rq)
 {
-	int this_cpu = this_rq->cpu, cpu;
+	int this_cpu = this_rq->cpu, ret = 0, cpu;
 	struct task_struct *p;
-	bool resched = false;
 	struct rq *src_rq;
 	u64 dmin = LONG_MAX;
 
 	if (likely(!dl_overloaded(this_rq)))
-		return;
+		return 0;
 
 	/*
 	 * Match the barrier from dl_set_overloaded; this guarantees that if we
@@ -1572,7 +1572,7 @@ static void pull_dl_task(struct rq *this_rq)
 					   src_rq->curr->dl.deadline))
 				goto skip;
 
-			resched = true;
+			ret = 1;
 
 			deactivate_task(src_rq, p, 0);
 			p->on_rq = TASK_ON_RQ_MIGRATING;
@@ -1587,8 +1587,7 @@ skip:
 		double_unlock_balance(this_rq, src_rq);
 	}
 
-	if (resched)
-		resched_curr(this_rq);
+	return ret;
 }
 
 /*
