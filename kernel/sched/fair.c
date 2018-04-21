@@ -148,9 +148,9 @@ static inline void update_load_set(struct load_weight *lw, unsigned long w)
  *
  * This idea comes from the SD scheduler of Con Kolivas:
  */
-static int get_update_sysctl_factor(void)
+static unsigned int get_update_sysctl_factor(void)
 {
-	unsigned int cpus = min_t(int, num_online_cpus(), 8);
+	unsigned int cpus = min_t(unsigned int, num_online_cpus(), 8);
 	unsigned int factor;
 
 	switch (sysctl_sched_tunable_scaling) {
@@ -586,7 +586,7 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 		loff_t *ppos)
 {
 	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
-	int factor = get_update_sysctl_factor();
+	unsigned int factor = get_update_sysctl_factor();
 
 	if (ret || !write)
 		return ret;
@@ -1817,6 +1817,11 @@ static void task_numa_placement(struct task_struct *p)
 	u64 runtime, period;
 	spinlock_t *group_lock = NULL;
 
+	/*
+	 * The p->mm->numa_scan_seq field gets updated without
+	 * exclusive access. Use READ_ONCE() here to ensure
+	 * that the field is read in a single access:
+	 */
 	seq = READ_ONCE(p->mm->numa_scan_seq);
 	if (p->numa_scan_seq == seq)
 		return;
@@ -2130,6 +2135,14 @@ void task_numa_fault(int last_cpupid, int mem_node, int pages, int flags)
 
 static void reset_ptenuma_scan(struct task_struct *p)
 {
+	/*
+	 * We only did a read acquisition of the mmap sem, so
+	 * p->mm->numa_scan_seq is written to without exclusive access
+	 * and the update is not guaranteed to be atomic. That's not
+	 * much of an issue though, since this is just used for
+	 * statistical sampling. Use READ_ONCE/WRITE_ONCE, which are not
+	 * expensive, to avoid any form of compiler optimizations:
+	 */
 	WRITE_ONCE(p->mm->numa_scan_seq, READ_ONCE(p->mm->numa_scan_seq) + 1);
 	p->mm->numa_scan_offset = 0;
 }
@@ -7638,10 +7651,15 @@ static int task_hot(struct task_struct *p, struct lb_env *env)
 }
 
 #ifdef CONFIG_NUMA_BALANCING
-/* Returns true if the destination node has incurred more faults */
+/*
+ * Returns true if the destination node is the preferred node.
+ * Needs to match fbq_classify_rq(): if there is a runnable task
+ * that is not on its preferred node, we should identify it.
+ */
 static bool migrate_improves_locality(struct task_struct *p, struct lb_env *env)
 {
 	struct numa_group *numa_group = rcu_dereference(p->numa_group);
+	unsigned long src_faults, dst_faults;
 	int src_nid, dst_nid;
 
 	if (!sched_feat(NUMA_FAVOUR_HIGHER) || !p->numa_faults ||
@@ -7655,29 +7673,30 @@ static bool migrate_improves_locality(struct task_struct *p, struct lb_env *env)
 	if (src_nid == dst_nid)
 		return false;
 
-	if (numa_group) {
-		/* Task is already in the group's interleave set. */
-		if (node_isset(src_nid, numa_group->active_nodes))
-			return false;
-
-		/* Task is moving into the group's interleave set. */
-		if (node_isset(dst_nid, numa_group->active_nodes))
-			return true;
-
-		return group_faults(p, dst_nid) > group_faults(p, src_nid);
-	}
-
 	/* Encourage migration to the preferred node. */
 	if (dst_nid == p->numa_preferred_nid)
 		return true;
 
-	return task_faults(p, dst_nid) > task_faults(p, src_nid);
+	/* Migrating away from the preferred node is bad. */
+	if (src_nid == p->numa_preferred_nid)
+		return false;
+
+	if (numa_group) {
+		src_faults = group_faults(p, src_nid);
+		dst_faults = group_faults(p, dst_nid);
+	} else {
+		src_faults = task_faults(p, src_nid);
+		dst_faults = task_faults(p, dst_nid);
+	}
+
+	return dst_faults > src_faults;
 }
 
 
 static bool migrate_degrades_locality(struct task_struct *p, struct lb_env *env)
 {
 	struct numa_group *numa_group = rcu_dereference(p->numa_group);
+	unsigned long src_faults, dst_faults;
 	int src_nid, dst_nid;
 
 	if (!sched_feat(NUMA) || !sched_feat(NUMA_RESIST_LOWER))
@@ -7692,23 +7711,23 @@ static bool migrate_degrades_locality(struct task_struct *p, struct lb_env *env)
 	if (src_nid == dst_nid)
 		return false;
 
-	if (numa_group) {
-		/* Task is moving within/into the group's interleave set. */
-		if (node_isset(dst_nid, numa_group->active_nodes))
-			return false;
-
-		/* Task is moving out of the group's interleave set. */
-		if (node_isset(src_nid, numa_group->active_nodes))
-			return true;
-
-		return group_faults(p, dst_nid) < group_faults(p, src_nid);
-	}
-
-	/* Migrating away from the preferred node is always bad. */
+	/* Migrating away from the preferred node is bad. */
 	if (src_nid == p->numa_preferred_nid)
 		return true;
 
-	return task_faults(p, dst_nid) < task_faults(p, src_nid);
+	/* Encourage migration to the preferred node. */
+	if (dst_nid == p->numa_preferred_nid)
+		return false;
+
+	if (numa_group) {
+		src_faults = group_faults(p, src_nid);
+		dst_faults = group_faults(p, dst_nid);
+	} else {
+		src_faults = task_faults(p, src_nid);
+		dst_faults = task_faults(p, dst_nid);
+	}
+
+	return dst_faults < src_faults;
 }
 
 #else

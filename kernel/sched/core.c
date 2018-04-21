@@ -1207,13 +1207,6 @@ void check_preempt_curr(struct rq *rq, struct task_struct *p, int flags)
 		rq_clock_skip_update(rq, true);
 }
 
-static ATOMIC_NOTIFIER_HEAD(task_migration_notifier);
-
-void register_task_migration_notifier(struct notifier_block *n)
-{
-	atomic_notifier_chain_register(&task_migration_notifier, n);
-}
-
 #ifdef CONFIG_SCHED_HMP
 unsigned int max_possible_efficiency = 1;
 unsigned int min_possible_efficiency = UINT_MAX;
@@ -4392,19 +4385,11 @@ void set_task_cpu(struct task_struct *p, unsigned int new_cpu)
 	trace_sched_migrate_task(p, new_cpu, pct_task_load(p));
 
 	if (task_cpu(p) != new_cpu) {
-		struct task_migration_notifier tmn;
-
 		if (p->sched_class->migrate_task_rq)
 			p->sched_class->migrate_task_rq(p, new_cpu);
 		p->se.nr_migrations++;
-		perf_sw_event_sched(PERF_COUNT_SW_CPU_MIGRATIONS, 1, 0);
+		perf_event_task_migrate(p);
 		fixup_busy_time(p, new_cpu);
-
-		tmn.task = p;
-		tmn.from_cpu = task_cpu(p);
-		tmn.to_cpu = new_cpu;
-
-		atomic_notifier_call_chain(&task_migration_notifier, 0, &tmn);
 	}
 
 	__set_task_cpu(p, new_cpu);
@@ -5871,7 +5856,6 @@ context_switch(struct rq *rq, struct task_struct *prev,
 	 */
 	spin_release(&rq->lock.dep_map, 1, _THIS_IP_);
 
-	context_tracking_task_switch(prev, next);
 	/* Here we just switch the register state and the stack. */
 	switch_to(prev, next, prev);
 	barrier();
@@ -6334,9 +6318,7 @@ again:
  *          - return from syscall or exception to user-space
  *          - return from interrupt-handler to user-space
  *
- * WARNING: all callers must re-check need_resched() afterward and reschedule
- * accordingly in case an event triggered the need for rescheduling (such as
- * an interrupt waking up a task) while preemption was disabled in __schedule().
+ * WARNING: must be called with preemption disabled!
  */
 static void __sched __schedule(void)
 {
@@ -6346,7 +6328,6 @@ static void __sched __schedule(void)
 	int cpu;
 	u64 wallclock;
 
-	preempt_disable();
 	cpu = smp_processor_id();
 	rq = cpu_rq(cpu);
 	rcu_note_context_switch(cpu);
@@ -6417,8 +6398,6 @@ static void __sched __schedule(void)
 		raw_spin_unlock_irq(&rq->lock);
 
 	balance_callback(rq);
-
-	sched_preempt_enable_no_resched();
 }
 
 static inline void sched_submit_work(struct task_struct *tsk)
@@ -6439,7 +6418,9 @@ asmlinkage __visible void __sched schedule(void)
 
 	sched_submit_work(tsk);
 	do {
+		preempt_disable();
 		__schedule();
+		sched_preempt_enable_no_resched();
 	} while (need_resched());
 }
 EXPORT_SYMBOL(schedule);
@@ -6478,15 +6459,14 @@ void __sched schedule_preempt_disabled(void)
 static void __sched notrace preempt_schedule_common(void)
 {
 	do {
-		__preempt_count_add(PREEMPT_ACTIVE);
+		preempt_active_enter();
 		__schedule();
-		__preempt_count_sub(PREEMPT_ACTIVE);
+		preempt_active_exit();
 
 		/*
 		 * Check again in case we missed a preemption opportunity
 		 * between schedule and now.
 		 */
-		barrier();
 	} while (need_resched());
 }
 
@@ -6533,7 +6513,7 @@ asmlinkage __visible void __sched notrace preempt_schedule_context(void)
 		return;
 
 	do {
-		__preempt_count_add(PREEMPT_ACTIVE);
+		preempt_active_enter();
 		/*
 		 * Needs preempt disabled in case user_exit() is traced
 		 * and the tracer calls preempt_enable_notrace() causing
@@ -6543,8 +6523,7 @@ asmlinkage __visible void __sched notrace preempt_schedule_context(void)
 		__schedule();
 		exception_exit(prev_ctx);
 
-		__preempt_count_sub(PREEMPT_ACTIVE);
-		barrier();
+		preempt_active_exit();
 	} while (need_resched());
 }
 EXPORT_SYMBOL_GPL(preempt_schedule_context);
@@ -6568,17 +6547,11 @@ asmlinkage __visible void __sched preempt_schedule_irq(void)
 	prev_state = exception_enter();
 
 	do {
-		__preempt_count_add(PREEMPT_ACTIVE);
+		preempt_active_enter();
 		local_irq_enable();
 		__schedule();
 		local_irq_disable();
-		__preempt_count_sub(PREEMPT_ACTIVE);
-
-		/*
-		 * Check again in case we missed a preemption opportunity
-		 * between schedule and now.
-		 */
-		barrier();
+		preempt_active_exit();
 	} while (need_resched());
 
 	exception_exit(prev_state);
@@ -8977,7 +8950,7 @@ static struct notifier_block migration_notifier = {
 	.priority = CPU_PRI_MIGRATION,
 };
 
-static void __cpuinit set_cpu_rq_start_time(void)
+static void set_cpu_rq_start_time(void)
 {
 	int cpu = smp_processor_id();
 	struct rq *rq = cpu_rq(cpu);
@@ -10727,27 +10700,23 @@ static int cpuset_cpu_inactive(struct notifier_block *nfb, unsigned long action,
 	unsigned long flags;
 	long cpu = (long)hcpu;
 	struct dl_bw *dl_b;
+	bool overflow;
+	int cpus;
 
-	switch (action & ~CPU_TASKS_FROZEN) {
+	switch (action) {
 	case CPU_DOWN_PREPARE:
-		/* explicitly allow suspend */
-		if (!(action & CPU_TASKS_FROZEN)) {
-			bool overflow;
-			int cpus;
+		rcu_read_lock_sched();
+		dl_b = dl_bw_of(cpu);
 
-			rcu_read_lock_sched();
-			dl_b = dl_bw_of(cpu);
+		raw_spin_lock_irqsave(&dl_b->lock, flags);
+		cpus = dl_bw_cpus(cpu);
+		overflow = __dl_overflow(dl_b, cpus, 0, 0);
+		raw_spin_unlock_irqrestore(&dl_b->lock, flags);
 
-			raw_spin_lock_irqsave(&dl_b->lock, flags);
-			cpus = dl_bw_cpus(cpu);
-			overflow = __dl_overflow(dl_b, cpus, 0, 0);
-			raw_spin_unlock_irqrestore(&dl_b->lock, flags);
+		rcu_read_unlock_sched();
 
-			rcu_read_unlock_sched();
-
-			if (overflow)
-				return notifier_from_errno(-EBUSY);
-		}
+		if (overflow)
+			return notifier_from_errno(-EBUSY);
 		cpuset_update_active_cpus(false);
 		break;
 	case CPU_DOWN_PREPARE_FROZEN:
@@ -10766,6 +10735,9 @@ void __init sched_init_smp(void)
 
 	alloc_cpumask_var(&non_isolated_cpus, GFP_KERNEL);
 	alloc_cpumask_var(&fallback_doms, GFP_KERNEL);
+
+	/* nohz_full won't take effect without isolating the cpus. */
+	tick_nohz_full_add_cpus_to(cpu_isolated_map);
 
 	sched_init_numa();
 
@@ -11527,11 +11499,11 @@ static long sched_group_rt_runtime(struct task_group *tg)
 	return rt_runtime_us;
 }
 
-static int sched_group_set_rt_period(struct task_group *tg, long rt_period_us)
+static int sched_group_set_rt_period(struct task_group *tg, u64 rt_period_us)
 {
 	u64 rt_runtime, rt_period;
 
-	rt_period = (u64)rt_period_us * NSEC_PER_USEC;
+	rt_period = rt_period_us * NSEC_PER_USEC;
 	rt_runtime = tg->rt_bandwidth.rt_runtime;
 
 	return tg_set_rt_bandwidth(tg, rt_period, rt_runtime);

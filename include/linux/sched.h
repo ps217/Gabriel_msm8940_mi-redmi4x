@@ -190,14 +190,6 @@ extern void update_cpu_load_nohz(void);
 static inline void update_cpu_load_nohz(void) { }
 #endif
 
-/* Notifier for when a task gets migrated to a new CPU */
-struct task_migration_notifier {
-	struct task_struct *task;
-	int from_cpu;
-	int to_cpu;
-};
-extern void register_task_migration_notifier(struct notifier_block *n);
-
 extern unsigned long get_parent_ip(unsigned long addr);
 
 extern void dump_cpu_task(int cpu);
@@ -637,9 +629,10 @@ struct task_cputime {
  * used for thread group CPU timer calculations.
  */
 struct thread_group_cputimer {
-	struct task_cputime cputime;
+	atomic64_t utime;
+	atomic64_t stime;
+	atomic64_t sum_exec_runtime;
 	int running;
-	raw_spinlock_t lock;
 };
 
 #include <linux/rwsem.h>
@@ -1518,9 +1511,6 @@ struct task_struct {
 #endif
 
 	struct mm_struct *mm, *active_mm;
-#ifdef CONFIG_COMPAT_BRK
-	unsigned brk_randomized:1;
-#endif
 	/* per-thread vma caching */
 	u32 vmacache_seqnum;
 	struct vm_area_struct *vmacache[VMACACHE_SIZE];
@@ -1543,7 +1533,12 @@ struct task_struct {
 	/* Revert to default priority/policy when forking */
 	unsigned sched_reset_on_fork:1;
 	unsigned sched_contributes_to_load:1;
+	unsigned sched_migrated:1;
 	unsigned sched_remote_wakeup:1;
+
+#ifdef CONFIG_COMPAT_BRK
+	unsigned brk_randomized:1;
+#endif
 
 	unsigned long atomic_flags; /* Flags needing atomic access. */
 
@@ -2832,6 +2827,9 @@ static inline unsigned long wait_task_inactive(struct task_struct *p,
 }
 #endif
 
+#define tasklist_empty() \
+	list_empty(&init_task.tasks)
+
 #define next_task(p) \
 	list_entry_rcu((p)->tasks.next, struct task_struct, tasks)
 
@@ -3287,11 +3285,6 @@ static __always_inline bool need_resched(void)
  */
 void thread_group_cputime(struct task_struct *tsk, struct task_cputime *times);
 void thread_group_cputimer(struct task_struct *tsk, struct task_cputime *times);
-
-static inline void thread_group_cputime_init(struct signal_struct *sig)
-{
-	raw_spin_lock_init(&sig->cputimer.lock);
-}
 
 /*
  * Reevaluate whether the task has signals pending delivery.
