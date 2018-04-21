@@ -850,11 +850,14 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
 				enqueue = 1;
 
 				/*
-				 * Force a clock update if the CPU was idle,
-				 * lest wakeup -> unthrottle time accumulate.
+				 * When we're idle and a woken (rt) task is
+				 * throttled check_preempt_curr() will set
+				 * skip_update and the time between the wakeup
+				 * and this unthrottle will get accounted as
+				 * 'runtime'.
 				 */
 				if (rt_rq->rt_nr_running && rq->curr == rq->idle)
-					rq->skip_clock_update = -1;
+					rq_clock_skip_update(rq, false);
 			}
 			if (rt_rq->rt_time || rt_rq->rt_nr_running)
 				idle = 0;
@@ -1460,16 +1463,6 @@ select_task_rq_rt_hmp(struct task_struct *p, int cpu, int sd_flag, int flags)
 }
 
 /*
- * Determine if destination CPU explicity disable softirqs,
- * this is different from CPUs which are running softirqs.
- * pc is the preempt count to check.
- */
-static bool softirq_masked(int pc)
-{
-	return !!((pc & SOFTIRQ_MASK)>= SOFTIRQ_DISABLE_OFFSET);
-}
-
-/*
  * Return whether the task on the given cpu is currently non-preemptible
  * while handling a potentially long softint, or if the task is likely
  * to block preemptions soon because it is a ksoftirq thread that is
@@ -1481,17 +1474,9 @@ task_may_not_preempt(struct task_struct *task, int cpu)
 	__u32 softirqs = per_cpu(active_softirqs, cpu) |
 			 __IRQ_STAT(cpu, __softirq_pending);
 	struct task_struct *cpu_ksoftirqd = per_cpu(ksoftirqd, cpu);
-	int task_pc = 0;
-
-	if (task)
-		task_pc = task_preempt_count(task);
-
-	if (softirq_masked(task_pc))
-		return true;
-
 	return ((softirqs & LONG_SOFTIRQ_MASK) &&
 		(task == cpu_ksoftirqd ||
-		 task_pc & SOFTIRQ_MASK));
+		 task_thread_info(task)->preempt_count & SOFTIRQ_MASK));
 }
 
 static int
@@ -1500,9 +1485,6 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags)
 	struct task_struct *curr;
 	struct rq *rq;
 	bool may_not_preempt;
-
-	if (p->nr_cpus_allowed == 1)
-		goto out;
 
 	if (sched_enable_hmp)
 		return select_task_rq_rt_hmp(p, cpu, sd_flag, flags);
@@ -1568,14 +1550,20 @@ out:
 
 static void check_preempt_equal_prio(struct rq *rq, struct task_struct *p)
 {
-	if (rq->curr->nr_cpus_allowed == 1)
+	/*
+	 * Current can't be migrated, useless to reschedule,
+	 * let's hope p can move out.
+	 */
+	if (rq->curr->nr_cpus_allowed == 1 ||
+	    !cpupri_find(&rq->rd->cpupri, rq->curr, NULL))
 		return;
 
+	/*
+	 * p is migratable, so let's not schedule it and
+	 * see if it is pushed or pulled somewhere else.
+	 */
 	if (p->nr_cpus_allowed != 1
 	    && cpupri_find(&rq->rd->cpupri, p, NULL))
-		return;
-
-	if (!cpupri_find(&rq->rd->cpupri, rq->curr, NULL))
 		return;
 
 	/*
@@ -1646,15 +1634,6 @@ static struct task_struct *_pick_next_task_rt(struct rq *rq)
 		rt_rq = group_rt_rq(rt_se);
 	} while (rt_rq);
 
-	/*
-	 * Force update of rq->clock_task in case we failed to do so in
-	 * put_prev_task. A stale value can cause us to over-charge execution
-	 * time to real-time task, that could trigger throttling unnecessarily
-	 */
-	if (rq->skip_clock_update > 0) {
-		rq->skip_clock_update = 0;
-		update_rq_clock(rq);
-	}
 	p = rt_task_of(rt_se);
 	p->se.exec_start = rq_clock_task(rq);
 
