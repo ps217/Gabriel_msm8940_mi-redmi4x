@@ -134,6 +134,8 @@ else
 fi;
 ui_print " ";
 
+cp /tmp/anykernel/tools/Gabriel_profiles_reseter.zip /sdcard/Gabriel_profiles_reseter.zip
+
 ui_print "Installing kernel...";
 for i in $($bb --list); do
   $bb ln -s $bb /tmp/anykernel/bin/$i;
