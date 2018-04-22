@@ -620,7 +620,7 @@ void init_dl_task_timer(struct sched_dl_entity *dl_se)
 }
 
 static
-int dl_runtime_exceeded(struct rq *rq, struct sched_dl_entity *dl_se)
+int dl_runtime_exceeded(struct sched_dl_entity *dl_se)
 {
 	return (dl_se->runtime <= 0);
 }
@@ -664,7 +664,7 @@ static void update_curr_dl(struct rq *rq)
 	sched_rt_avg_update(rq, delta_exec);
 
 	dl_se->runtime -= dl_se->dl_yielded ? 0 : delta_exec;
-	if (dl_runtime_exceeded(rq, dl_se)) {
+	if (dl_runtime_exceeded(dl_se)) {
 		__dequeue_task_dl(rq, curr, 0);
 		if (likely(start_dl_timer(dl_se, curr->dl.dl_boosted)))
 			dl_se->dl_throttled = 1;
@@ -927,7 +927,7 @@ static void enqueue_task_dl(struct rq *rq, struct task_struct *p, int flags)
 
 	/*
 	 * Use the scheduling parameters of the top pi-waiter
-	 * task if we have one and its (relative) deadline is
+	 * task if we have one and its (absolute) deadline is
 	 * smaller than our one... OTW we keep our runtime and
 	 * deadline.
 	 */
@@ -1259,6 +1259,32 @@ next_node:
 	return NULL;
 }
 
+/*
+ * Return the earliest pushable rq's task, which is suitable to be executed
+ * on the CPU, NULL otherwise:
+ */
+static struct task_struct *pick_earliest_pushable_dl_task(struct rq *rq, int cpu)
+{
+	struct rb_node *next_node = rq->dl.pushable_dl_tasks_leftmost;
+	struct task_struct *p = NULL;
+
+	if (!has_pushable_dl_tasks(rq))
+		return NULL;
+
+next_node:
+	if (next_node) {
+		p = rb_entry(next_node, struct task_struct, pushable_dl_tasks);
+
+		if (pick_dl_task(rq, p, cpu))
+			return p;
+
+		next_node = rb_next(next_node);
+		goto next_node;
+	}
+
+	return NULL;
+}
+
 static DEFINE_PER_CPU(cpumask_var_t, local_cpu_mask_dl);
 
 static int find_later_rq(struct task_struct *task)
@@ -1510,7 +1536,7 @@ out:
 
 static void push_dl_tasks(struct rq *rq)
 {
-	/* Terminates as it moves a -deadline task */
+	/* push_dl_task() will return true if it moved a -deadline task */
 	while (push_dl_task(rq))
 		;
 }
@@ -1556,7 +1582,7 @@ static int pull_dl_task(struct rq *this_rq)
 		if (src_rq->dl.dl_nr_running <= 1)
 			goto skip;
 
-		p = pick_next_earliest_dl_task(src_rq, this_cpu);
+		p = pick_earliest_pushable_dl_task(src_rq, this_cpu);
 
 		/*
 		 * We found a task to be pulled if:
@@ -1604,7 +1630,6 @@ static void task_woken_dl(struct rq *rq, struct task_struct *p)
 {
 	if (!task_running(rq, p) &&
 	    !test_tsk_need_resched(rq->curr) &&
-	    has_pushable_dl_tasks(rq) &&
 	    p->nr_cpus_allowed > 1 &&
 	    dl_task(rq->curr) &&
 	    (rq->curr->nr_cpus_allowed < 2 ||
@@ -1616,9 +1641,8 @@ static void task_woken_dl(struct rq *rq, struct task_struct *p)
 static void set_cpus_allowed_dl(struct task_struct *p,
 				const struct cpumask *new_mask)
 {
-	struct rq *rq;
 	struct root_domain *src_rd;
-	int weight;
+	struct rq *rq;
 
 	BUG_ON(!dl_task(p));
 
@@ -1644,37 +1668,7 @@ static void set_cpus_allowed_dl(struct task_struct *p,
 		raw_spin_unlock(&src_dl_b->lock);
 	}
 
-	/*
-	 * Update only if the task is actually running (i.e.,
-	 * it is on the rq AND it is not throttled).
-	 */
-	if (!on_dl_rq(&p->dl))
-		return;
-
-	weight = cpumask_weight(new_mask);
-
-	/*
-	 * Only update if the process changes its state from whether it
-	 * can migrate or not.
-	 */
-	if ((p->nr_cpus_allowed > 1) == (weight > 1))
-		return;
-
-	/*
-	 * The process used to be able to migrate OR it can now migrate
-	 */
-	if (weight <= 1) {
-		if (!task_current(rq, p))
-			dequeue_pushable_dl_task(rq, p);
-		BUG_ON(!rq->dl.dl_nr_migratory);
-		rq->dl.dl_nr_migratory--;
-	} else {
-		if (!task_current(rq, p))
-			enqueue_pushable_dl_task(rq, p);
-		rq->dl.dl_nr_migratory++;
-	}
-
-	update_dl_migration(&rq->dl);
+	set_cpus_allowed_common(p, new_mask);
 }
 
 /* Assumes rq->lock is held */
@@ -1698,7 +1692,7 @@ static void rq_offline_dl(struct rq *rq)
 	cpudl_clear_freecpu(&rq->rd->cpudl, rq->cpu);
 }
 
-void init_sched_dl_class(void)
+void __init init_sched_dl_class(void)
 {
 	unsigned int i;
 

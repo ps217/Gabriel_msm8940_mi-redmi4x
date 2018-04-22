@@ -212,14 +212,12 @@ struct static_key sched_feat_keys[__SCHED_FEAT_NR] = {
 
 static void sched_feat_disable(int i)
 {
-	if (static_key_enabled(&sched_feat_keys[i]))
-		static_key_slow_dec(&sched_feat_keys[i]);
+	static_key_disable(&sched_feat_keys[i]);
 }
 
 static void sched_feat_enable(int i)
 {
-	if (!static_key_enabled(&sched_feat_keys[i]))
-		static_key_slow_inc(&sched_feat_keys[i]);
+	static_key_enable(&sched_feat_keys[i]);
 }
 #else
 static void sched_feat_disable(int i) { };
@@ -5199,6 +5197,8 @@ static void try_to_wake_up_local(struct task_struct *p)
 	if (!(p->state & TASK_NORMAL))
 		goto out;
 
+	trace_sched_waking(p);
+
 	if (!task_on_rq_queued(p)) {
 		u64 wallclock = sched_ktime_clock();
 
@@ -5447,7 +5447,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
 		p->sched_class->task_fork(p);
 	raw_spin_unlock_irqrestore(&p->pi_lock, flags);
 
-#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+#ifdef CONFIG_SCHED_INFO
 	if (likely(sched_info_on()))
 		memset(&p->sched_info, 0, sizeof(p->sched_info));
 #endif
@@ -5608,12 +5608,29 @@ void wake_up_new_task(struct task_struct *p)
 
 #ifdef CONFIG_PREEMPT_NOTIFIERS
 
+static struct static_key preempt_notifier_key = STATIC_KEY_INIT_FALSE;
+
+void preempt_notifier_inc(void)
+{
+	static_key_slow_inc(&preempt_notifier_key);
+}
+EXPORT_SYMBOL_GPL(preempt_notifier_inc);
+
+void preempt_notifier_dec(void)
+{
+	static_key_slow_dec(&preempt_notifier_key);
+}
+EXPORT_SYMBOL_GPL(preempt_notifier_dec);
+
 /**
  * preempt_notifier_register - tell me when current is being preempted & rescheduled
  * @notifier: notifier struct to register
  */
 void preempt_notifier_register(struct preempt_notifier *notifier)
 {
+	if (!static_key_false(&preempt_notifier_key))
+		WARN(1, "registering preempt_notifier while notifiers disabled\n");
+
 	hlist_add_head(&notifier->link, &current->preempt_notifiers);
 }
 EXPORT_SYMBOL_GPL(preempt_notifier_register);
@@ -5622,7 +5639,7 @@ EXPORT_SYMBOL_GPL(preempt_notifier_register);
  * preempt_notifier_unregister - no longer interested in preemption notifications
  * @notifier: notifier struct to unregister
  *
- * This is safe to call from within a preemption notifier.
+ * This is *not* safe to call from within a preemption notifier.
  */
 void preempt_notifier_unregister(struct preempt_notifier *notifier)
 {
@@ -5630,7 +5647,7 @@ void preempt_notifier_unregister(struct preempt_notifier *notifier)
 }
 EXPORT_SYMBOL_GPL(preempt_notifier_unregister);
 
-static void fire_sched_in_preempt_notifiers(struct task_struct *curr)
+static void __fire_sched_in_preempt_notifiers(struct task_struct *curr)
 {
 	struct preempt_notifier *notifier;
 
@@ -5638,9 +5655,15 @@ static void fire_sched_in_preempt_notifiers(struct task_struct *curr)
 		notifier->ops->sched_in(notifier, raw_smp_processor_id());
 }
 
+static __always_inline void fire_sched_in_preempt_notifiers(struct task_struct *curr)
+{
+	if (static_key_false(&preempt_notifier_key))
+		__fire_sched_in_preempt_notifiers(curr);
+}
+
 static void
-fire_sched_out_preempt_notifiers(struct task_struct *curr,
-				 struct task_struct *next)
+__fire_sched_out_preempt_notifiers(struct task_struct *curr,
+				   struct task_struct *next)
 {
 	struct preempt_notifier *notifier;
 
@@ -5648,13 +5671,21 @@ fire_sched_out_preempt_notifiers(struct task_struct *curr,
 		notifier->ops->sched_out(notifier, next);
 }
 
+static __always_inline void
+fire_sched_out_preempt_notifiers(struct task_struct *curr,
+				 struct task_struct *next)
+{
+	if (static_key_false(&preempt_notifier_key))
+		__fire_sched_out_preempt_notifiers(curr, next);
+}
+
 #else /* !CONFIG_PREEMPT_NOTIFIERS */
 
-static void fire_sched_in_preempt_notifiers(struct task_struct *curr)
+static inline void fire_sched_in_preempt_notifiers(struct task_struct *curr)
 {
 }
 
-static void
+static inline void
 fire_sched_out_preempt_notifiers(struct task_struct *curr,
 				 struct task_struct *next)
 {
@@ -5736,7 +5767,6 @@ static struct rq *finish_task_switch(struct task_struct *prev)
 	 */
 	prev_state = prev->state;
 	vtime_task_switch(prev);
-	finish_arch_switch(prev);
 	perf_event_task_sched_in(prev, current);
 	finish_lock_switch(rq, prev);
 	finish_arch_post_lock_switch();
@@ -6490,9 +6520,8 @@ asmlinkage __visible void __sched notrace preempt_schedule(void)
 NOKPROBE_SYMBOL(preempt_schedule);
 EXPORT_SYMBOL(preempt_schedule);
 
-#ifdef CONFIG_CONTEXT_TRACKING
 /**
- * preempt_schedule_context - preempt_schedule called by tracing
+ * preempt_schedule_notrace - preempt_schedule called by tracing
  *
  * The tracing infrastructure uses preempt_enable_notrace to prevent
  * recursion and tracing preempt enabling caused by the tracing
@@ -6505,7 +6534,7 @@ EXPORT_SYMBOL(preempt_schedule);
  * instead of preempt_schedule() to exit user context if needed before
  * calling the scheduler.
  */
-asmlinkage __visible void __sched notrace preempt_schedule_context(void)
+asmlinkage __visible void __sched notrace preempt_schedule_notrace(void)
 {
 	enum ctx_state prev_ctx;
 
@@ -6513,7 +6542,13 @@ asmlinkage __visible void __sched notrace preempt_schedule_context(void)
 		return;
 
 	do {
-		preempt_active_enter();
+		/*
+		 * Use raw __prempt_count() ops that don't call function.
+		 * We can't call functions before disabling preemption which
+		 * disarm preemption tracing recursions.
+		 */
+		__preempt_count_add(PREEMPT_ACTIVE + PREEMPT_DISABLE_OFFSET);
+		barrier();
 		/*
 		 * Needs preempt disabled in case user_exit() is traced
 		 * and the tracer calls preempt_enable_notrace() causing
@@ -6523,11 +6558,11 @@ asmlinkage __visible void __sched notrace preempt_schedule_context(void)
 		__schedule();
 		exception_exit(prev_ctx);
 
-		preempt_active_exit();
+		barrier();
+		__preempt_count_sub(PREEMPT_ACTIVE + PREEMPT_DISABLE_OFFSET);
 	} while (need_resched());
 }
-EXPORT_SYMBOL_GPL(preempt_schedule_context);
-#endif /* CONFIG_CONTEXT_TRACKING */
+EXPORT_SYMBOL_GPL(preempt_schedule_notrace);
 
 #endif /* CONFIG_PREEMPT */
 
@@ -6633,7 +6668,6 @@ void rt_mutex_setprio(struct task_struct *p, int prio)
 		if (!dl_prio(p->normal_prio) ||
 		    (pi_task && dl_entity_preempt(&pi_task->dl, &p->dl))) {
 			p->dl.dl_boosted = 1;
-			p->dl.dl_throttled = 0;
 			queue_flag |= ENQUEUE_REPLENISH;
 		} else
 			p->dl.dl_boosted = 0;
@@ -8354,13 +8388,43 @@ static struct rq *move_queued_task(struct task_struct *p, int new_cpu)
 	return rq;
 }
 
-void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+/*
+ * sched_class::set_cpus_allowed must do the below, but is not required to
+ * actually call this function.
+ */
+void set_cpus_allowed_common(struct task_struct *p, const struct cpumask *new_mask)
 {
-	if (p->sched_class->set_cpus_allowed)
-		p->sched_class->set_cpus_allowed(p, new_mask);
-
 	cpumask_copy(&p->cpus_allowed, new_mask);
 	p->nr_cpus_allowed = cpumask_weight(new_mask);
+}
+
+void do_set_cpus_allowed(struct task_struct *p, const struct cpumask *new_mask)
+{
+	struct rq *rq = task_rq(p);
+	bool queued, running;
+
+ 	lockdep_assert_held(&p->pi_lock);
+
+	queued = task_on_rq_queued(p);
+	running = task_current(rq, p);
+
+	if (queued) {
+		/*
+		 * Because __kthread_bind() calls this on blocked tasks without
+		 * holding rq->lock.
+		 */
+		lockdep_assert_held(&rq->lock);
+		dequeue_task(rq, p, 0);
+	}
+	if (running)
+		put_prev_task(rq, p);
+
+ 	p->sched_class->set_cpus_allowed(p, new_mask);
+
+	if (running)
+		p->sched_class->set_curr_task(rq);
+	if (queued)
+		enqueue_task(rq, p, 0);
 }
 
 /*
@@ -8836,8 +8900,7 @@ static void register_sched_domain_sysctl(void)
 /* may be called multiple times per register */
 static void unregister_sched_domain_sysctl(void)
 {
-	if (sd_sysctl_header)
-		unregister_sysctl_table(sd_sysctl_header);
+	unregister_sysctl_table(sd_sysctl_header);
 	sd_sysctl_header = NULL;
 	if (sd_ctl_dir[0].child)
 		sd_free_ctl_entry(&sd_ctl_dir[0].child);
@@ -10045,8 +10108,10 @@ static void init_numa_topology_type(void)
 
 	n = sched_max_numa_distance;
 
-	if (n <= 1)
+	if (sched_domains_numa_levels <= 1) {
 		sched_numa_topology_type = NUMA_DIRECT;
+		return;
+	}
 
 	for_each_online_node(a) {
 		for_each_online_node(b) {

@@ -626,15 +626,10 @@ static inline u64 calc_delta_fair(u64 delta, struct sched_entity *se)
  */
 static u64 __sched_period(unsigned long nr_running)
 {
-	u64 period = sysctl_sched_latency;
-	unsigned long nr_latency = sched_nr_latency;
-
-	if (unlikely(nr_running > nr_latency)) {
-		period = sysctl_sched_min_granularity;
-		period *= nr_running;
-	}
-
-	return period;
+	if (unlikely(nr_running > sched_nr_latency))
+		return nr_running * sysctl_sched_min_granularity;
+	else
+		return sysctl_sched_latency;
 }
 
 /*
@@ -1221,11 +1216,9 @@ static void task_numa_assign(struct task_numa_env *env,
 static bool load_too_imbalanced(long src_load, long dst_load,
 				struct task_numa_env *env)
 {
+	long imb, old_imb;
+	long orig_src_load, orig_dst_load;
 	long src_capacity, dst_capacity;
-	long orig_src_load;
-	long load_a, load_b;
-	long moved_load;
-	long imb;
 
 	/*
 	 * The load is corrected for the CPU capacity available on each node.
@@ -1238,39 +1231,30 @@ static bool load_too_imbalanced(long src_load, long dst_load,
 	dst_capacity = env->dst_stats.compute_capacity;
 
 	/* We care about the slope of the imbalance, not the direction. */
-	load_a = dst_load;
-	load_b = src_load;
-	if (load_a < load_b)
-		swap(load_a, load_b);
+	if (dst_load < src_load)
+		swap(dst_load, src_load);
 
 	/* Is the difference below the threshold? */
-	imb = load_a * src_capacity * 100 -
-		load_b * dst_capacity * env->imbalance_pct;
+	imb = dst_load * src_capacity * 100 -
+	      src_load * dst_capacity * env->imbalance_pct;
 	if (imb <= 0)
 		return false;
 
 	/*
 	 * The imbalance is above the allowed threshold.
-	 * Allow a move that brings us closer to a balanced situation,
-	 * without moving things past the point of balance.
+	 * Compare it with the old imbalance.
 	 */
 	orig_src_load = env->src_stats.load;
+	orig_dst_load = env->dst_stats.load;
 
-	/*
-	 * In a task swap, there will be one load moving from src to dst,
-	 * and another moving back. This is the net sum of both moves.
-	 * A simple task move will always have a positive value.
-	 * Allow the move if it brings the system closer to a balanced
-	 * situation, without crossing over the balance point.
-	 */
-	moved_load = orig_src_load - src_load;
+	if (orig_dst_load < orig_src_load)
+		swap(orig_dst_load, orig_src_load);
 
-	if (moved_load > 0)
-		/* Moving src -> dst. Did we overshoot balance? */
-		return src_load * dst_capacity < dst_load * src_capacity;
-	else
-		/* Moving dst -> src. Did we overshoot balance? */
-		return dst_load * src_capacity < src_load * dst_capacity;
+	old_imb = orig_dst_load * src_capacity * 100 -
+		  orig_src_load * dst_capacity * env->imbalance_pct;
+
+	/* Would this change make things worse? */
+	return (imb > old_imb);
 }
 
 /*
@@ -1432,6 +1416,31 @@ static void task_numa_find_cpu(struct task_numa_env *env,
 	}
 }
 
+/* Only move tasks to a NUMA node less busy than the current node. */
+static bool numa_has_capacity(struct task_numa_env *env)
+{
+	struct numa_stats *src = &env->src_stats;
+	struct numa_stats *dst = &env->dst_stats;
+
+	if (src->has_free_capacity && !dst->has_free_capacity)
+		return false;
+
+	/*
+	 * Only consider a task move if the source has a higher load
+	 * than the destination, corrected for CPU capacity on each node.
+	 *
+	 *      src->load                dst->load
+	 * --------------------- vs ---------------------
+	 * src->compute_capacity    dst->compute_capacity
+	 */
+	if (src->load * dst->compute_capacity * env->imbalance_pct >
+
+	    dst->load * src->compute_capacity * 100)
+		return true;
+
+	return false;
+}
+
 static int task_numa_migrate(struct task_struct *p)
 {
 	struct task_numa_env env = {
@@ -1486,7 +1495,8 @@ static int task_numa_migrate(struct task_struct *p)
 	update_numa_stats(&env.dst_stats, env.dst_nid);
 
 	/* Try to find a spot on the preferred nid. */
-	task_numa_find_cpu(&env, taskimp, groupimp);
+	if (numa_has_capacity(&env))
+		task_numa_find_cpu(&env, taskimp, groupimp);
 
 	/*
 	 * Look at other nodes in these cases:
@@ -1517,7 +1527,8 @@ static int task_numa_migrate(struct task_struct *p)
 			env.dist = dist;
 			env.dst_nid = nid;
 			update_numa_stats(&env.dst_stats, env.dst_nid);
-			task_numa_find_cpu(&env, taskimp, groupimp);
+			if (numa_has_capacity(&env))
+				task_numa_find_cpu(&env, taskimp, groupimp);
 		}
 	}
 
@@ -4522,19 +4533,12 @@ static inline void __update_group_entity_contrib(struct sched_entity *se)
 	}
 }
 
-static inline void update_rq_runnable_avg(struct rq *rq, int runnable)
-{
-	__update_entity_runnable_avg(cpu_of(rq), rq_clock_task(rq),
-				 &rq->avg, runnable);
-	__update_tg_runnable_avg(&rq->avg, &rq->cfs);
-}
 #else /* CONFIG_FAIR_GROUP_SCHED */
 static inline void __update_cfs_rq_tg_load_contrib(struct cfs_rq *cfs_rq,
 						 int force_update) {}
 static inline void __update_tg_runnable_avg(struct sched_avg *sa,
 						  struct cfs_rq *cfs_rq) {}
 static inline void __update_group_entity_contrib(struct sched_entity *se) {}
-static inline void update_rq_runnable_avg(struct rq *rq, int runnable) {}
 #endif /* CONFIG_FAIR_GROUP_SCHED */
 
 static inline void __update_task_entity_contrib(struct sched_entity *se)
@@ -4715,7 +4719,6 @@ static inline void dequeue_entity_load_avg(struct cfs_rq *cfs_rq,
  */
 void idle_enter_fair(struct rq *this_rq)
 {
-	update_rq_runnable_avg(this_rq, 1);
 }
 
 /*
@@ -4725,7 +4728,6 @@ void idle_enter_fair(struct rq *this_rq)
  */
 void idle_exit_fair(struct rq *this_rq)
 {
-	update_rq_runnable_avg(this_rq, 0);
 }
 
 static int idle_balance(struct rq *this_rq);
@@ -4734,7 +4736,6 @@ static int idle_balance(struct rq *this_rq);
 
 static inline void update_entity_load_avg(struct sched_entity *se,
 					  int update_cfs_rq) {}
-static inline void update_rq_runnable_avg(struct rq *rq, int runnable) {}
 static inline void enqueue_entity_load_avg(struct cfs_rq *cfs_rq,
 					   struct sched_entity *se,
 					   int wakeup) {}
@@ -5665,7 +5666,7 @@ static void throttle_cfs_rq(struct cfs_rq *cfs_rq)
 	cfs_rq->throttled = 1;
 	cfs_rq->throttled_clock = rq_clock(rq);
 	raw_spin_lock(&cfs_b->lock);
-	empty = list_empty(&cfs_rq->throttled_list);
+	empty = list_empty(&cfs_b->throttled_cfs_rq);
 
 	/*
 	 * Add to the _head_ of the list, so that an already-started
@@ -6262,7 +6263,6 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 	}
 
 	if (!se) {
-		update_rq_runnable_avg(rq, rq->nr_running);
 		add_nr_running(rq, 1);
 		inc_rq_hmp_stats(rq, p, 1);
 	}
@@ -6327,7 +6327,6 @@ static void dequeue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 
 	if (!se) {
 		sub_nr_running(rq, 1);
-		update_rq_runnable_avg(rq, 1);
 		dec_rq_hmp_stats(rq, p, 1);
 	}
 	hrtick_update(rq);
@@ -7100,6 +7099,11 @@ migrate_task_rq_fair(struct task_struct *p, int next_cpu)
 	/* We have migrated, no longer consider this task hot */
 	se->exec_start = 0;
 }
+
+static void task_dead_fair(struct task_struct *p)
+{
+	remove_entity_load_avg(&p->se);
+}
 #endif /* CONFIG_SMP */
 
 static unsigned long
@@ -7662,8 +7666,8 @@ static bool migrate_improves_locality(struct task_struct *p, struct lb_env *env)
 	unsigned long src_faults, dst_faults;
 	int src_nid, dst_nid;
 
-	if (!sched_feat(NUMA_FAVOUR_HIGHER) || !p->numa_faults ||
-	    !(env->sd->flags & SD_NUMA)) {
+	if (!sched_feat(NUMA) || !sched_feat(NUMA_FAVOUR_HIGHER) ||
+	    !p->numa_faults || !(env->sd->flags & SD_NUMA)) {
 		return false;
 	}
 
@@ -8088,9 +8092,6 @@ static void __update_blocked_averages_cpu(struct task_group *tg, int cpu)
 		 */
 		if (!se->avg.runnable_avg_sum && !cfs_rq->nr_running)
 			list_del_leaf_cfs_rq(cfs_rq);
-	} else {
-		struct rq *rq = rq_of(cfs_rq);
-		update_rq_runnable_avg(rq, rq->nr_running);
 	}
 }
 
@@ -10449,8 +10450,6 @@ static void task_tick_fair(struct rq *rq, struct task_struct *curr, int queued)
 
 	if (numabalancing_enabled)
 		task_tick_numa(rq, curr);
-
-	update_rq_runnable_avg(rq, 1);
 }
 
 /*
@@ -10551,16 +10550,31 @@ static void switched_from_fair(struct rq *rq, struct task_struct *p)
  */
 static void switched_to_fair(struct rq *rq, struct task_struct *p)
 {
-#ifdef CONFIG_FAIR_GROUP_SCHED
 	struct sched_entity *se = &p->se;
+
+#ifdef CONFIG_FAIR_GROUP_SCHED
 	/*
 	 * Since the real-depth could have been changed (only FAIR
 	 * class maintain depth value), reset depth properly.
 	 */
 	se->depth = se->parent ? se->parent->depth + 1 : 0;
 #endif
-	if (!task_on_rq_queued(p))
+
+	if (!task_on_rq_queued(p)) {
+
+		/*
+		 * Ensure the task has a non-normalized vruntime when it is switched
+		 * back to the fair class with !queued, so that enqueue_entity() at
+		 * wake-up time will do the right thing.
+		 *
+		 * If it's queued, then the enqueue_entity(.flags=0) makes the task
+		 * has non-normalized vruntime, if it's !queued, then it still has
+		 * normalized vruntime.
+		 */
+		if (p->state != TASK_RUNNING)
+			se->vruntime += cfs_rq_of(se)->min_vruntime;
 		return;
+	}
 
 	/*
 	 * We were most likely switched from sched_rt, so
@@ -10666,8 +10680,11 @@ void free_fair_sched_group(struct task_group *tg)
 	for_each_possible_cpu(i) {
 		if (tg->cfs_rq)
 			kfree(tg->cfs_rq[i]);
-		if (tg->se)
+		if (tg->se) {
+			if (tg->se[i])
+				remove_entity_load_avg(tg->se[i]);
 			kfree(tg->se[i]);
+		}
 	}
 
 	kfree(tg->cfs_rq);
@@ -10852,6 +10869,8 @@ const struct sched_class fair_sched_class = {
 	.rq_online		= rq_online_fair,
 	.rq_offline		= rq_offline_fair,
 
+	.task_dead		= task_dead_fair,
+	.set_cpus_allowed	= set_cpus_allowed_common,
 #endif
 
 	.set_curr_task          = set_curr_task_fair,
@@ -10886,7 +10905,27 @@ void print_cfs_stats(struct seq_file *m, int cpu)
 		print_cfs_rq(m, cpu, cfs_rq);
 	rcu_read_unlock();
 }
-#endif
+
+#ifdef CONFIG_NUMA_BALANCING
+void show_numa_stats(struct task_struct *p, struct seq_file *m)
+{
+	int node;
+	unsigned long tsf = 0, tpf = 0, gsf = 0, gpf = 0;
+
+	for_each_online_node(node) {
+		if (p->numa_faults) {
+			tsf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 0)];
+			tpf = p->numa_faults[task_faults_idx(NUMA_MEM, node, 1)];
+		}
+		if (p->numa_group) {
+			gsf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 0)],
+			gpf = p->numa_group->faults[task_faults_idx(NUMA_MEM, node, 1)];
+		}
+		print_numa_stats(m, node, tsf, tpf, gsf, gpf);
+	}
+}
+#endif /* CONFIG_NUMA_BALANCING */
+#endif /* CONFIG_SCHED_DEBUG */
 
 __init void init_sched_fair_class(void)
 {
