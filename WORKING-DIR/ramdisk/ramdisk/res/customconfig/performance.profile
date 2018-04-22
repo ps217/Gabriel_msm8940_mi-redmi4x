@@ -1,6 +1,7 @@
 stweaks_boot_control=yes
 fstrim_boot=no
 doubletap2wake=0
+sweep2wake=0
 fsync_enabled=0
 entropy_awake=high
 entropy_sleep=low
