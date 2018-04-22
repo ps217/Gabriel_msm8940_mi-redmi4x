@@ -611,6 +611,23 @@ struct task_cputime {
 		.sum_exec_runtime = 0,				\
 	}
 
+/*
+ * This is the atomic variant of task_cputime, which can be used for
+ * storing and updating task_cputime statistics without locking.
+ */
+struct task_cputime_atomic {
+	atomic64_t utime;
+	atomic64_t stime;
+	atomic64_t sum_exec_runtime;
+};
+
+#define INIT_CPUTIME_ATOMIC \
+	(struct task_cputime_atomic) {				\
+		.utime = ATOMIC64_INIT(0),			\
+		.stime = ATOMIC64_INIT(0),			\
+		.sum_exec_runtime = ATOMIC64_INIT(0),		\
+	}
+
 #ifdef CONFIG_PREEMPT_COUNT
 #define PREEMPT_DISABLED	(1 + PREEMPT_ENABLED)
 #else
@@ -628,19 +645,20 @@ struct task_cputime {
 
 /**
  * struct thread_group_cputimer - thread group interval timer counts
- * @cputime:		thread group interval timers.
- * @running:		non-zero when there are timers running and
- * 			@cputime receives updates.
+ * @cputime_atomic:	atomic thread group interval timers.
+ * @running:		true when there are timers running and
+ *			@cputime_atomic receives updates.
  * @lock:		lock for fields in this struct.
+ * @checking_timer:	true when a thread in the group is in the
+ *			process of checking for thread group timers.
  *
  * This structure contains the version of task_cputime, above, that is
  * used for thread group CPU timer calculations.
  */
 struct thread_group_cputimer {
-	atomic64_t utime;
-	atomic64_t stime;
-	atomic64_t sum_exec_runtime;
-	int running;
+	struct task_cputime_atomic cputime_atomic;
+	bool running;
+	bool checking_timer;
 };
 
 #include <linux/rwsem.h>

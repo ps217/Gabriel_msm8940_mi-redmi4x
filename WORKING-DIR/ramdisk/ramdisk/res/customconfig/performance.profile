@@ -1,6 +1,7 @@
 stweaks_boot_control=yes
 fstrim_boot=no
 doubletap2wake=0
+sweep2wake=0
 fsync_enabled=0
 entropy_awake=high
 entropy_sleep=low
@@ -75,7 +76,7 @@ core_ctrl_l_task_thres_suspend=4
 core_ctrl_b_task_thres_suspend=8
 gpu_governor=msm-adreno-tz
 gpu_governor_suspend=msm-adreno-tz
-max_freq=450000000
+max_freq=475000000
 min_freq=375000000
 default_pwrlevel=3
 adreno_idler_active=0
