@@ -39,13 +39,20 @@
 
 	</settingsPane>
 
-	<settingsPane description="Control double tap to wake function. by enabling dt2w system always listening to Touch screen and will be awake if you even put a finger on the LCD. (Default: disabled)" name="DT2W control">
+	<settingsPane description="Control Screen wake function. by enabling dt2w or s2w system always listening to Touch screen and will be awake if you even put a finger on the LCD. (Default: disabled)" name="Wake control">
 
-		<spinner description="Select DT2W State" name="DT2W State"
+		<spinner description="Select DT2W State" name="Double tap 2 wake State"
 			action="generic /sys/android_touch/doubletap2wake">
 			<spinnerItem name="Disable" value="0"/>
 			<spinnerItem name="Half Screen" value="1"/>
 			<spinnerItem name="Full Screen" value="2"/>
+		</spinner>
+
+		<spinner description="Select S2W State" name="Sweep 2 wake State"
+			action="generic /sys/android_touch/sweep2wake">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Right" value="1"/>
+			<spinnerItem name="Left" value="2"/>
 		</spinner>
 
 	</settingsPane>
