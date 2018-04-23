@@ -200,8 +200,6 @@ struct task_group;
 #ifdef CONFIG_SCHED_DEBUG
 extern void proc_sched_show_task(struct task_struct *p, struct seq_file *m);
 extern void proc_sched_set_task(struct task_struct *p);
-extern void
-print_cfs_rq(struct seq_file *m, int cpu, struct cfs_rq *cfs_rq);
 #endif
 
 /*
@@ -561,16 +559,29 @@ struct cpu_itimer {
 };
 
 /**
- * struct cputime - snaphsot of system and user cputime
+ * struct prev_cputime - snaphsot of system and user cputime
  * @utime: time spent in user mode
  * @stime: time spent in system mode
+ * @lock: protects the above two fields
  *
- * Gathers a generic snapshot of user and system time.
+ * Stores previous user/system time values such that we can guarantee
+ * monotonicity.
  */
-struct cputime {
+struct prev_cputime {
+#ifndef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
 	cputime_t utime;
 	cputime_t stime;
+	raw_spinlock_t lock;
+#endif
 };
+
+static inline void prev_cputime_init(struct prev_cputime *prev)
+{
+#ifndef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
+	prev->utime = prev->stime = 0;
+	raw_spin_lock_init(&prev->lock);
+#endif
+}
 
 /**
  * struct task_cputime - collected CPU time counts
@@ -578,22 +589,19 @@ struct cputime {
  * @stime:		time spent in kernel mode, in &cputime_t units
  * @sum_exec_runtime:	total time spent on the CPU, in nanoseconds
  *
- * This is an extension of struct cputime that includes the total runtime
- * spent by the task from the scheduler point of view.
- *
- * As a result, this structure groups together three kinds of CPU time
- * that are tracked for threads and thread groups.  Most things considering
- * CPU time want to group these counts together and treat all three
- * of them in parallel.
+ * This structure groups together three kinds of CPU time that are tracked for
+ * threads and thread groups.  Most things considering CPU time want to group
+ * these counts together and treat all three of them in parallel.
  */
 struct task_cputime {
 	cputime_t utime;
 	cputime_t stime;
 	unsigned long long sum_exec_runtime;
 };
+
 /* Alternate field names when used to cache expirations. */
-#define prof_exp	stime
 #define virt_exp	utime
+#define prof_exp	stime
 #define sched_exp	sum_exec_runtime
 
 #define INIT_CPUTIME	\
@@ -601,6 +609,23 @@ struct task_cputime {
 		.utime = 0,					\
 		.stime = 0,					\
 		.sum_exec_runtime = 0,				\
+	}
+
+/*
+ * This is the atomic variant of task_cputime, which can be used for
+ * storing and updating task_cputime statistics without locking.
+ */
+struct task_cputime_atomic {
+	atomic64_t utime;
+	atomic64_t stime;
+	atomic64_t sum_exec_runtime;
+};
+
+#define INIT_CPUTIME_ATOMIC \
+	(struct task_cputime_atomic) {				\
+		.utime = ATOMIC64_INIT(0),			\
+		.stime = ATOMIC64_INIT(0),			\
+		.sum_exec_runtime = ATOMIC64_INIT(0),		\
 	}
 
 #ifdef CONFIG_PREEMPT_COUNT
@@ -620,19 +645,20 @@ struct task_cputime {
 
 /**
  * struct thread_group_cputimer - thread group interval timer counts
- * @cputime:		thread group interval timers.
- * @running:		non-zero when there are timers running and
- * 			@cputime receives updates.
+ * @cputime_atomic:	atomic thread group interval timers.
+ * @running:		true when there are timers running and
+ *			@cputime_atomic receives updates.
  * @lock:		lock for fields in this struct.
+ * @checking_timer:	true when a thread in the group is in the
+ *			process of checking for thread group timers.
  *
  * This structure contains the version of task_cputime, above, that is
  * used for thread group CPU timer calculations.
  */
 struct thread_group_cputimer {
-	atomic64_t utime;
-	atomic64_t stime;
-	atomic64_t sum_exec_runtime;
-	int running;
+	struct task_cputime_atomic cputime_atomic;
+	bool running;
+	bool checking_timer;
 };
 
 #include <linux/rwsem.h>
@@ -732,9 +758,7 @@ struct signal_struct {
 	cputime_t utime, stime, cutime, cstime;
 	cputime_t gtime;
 	cputime_t cgtime;
-#ifndef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
-	struct cputime prev_cputime;
-#endif
+	struct prev_cputime prev_cputime;
 	unsigned long nvcsw, nivcsw, cnvcsw, cnivcsw;
 	unsigned long min_flt, maj_flt, cmin_flt, cmaj_flt;
 	unsigned long inblock, oublock, cinblock, coublock;
@@ -877,7 +901,7 @@ extern struct user_struct root_user;
 struct backing_dev_info;
 struct reclaim_state;
 
-#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+#ifdef CONFIG_SCHED_INFO
 struct sched_info {
 	/* cumulative counters */
 	unsigned long pcount;	      /* # of times run on this cpu */
@@ -887,7 +911,7 @@ struct sched_info {
 	unsigned long long last_arrival,/* when we last ran on a cpu */
 			   last_queued;	/* when we were last queued to run */
 };
-#endif /* defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT) */
+#endif /* CONFIG_SCHED_INFO */
 
 #ifdef CONFIG_TASK_DELAY_ACCT
 struct task_delay_info {
@@ -1500,7 +1524,7 @@ struct task_struct {
 	int rcu_tasks_idle_cpu;
 #endif /* #ifdef CONFIG_TASKS_RCU */
 
-#if defined(CONFIG_SCHEDSTATS) || defined(CONFIG_TASK_DELAY_ACCT)
+#ifdef CONFIG_SCHED_INFO
 	struct sched_info sched_info;
 #endif
 
@@ -1583,9 +1607,7 @@ struct task_struct {
 
 	cputime_t utime, stime, utimescaled, stimescaled;
 	cputime_t gtime;
-#ifndef CONFIG_VIRT_CPU_ACCOUNTING_NATIVE
-	struct cputime prev_cputime;
-#endif
+	struct prev_cputime prev_cputime;
 #ifdef CONFIG_VIRT_CPU_ACCOUNTING_GEN
 	seqlock_t vtime_seqlock;
 	unsigned long long vtime_snap;

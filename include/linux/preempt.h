@@ -218,15 +218,11 @@ do { \
 
 #ifdef CONFIG_PREEMPT
 
-#ifndef CONFIG_CONTEXT_TRACKING
-#define __preempt_schedule_context() __preempt_schedule()
-#endif
-
 #define preempt_enable_notrace() \
 do { \
 	barrier(); \
 	if (unlikely(__preempt_count_dec_and_test())) \
-		__preempt_schedule_context(); \
+		__preempt_schedule_notrace(); \
 } while (0)
 #else
 #define preempt_enable_notrace() \
@@ -312,6 +308,8 @@ struct preempt_notifier {
 	struct preempt_ops *ops;
 };
 
+void preempt_notifier_inc(void);
+void preempt_notifier_dec(void);
 void preempt_notifier_register(struct preempt_notifier *notifier);
 void preempt_notifier_unregister(struct preempt_notifier *notifier);
 
