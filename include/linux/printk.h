@@ -33,6 +33,8 @@ static inline const char *printk_skip_level(const char *buffer)
 	return buffer;
 }
 
+#define CONSOLE_EXT_LOG_MAX	8192
+
 /* printk's without a loglevel use this.. */
 #define MESSAGE_LOGLEVEL_DEFAULT CONFIG_MESSAGE_LOGLEVEL_DEFAULT
 
@@ -118,11 +120,12 @@ int no_printk(const char *fmt, ...)
 #ifdef CONFIG_EARLY_PRINTK
 extern asmlinkage __printf(1, 2)
 void early_printk(const char *fmt, ...);
-void early_vprintk(const char *fmt, va_list ap);
 #else
 static inline __printf(1, 2) __cold
 void early_printk(const char *s, ...) { }
 #endif
+
+typedef int(*printk_func_t)(const char *fmt, va_list args);
 
 #ifdef CONFIG_PRINTK
 asmlinkage __printf(5, 0)
