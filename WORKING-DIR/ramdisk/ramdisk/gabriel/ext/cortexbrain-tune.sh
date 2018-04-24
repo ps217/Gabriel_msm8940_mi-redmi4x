@@ -790,37 +790,44 @@ SLEEP_MODE()
 		TELE_DATA=`dumpsys telephony.registry`;
 	fi;
 
-	echo "1" > /sys/module/workqueue/parameters/power_efficient;
+	CHARGER_STATE=$(cat /sys/class/qns/charging_state);
 
-	echo "$(cat /sys/module/sync/parameters/fsync_enabled)" > /cache/fsync_enabled;
-	echo "1" > /sys/module/sync/parameters/fsync_enabled;
+	if [ "$CHARGER_STATE" -eq "0" ]; then
 
-	if [ "$uksm_sleep" -eq "1" ]; then
-		echo "1" > /sys/kernel/mm/uksm/run
-		echo "$uksm_gov_sleep" > /sys/kernel/mm/uksm/cpu_governor
-		echo "$max_cpu_percentage_sleep" > /sys/kernel/mm/uksm/max_cpu_percentage
-	elif [ "$uksm_sleep" -eq "0" ]; then
-		echo "0" > /sys/kernel/mm/uksm/run
-	fi
+		echo "1" > /sys/module/workqueue/parameters/power_efficient;
 
-	ENTROPY "sleep";
-	IO_SCHEDULER "sleep";
-	CLOCK_FREQ_SCALE "sleep";
-	BCL_STATE "sleep";
-	CORE_CTRL_STATE "sleep";
-	SAMPLE_RATE_STATE "sleep";
-	HISPEED_STATE "sleep";
-	HMP_SCHEDULER_STATE "sleep";
-	CPUSET_STATE "sleep";
-	GPU_GOV_STATE "sleep";
-	CPU_CENTRAL_CONTROL "sleep";
+		echo "$(cat /sys/module/sync/parameters/fsync_enabled)" > /cache/fsync_enabled;
+		echo "1" > /sys/module/sync/parameters/fsync_enabled;
 
-	WIFI "sleep";
-	MOBILE_DATA "sleep";
+		if [ "$uksm_sleep" -eq "1" ]; then
+			echo "1" > /sys/kernel/mm/uksm/run
+			echo "$uksm_gov_sleep" > /sys/kernel/mm/uksm/cpu_governor
+			echo "$max_cpu_percentage_sleep" > /sys/kernel/mm/uksm/max_cpu_percentage
+		elif [ "$uksm_sleep" -eq "0" ]; then
+			echo "0" > /sys/kernel/mm/uksm/run
+		fi
 
-#	echo "0" > /sys/kernel/printk_mode/printk_mode;
+		ENTROPY "sleep";
+		IO_SCHEDULER "sleep";
+		CLOCK_FREQ_SCALE "sleep";
+		BCL_STATE "sleep";
+		CORE_CTRL_STATE "sleep";
+		SAMPLE_RATE_STATE "sleep";
+		HISPEED_STATE "sleep";
+		HMP_SCHEDULER_STATE "sleep";
+		CPUSET_STATE "sleep";
+		GPU_GOV_STATE "sleep";
+		CPU_CENTRAL_CONTROL "sleep";
 
-	echo "1" > /data/gabriel_cortex_sleep
+		WIFI "sleep";
+		MOBILE_DATA "sleep";
+
+#		echo "0" > /sys/kernel/printk_mode/printk_mode;
+
+		echo "1" > /data/gabriel_cortex_sleep
+	else
+		echo "0" > /data/gabriel_cortex_sleep
+	fi;
 }
 
 # ==============================================================
