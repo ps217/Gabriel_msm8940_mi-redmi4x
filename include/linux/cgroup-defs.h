@@ -89,7 +89,6 @@ enum {
  */
 struct cgroup_file {
 	/* do not access any fields from outside cgroup core */
-	struct list_head node;			/* anchored at css->files */
 	struct kernfs_node *kn;
 };
 
@@ -133,8 +132,11 @@ struct cgroup_subsys_state {
 	 */
 	u64 serial_nr;
 
-	/* all cgroup_files associated with this css */
-	struct list_head files;
+	/*
+	 * Incremented by online self and children.  Used to guarantee that
+	 * parents are not offlined before their children.
+	 */
+	atomic_t online_cnt;
 
 	/* percpu_ref killing and RCU release */
 	struct rcu_head rcu_head;
@@ -210,6 +212,9 @@ struct css_set {
 	 */
 	struct list_head e_cset_node[CGROUP_SUBSYS_COUNT];
 
+	/* all css_task_iters currently walking this cset */
+	struct list_head task_iters;
+
 	/* For RCU-protected deletion */
 	struct rcu_head rcu_head;
 };
@@ -231,10 +236,10 @@ struct cgroup {
 	int id;
 
 	/*
-	 * If this cgroup contains any tasks, it contributes one to
-	 * populated_cnt.  All children with non-zero popuplated_cnt of
-	 * their own contribute one.  The count is zero iff there's no task
-	 * in this cgroup or its subtree.
+	 * Each non-empty css_set associated with this cgroup contributes
+	 * one to populated_cnt.  All children with non-zero popuplated_cnt
+	 * of their own contribute one.  The count is zero iff there's no
+	 * task in this cgroup or its subtree.
 	 */
 	int populated_cnt;
 
@@ -422,18 +427,15 @@ struct cgroup_subsys {
 	void (*css_reset)(struct cgroup_subsys_state *css);
 	void (*css_e_css_changed)(struct cgroup_subsys_state *css);
 
-	int (*can_attach)(struct cgroup_subsys_state *css,
-			  struct cgroup_taskset *tset);
-	void (*cancel_attach)(struct cgroup_subsys_state *css,
-			      struct cgroup_taskset *tset);
-	void (*attach)(struct cgroup_subsys_state *css,
-		       struct cgroup_taskset *tset);
+	int (*allow_attach)(struct cgroup_taskset *tset);
+	int (*can_attach)(struct cgroup_taskset *tset);
+	void (*cancel_attach)(struct cgroup_taskset *tset);
+	void (*attach)(struct cgroup_taskset *tset);
 	int (*can_fork)(struct task_struct *task, void **priv_p);
 	void (*cancel_fork)(struct task_struct *task, void *priv);
 	void (*fork)(struct task_struct *task, void *priv);
-	void (*exit)(struct cgroup_subsys_state *css,
-		     struct cgroup_subsys_state *old_css,
-		     struct task_struct *task);
+	void (*exit)(struct task_struct *task);
+	void (*free)(struct task_struct *task);
 	void (*bind)(struct cgroup_subsys_state *root_css);
 
 	int early_init;
