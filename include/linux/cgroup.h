@@ -17,6 +17,7 @@
 #include <linux/fs.h>
 #include <linux/seq_file.h>
 #include <linux/kernfs.h>
+#include <linux/jump_label.h>
 
 #include <linux/cgroup-defs.h>
 
@@ -40,6 +41,26 @@ extern struct css_set init_css_set;
 #define SUBSYS(_x) extern struct cgroup_subsys _x ## _cgrp_subsys;
 #include <linux/cgroup_subsys.h>
 #undef SUBSYS
+
+#define SUBSYS(_x)								\
+	extern struct static_key_true _x ## _cgrp_subsys_enabled_key;		\
+	extern struct static_key_true _x ## _cgrp_subsys_on_dfl_key;
+#include <linux/cgroup_subsys.h>
+#undef SUBSYS
+
+/**
+ * cgroup_subsys_enabled - fast test on whether a subsys is enabled
+ * @ss: subsystem in question
+ */
+#define cgroup_subsys_enabled(ss)						\
+	static_branch_likely(&ss ## _enabled_key)
+
+/**
+ * cgroup_subsys_on_dfl - fast test on whether a subsys is on default hierarchy
+ * @ss: subsystem in question
+ */
+#define cgroup_subsys_on_dfl(ss)						\
+	static_branch_likely(&ss ## _on_dfl_key)
 
 bool css_has_online_children(struct cgroup_subsys_state *css);
 struct cgroup_subsys_state *css_from_id(int id, struct cgroup_subsys *ss);
@@ -490,6 +511,19 @@ static inline void pr_cont_cgroup_name(struct cgroup *cgrp)
 static inline void pr_cont_cgroup_path(struct cgroup *cgrp)
 {
 	pr_cont_kernfs_path(cgrp->kn);
+}
+
+/**
+ * cgroup_file_notify - generate a file modified event for a cgroup_file
+ * @cfile: target cgroup_file
+ *
+ * @cfile must have been obtained by setting cftype->file_offset.
+ */
+static inline void cgroup_file_notify(struct cgroup_file *cfile)
+{
+	/* might not have been created due to one of the CFTYPE selector flags */
+	if (cfile->kn)
+		kernfs_notify(cfile->kn);
 }
 
 #else /* !CONFIG_CGROUPS */
