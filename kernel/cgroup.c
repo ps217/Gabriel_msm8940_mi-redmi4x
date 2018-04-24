@@ -2610,11 +2610,11 @@ int cgroup_attach_task_to_root(struct task_struct *tsk, int wait)
 	get_task_struct(tsk);
 	rcu_read_unlock();
 
-	threadgroup_lock(tsk);
+	percpu_down_write(&cgroup_threadgroup_rwsem);
 
 	ret = cgroup_attach_task(cgrp, tsk, false);
 
-	threadgroup_unlock(tsk);
+	percpu_up_write(&cgroup_threadgroup_rwsem);
 
 	put_task_struct(tsk);
 out_unlock_cgroup:
