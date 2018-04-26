@@ -13,10 +13,18 @@ if [ "a$2" != "a" ]; then
 
 for i in 0 1 2 3; do
 	CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+	if [ "$(cat /sys/devices/system/cpu/cpu0/core_ctl/min_cpus)" == "0" ];then
+		echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+		BMINCPUS=0;
+	fi;
+
 	if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 		chmod 644 /$CPUB/scaling_governor
 		echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
 		chmod 444 /$CPUB/scaling_governor
+		if [ "BMINCPUS" -eq "0" ];then
+			echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+		fi;
         break
     fi;
 done;
