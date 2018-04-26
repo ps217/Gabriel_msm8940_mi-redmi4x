@@ -266,7 +266,7 @@ static int cpufreq_stat_notifier_trans(struct notifier_block *nb,
 	int old_index, new_index;
 
 	if (!policy) {
-		pr_debug("%s: No policy found\n", __func__);
+		pr_err("%s: No policy found\n", __func__);
 		return 0;
 	}
 
