@@ -164,7 +164,7 @@ FUNC_BUILD_ZIP_STK()
 	\cp $RDIR/.config $WD/temp/kernel_config_view_only
 
 	cd $WD/temp
-	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
+	zip -r9 kernel.zip -r * -x README .git kernel.zip > /dev/null
 	cd $RDIR
 
 	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
@@ -206,7 +206,7 @@ FUNC_BUILD_ZIP_ANY()
 	mv -f $RDIR/.config $WD/temp/kernel_config_view_only
 
 	cd $WD/temp
-	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
+	zip -r9 kernel.zip -r * -x README .git kernel.zip > /dev/null
 	cd $RDIR
 
 	cp $WD/temp/kernel.zip $RK/$TARGET-$FILENAME.zip
