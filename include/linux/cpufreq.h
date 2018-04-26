@@ -282,7 +282,6 @@ struct cpufreq_driver {
 	struct freq_attr **attr;
 
 	/* platform specific boost support code */
-	bool		boost_supported;
 	bool		boost_enabled;
 	int		(*set_boost)(int state);
 };
@@ -491,53 +490,8 @@ int __cpufreq_driver_target(struct cpufreq_policy *policy,
 int cpufreq_register_governor(struct cpufreq_governor *governor);
 void cpufreq_unregister_governor(struct cpufreq_governor *governor);
 
-/* CPUFREQ DEFAULT GOVERNOR */
-/*
- * Performance governor is fallback governor if any other gov failed to auto
- * load due latency restrictions
- */
-#ifdef CONFIG_CPU_FREQ_GOV_PERFORMANCE
-extern struct cpufreq_governor cpufreq_gov_performance;
-#endif
-#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_performance)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_POWERSAVE)
-extern struct cpufreq_governor cpufreq_gov_powersave;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_powersave)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE)
-extern struct cpufreq_governor cpufreq_gov_userspace;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_userspace)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND)
-extern struct cpufreq_governor cpufreq_gov_ondemand;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_ondemand)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE)
-extern struct cpufreq_governor cpufreq_gov_conservative;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservative)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_INTERACTIVE)
-extern struct cpufreq_governor cpufreq_gov_interactive;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_interactive)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_CULTIVATION)
-extern struct cpufreq_governor cpufreq_gov_cultivation;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_cultivation)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_LIONFISH)
-extern struct cpufreq_governor cpufreq_gov_lionfish;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_lionfish)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SCHED)
-extern struct cpufreq_governor cpufreq_gov_sched;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_sched)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_IMPULSE)
-extern struct cpufreq_governor cpufreq_gov_impulse;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_impulse)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_NIGHTMARE)
-extern struct cpufreq_governor cpufreq_gov_nightmare;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_nightmare)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKNESS)
-extern struct cpufreq_governor cpufreq_gov_darkness;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_darkness)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ALUCARD)
-extern struct cpufreq_governor cpufreq_gov_alucard;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_alucard)
-#endif
+struct cpufreq_governor *cpufreq_default_governor(void);
+struct cpufreq_governor *cpufreq_fallback_governor(void);
 
 /*********************************************************************
  *                     FREQUENCY TABLE HELPERS                       *
@@ -624,7 +578,6 @@ ssize_t cpufreq_show_cpus(const struct cpumask *mask, char *buf);
 
 #ifdef CONFIG_CPU_FREQ
 int cpufreq_boost_trigger_state(int state);
-int cpufreq_boost_supported(void);
 int cpufreq_boost_enabled(void);
 int cpufreq_enable_boost_support(void);
 bool policy_has_boost_freq(struct cpufreq_policy *policy);
@@ -632,10 +585,6 @@ void acct_update_power(struct task_struct *p, cputime_t cputime);
 void cpufreq_task_stats_init(struct task_struct *p);
 #else
 static inline int cpufreq_boost_trigger_state(int state)
-{
-	return 0;
-}
-static inline int cpufreq_boost_supported(void)
 {
 	return 0;
 }
