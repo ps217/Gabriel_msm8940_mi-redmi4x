@@ -215,23 +215,27 @@ CORE_CTRL_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		echo $core_ctrl_l_preference > /sys/devices/system/cpu/cpu4/core_ctl/not_preferred;
-		echo $core_ctrl_l_min > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
-		echo $core_ctrl_l_max > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-		echo $core_ctrl_b_preference > /sys/devices/system/cpu/cpu0/core_ctl/not_preferred;
-		echo $core_ctrl_b_min > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
-		echo $core_ctrl_b_max > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+		if [ "$(cat /data/gabriel_cortex_corectl_sleep)" -eq "1" ]; then
+			echo $core_ctrl_l_preference > /sys/devices/system/cpu/cpu4/core_ctl/not_preferred;
+			echo $core_ctrl_l_min > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
+			echo $core_ctrl_l_max > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+			echo $core_ctrl_b_preference > /sys/devices/system/cpu/cpu0/core_ctl/not_preferred;
+			echo $core_ctrl_b_min > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+			echo $core_ctrl_b_max > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
 
-		echo $core_ctrl_l_down_thres > /sys/devices/system/cpu/cpu4/core_ctl/busy_down_thres;
-		echo $core_ctrl_l_up_thres > /sys/devices/system/cpu/cpu4/core_ctl/busy_up_thres;
-		echo $core_ctrl_b_down_thres > /sys/devices/system/cpu/cpu0/core_ctl/busy_down_thres;
-		echo $core_ctrl_b_up_thres > /sys/devices/system/cpu/cpu0/core_ctl/busy_up_thres;
+			echo $core_ctrl_l_down_thres > /sys/devices/system/cpu/cpu4/core_ctl/busy_down_thres;
+			echo $core_ctrl_l_up_thres > /sys/devices/system/cpu/cpu4/core_ctl/busy_up_thres;
+			echo $core_ctrl_b_down_thres > /sys/devices/system/cpu/cpu0/core_ctl/busy_down_thres;
+			echo $core_ctrl_b_up_thres > /sys/devices/system/cpu/cpu0/core_ctl/busy_up_thres;
 
-		echo $core_ctrl_l_off_delay > /sys/devices/system/cpu/cpu4/core_ctl/offline_delay_ms;
-		echo $core_ctrl_b_off_delay > /sys/devices/system/cpu/cpu0/core_ctl/offline_delay_ms;
+			echo $core_ctrl_l_off_delay > /sys/devices/system/cpu/cpu4/core_ctl/offline_delay_ms;
+			echo $core_ctrl_b_off_delay > /sys/devices/system/cpu/cpu0/core_ctl/offline_delay_ms;
 
-		echo $core_ctrl_l_task_thres > /sys/devices/system/cpu/cpu4/core_ctl/task_thres;
-		echo $core_ctrl_b_task_thres > /sys/devices/system/cpu/cpu0/core_ctl/task_thres;
+			echo $core_ctrl_l_task_thres > /sys/devices/system/cpu/cpu4/core_ctl/task_thres;
+			echo $core_ctrl_b_task_thres > /sys/devices/system/cpu/cpu0/core_ctl/task_thres;
+
+			echo "0" > /data/gabriel_cortex_corectl_sleep
+		fi;
 	elif [ "$state" == "sleep" ]; then
 		echo $core_ctrl_l_preference_suspend > /sys/devices/system/cpu/cpu4/core_ctl/not_preferred;
 		echo $core_ctrl_l_min_suspend > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
@@ -250,6 +254,8 @@ CORE_CTRL_STATE()
 
 		echo $core_ctrl_l_task_thres_suspend > /sys/devices/system/cpu/cpu4/core_ctl/task_thres;
 		echo $core_ctrl_b_task_thres_suspend > /sys/devices/system/cpu/cpu0/core_ctl/task_thres;
+
+		echo "1" > /data/gabriel_cortex_corectl_sleep
 	fi;
 
 	log -p i -t $FILE_NAME "*** CORE-CONTROL-STATE ***: $state - $PROFILE";
