@@ -1,4 +1,4 @@
-/* Copyright (c) 2015, 2016 The Linux Foundation. All rights reserved.
+/* Copyright (c) 2015, 2016, 2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -2068,6 +2068,18 @@ static void ipa_usb_debugfs_init(void){}
 static void ipa_usb_debugfs_remove(void){}
 #endif /* CONFIG_DEBUG_FS */
 
+static int ipa_usb_set_lock_unlock(bool is_lock)
+{
+	IPA_USB_DBG("entry\n");
+	if (is_lock)
+		mutex_lock(&ipa3_usb_ctx->general_mutex);
+	else
+		mutex_unlock(&ipa3_usb_ctx->general_mutex);
+	IPA_USB_DBG("exit\n");
+
+	return 0;
+}
+
 
 
 int ipa_usb_xdci_connect(struct ipa_usb_xdci_chan_params *ul_chan_params,
@@ -2130,6 +2142,9 @@ int ipa_usb_xdci_connect(struct ipa_usb_xdci_chan_params *ul_chan_params,
 		goto connect_fail;
 	}
 
+	/* Register for xdci lock/unlock callback with ipa core driver */
+	ipa3_register_lock_unlock_callback(&ipa_usb_set_lock_unlock,
+		ul_out_params->clnt_hdl);
 	IPA_USB_DBG_LOW("exit\n");
 	mutex_unlock(&ipa3_usb_ctx->general_mutex);
 	return 0;
@@ -2160,6 +2175,73 @@ static int ipa3_usb_check_disconnect_prot(enum ipa_usb_teth_prot teth_prot)
 			ipa3_usb_teth_prot_to_string(teth_prot));
 		return -EFAULT;
 	}
+
+	return 0;
+}
+
+/* Assumes lock already acquired */
+static int ipa_usb_xdci_dismiss_channels(u32 ul_clnt_hdl, u32 dl_clnt_hdl,
+				enum ipa_usb_teth_prot teth_prot)
+{
+	int result = 0;
+	enum ipa3_usb_transport_type ttype;
+
+	ttype = IPA3_USB_GET_TTYPE(teth_prot);
+
+	IPA_USB_DBG_LOW("entry\n");
+
+	/* Reset DL channel */
+	result = ipa3_reset_gsi_channel(dl_clnt_hdl);
+	if (result) {
+		IPA_USB_ERR("failed to reset DL channel.\n");
+		return result;
+	}
+
+	/* Reset DL event ring */
+	result = ipa3_reset_gsi_event_ring(dl_clnt_hdl);
+	if (result) {
+		IPA_USB_ERR("failed to reset DL event ring.\n");
+		return result;
+	}
+
+	if (!IPA3_USB_IS_TTYPE_DPL(ttype)) {
+		ipa3_xdci_ep_delay_rm(ul_clnt_hdl); /* Remove ep_delay if set */
+		/* Reset UL channel */
+		result = ipa3_reset_gsi_channel(ul_clnt_hdl);
+		if (result) {
+			IPA_USB_ERR("failed to reset UL channel.\n");
+			return result;
+		}
+
+		/* Reset UL event ring */
+		result = ipa3_reset_gsi_event_ring(ul_clnt_hdl);
+		if (result) {
+			IPA_USB_ERR("failed to reset UL event ring.\n");
+			return result;
+		}
+	}
+
+	ipa3_deregister_lock_unlock_callback(ul_clnt_hdl);
+
+	/* Change state to STOPPED */
+	if (!ipa3_usb_set_state(IPA_USB_STOPPED, false, ttype))
+		IPA_USB_ERR("failed to change state to stopped\n");
+
+	if (!IPA3_USB_IS_TTYPE_DPL(ttype)) {
+		result = ipa3_usb_release_xdci_channel(ul_clnt_hdl, ttype);
+		if (result) {
+			IPA_USB_ERR("failed to release UL channel.\n");
+			return result;
+		}
+	}
+
+	result = ipa3_usb_release_xdci_channel(dl_clnt_hdl, ttype);
+	if (result) {
+		IPA_USB_ERR("failed to release DL channel.\n");
+		return result;
+	}
+
+	IPA_USB_DBG_LOW("exit\n");
 
 	return 0;
 }
