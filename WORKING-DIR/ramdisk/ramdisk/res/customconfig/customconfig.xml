@@ -160,6 +160,7 @@
 		<spinner description="Select governor for little cluster. Some governor's can be unstable on it. It's recommended to leave it as is." name="Little Cluster Governor"
 			action="default_cpu_l_gov">
 			<spinnerItem name="Interactive" value="interactive"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Impulse" value="impulse"/>
 			<spinnerItem name="Cultivation" value="cultivation"/>
 			<spinnerItem name="Alucard" value="alucard"/>
@@ -176,6 +177,7 @@
 		<spinner description="Select governor for big cluster." name="Big Cluster Governor"
 			action="default_cpu_b_gov">
 			<spinnerItem name="Interactive" value="interactive"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Impulse" value="impulse"/>
 			<spinnerItem name="Cultivation" value="cultivation"/>
 			<spinnerItem name="Alucard" value="alucard"/>
