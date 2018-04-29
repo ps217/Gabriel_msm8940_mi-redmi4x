@@ -205,6 +205,7 @@
 			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Glassfish" value="glassfish"/>
 			<spinnerItem name="Miui" value="miui"/>
+			<spinnerItem name="Pixel" value="pixel"/>
 		</spinner>
 
 		<spinner description="Select the big cluster Profile." name="big cluster Interactive Profile"
@@ -217,6 +218,7 @@
 			<spinnerItem name="Gabriel" value="gabriel"/>
 			<spinnerItem name="Glassfish" value="glassfish"/>
 			<spinnerItem name="Miui" value="miui"/>
+			<spinnerItem name="Pixel" value="pixel"/>
 		</spinner>
 
 		<spinner description="Select the little cluster Boost state. Enable means indefinite speed boost active. set it to disable to save power or Enable if you enabled extreme power saving profile to compensate performance drop." name="little cluster Interactive Boost"
