@@ -743,6 +743,21 @@ AWAKE_MODE()
 {
 if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 
+	CPU_CENTRAL_CONTROL "awake";
+	CORE_CTRL_STATE "awake";
+	SAMPLE_RATE_STATE "awake";
+	HISPEED_STATE "awake";
+	HMP_SCHEDULER_STATE "awake";
+	CPUSET_STATE "awake";
+	GPU_GOV_STATE "awake";
+	ENTROPY "awake";
+	IO_SCHEDULER "awake";
+	CLOCK_FREQ_SCALE "awake";
+	BCL_STATE "awake";
+
+	WIFI "awake";
+	MOBILE_DATA "awake";
+
 	if [ "$power_efficient" == "on" ]; then
 		echo "1" > /sys/module/workqueue/parameters/power_efficient
 	else
@@ -760,21 +775,6 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 		echo "$uksm_gov_on" > /sys/kernel/mm/uksm/cpu_governor
 		echo "$max_cpu_percentage" > /sys/kernel/mm/uksm/max_cpu_percentage
 	fi
-
-	ENTROPY "awake";
-	IO_SCHEDULER "awake";
-	CLOCK_FREQ_SCALE "awake";
-	BCL_STATE "awake";
-	CORE_CTRL_STATE "awake";
-	SAMPLE_RATE_STATE "awake";
-	HISPEED_STATE "awake";
-	HMP_SCHEDULER_STATE "awake";
-	CPUSET_STATE "awake";
-	GPU_GOV_STATE "awake";
-	CPU_CENTRAL_CONTROL "awake";
-
-	WIFI "awake";
-	MOBILE_DATA "awake";
 
 #	echo "1" > /sys/kernel/printk_mode/printk_mode;
 
@@ -799,6 +799,20 @@ SLEEP_MODE()
 	CHARGER_STATE=$(cat /sys/class/qns/charging_state);
 
 	if [ "$CHARGER_STATE" -eq "0" ]; then
+		CPU_CENTRAL_CONTROL "sleep";
+		CORE_CTRL_STATE "sleep";
+		SAMPLE_RATE_STATE "sleep";
+		HISPEED_STATE "sleep";
+		HMP_SCHEDULER_STATE "sleep";
+		CPUSET_STATE "sleep";
+		GPU_GOV_STATE "sleep";
+		ENTROPY "sleep";
+		IO_SCHEDULER "sleep";
+		CLOCK_FREQ_SCALE "sleep";
+		BCL_STATE "sleep";
+
+		WIFI "sleep";
+		MOBILE_DATA "sleep";
 
 		echo "1" > /sys/module/workqueue/parameters/power_efficient;
 
@@ -812,21 +826,6 @@ SLEEP_MODE()
 		elif [ "$uksm_sleep" -eq "0" ]; then
 			echo "0" > /sys/kernel/mm/uksm/run
 		fi
-
-		ENTROPY "sleep";
-		IO_SCHEDULER "sleep";
-		CLOCK_FREQ_SCALE "sleep";
-		BCL_STATE "sleep";
-		CORE_CTRL_STATE "sleep";
-		SAMPLE_RATE_STATE "sleep";
-		HISPEED_STATE "sleep";
-		HMP_SCHEDULER_STATE "sleep";
-		CPUSET_STATE "sleep";
-		GPU_GOV_STATE "sleep";
-		CPU_CENTRAL_CONTROL "sleep";
-
-		WIFI "sleep";
-		MOBILE_DATA "sleep";
 
 #		echo "0" > /sys/kernel/printk_mode/printk_mode;
 
