@@ -293,6 +293,22 @@
 
 	</settingsPane>
 
+	<settingsPane description="Set the parameters if you enabled Gabriel governor above." name="Gabriel Governor Tuning">
+
+		<seekBar description="Select big cluster idle Threshold. If average load is lower than idle threshold, the system is idle and should not be interrupted by CPUFreq governor timer. (Default: 20)." name="Big Cluster idle Threshold"
+			action="idle_threshold_gabriel_b" unit="%" min="0" reversed="false" step="5" max="100"/>
+
+		<seekBar description="Select little cluster idle Threshold. (Default: 20)." name="Little Cluster idle Threshold"
+			action="idle_threshold_gabriel_l" unit="%" min="0" reversed="false" step="5" max="100"/>
+
+		<seekBar description="Select big cluster idle Sample Rate which works in Power Save mode. Switch sample rate to idle sample rate when system is idle to save power. (Default: 20000)." name="Big Cluster idle Sample Rate"
+			action="sample_rate_gabriel_b" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+
+		<seekBar description="Select little cluster idle Sample Rate which works in Power Save mode. (Default: 20000)." name="Little Cluster idle Sample Rate"
+			action="sample_rate_gabriel_l" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+
+	</settingsPane>
+
 	<settingsPane description="Set the profile for custom governors. Set here if you chosen same cpu governor in CPU Active Governor section." name="Custom CPU Governor Profile">
 
 		<spinner description="Select the little cluster Profile." name="little cluster Profile"
