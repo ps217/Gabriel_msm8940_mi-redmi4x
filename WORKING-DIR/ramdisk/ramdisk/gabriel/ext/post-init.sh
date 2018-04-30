@@ -117,6 +117,11 @@ echo "$(cat /dev/cpuset/foreground/boost/cpus)" > /cache/fore_b_cpu;
 echo "$(cat /dev/cpuset/top-app/cpus)" > /cache/top_cpu;
 echo "$(cat /dev/cpuset/system-background/cpus)" > /cache/sysb_cpu;
 echo "$(cat /dev/cpuset/background/cpus)" > /cache/backg_cpu;
+
+echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
+echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 }
 
 OPEN_RW;
@@ -312,11 +317,6 @@ if [ "$stweaks_boot_control" == "no" ]; then
 			fi;
 		fi;
 	done;
-
-	echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
-	echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
-	echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
-	echo 4 > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 fi;
 
 	# script finish here, so let me know when
