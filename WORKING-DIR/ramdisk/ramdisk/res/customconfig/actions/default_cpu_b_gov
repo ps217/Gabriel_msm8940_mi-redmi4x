@@ -4,6 +4,8 @@
 # $2 - value=
 # Created By Dorimanx
 
+BB=/gabriel/busybox
+
 # get values from profile
 PROFILE=$(cat /data/.gabriel/.active.profile);
 . /data/.gabriel/"$PROFILE".profile;
@@ -11,28 +13,63 @@ PROFILE=$(cat /data/.gabriel/.active.profile);
 if [ "a$2" != "a" ]; then
 	default_cpu_b_gov=$2;
 
-for i in 0 1 2 3; do
-	CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+if [ -d /sys/devices/system/cpu/cpufreq/policy0 ];then
+
+	CPUB=sys/devices/system/cpu/cpufreq/policy0
 	if [ "$(cat /sys/devices/system/cpu/cpu0/core_ctl/min_cpus)" == "0" ];then
 		echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 		BMINCPUS=0;
 	fi;
 
-	if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
-		chmod 644 /$CPUB/scaling_governor
-		echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
-		chmod 444 /$CPUB/scaling_governor
-		if [ "BMINCPUS" -eq "0" ];then
-			echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+	chmod 644 /$CPUB/scaling_governor
+	echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
+	chmod 444 /$CPUB/scaling_governor
+	if [ "BMINCPUS" -eq "0" ];then
+		echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+	fi;
+
+else
+
+	for i in 0 1 2 3; do
+		CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+		if [ "$(cat /sys/devices/system/cpu/cpu0/core_ctl/min_cpus)" == "0" ];then
+			echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+			BMINCPUS=0;
 		fi;
-        break
-    fi;
-done;
+
+		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+			chmod 644 /$CPUB/scaling_governor
+			echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
+			chmod 444 /$CPUB/scaling_governor
+			if [ "BMINCPUS" -eq "0" ];then
+				echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
+			fi;
+	        break
+	    fi;
+	done;
+
+fi;
+
+	CPUGOV0="$(cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor)";
+
+	if [ "$CPUGOV0" = "interactive" ] ||
+		[ "$CPUGOV0" = "gabriel" ] ||
+		[ "$CPUGOV0" = "impulse" ] ||
+		[ "$CPUGOV0" = "cultivation" ]; then
+		$BB sh /res/uci.sh cpu_b_interactive_profile $cpu_b_interactive_profile > /dev/null;
+		$BB sh /res/uci.sh cpu_b_interactive_profile_boost $cpu_b_interactive_profile_boost > /dev/null;
+		$BB sh /res/uci.sh cpu_b_interactive_profile_hisp_freq $cpu_b_interactive_profile_hisp_freq > /dev/null;
+		$BB sh /res/uci.sh idle_threshold_gabriel_b $idle_threshold_gabriel_b > /dev/null;
+		$BB sh /res/uci.sh sample_rate_gabriel_b $sample_rate_gabriel_b > /dev/null;
+	elif [ "$CPUGOV0" = "chill" ] ||
+		[ "$CPUGOV0" = "relaxed" ]; then
+		$BB sh /res/uci.sh cpu_l_gov_profile $cpu_l_gov_profile > /dev/null;
+	fi;
 
 	if [ -e /res/uci_boot.sh ]; then
-		/res/uci_boot.sh power_mode $power_mode > /dev/null;
+		$BB sh /res/uci_boot.sh power_mode $power_mode > /dev/null;
 	else
-		/res/uci.sh power_mode $power_mode > /dev/null;
+		$BB sh /res/uci.sh power_mode $power_mode > /dev/null;
 	fi;
 fi;
 
