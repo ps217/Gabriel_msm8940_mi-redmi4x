@@ -307,6 +307,50 @@
 		<seekBar description="Select little cluster idle Sample Rate which works in Power Save mode. (Default: 20000)." name="Little Cluster idle Sample Rate"
 			action="sample_rate_gabriel_l" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
 
+		<seekBar description="Select big cluster Max Local Load. Target frequency direclty jump beyond hispeed frequency and ignore above hispeed delay if cpu load exceeds Max local load. (Default: 100)." name="Big Cluster max local load"
+			action="max_l_l_gabriel_b" unit="%" min="0" reversed="false" step="5" max="100"/>
+
+		<seekBar description="Select little cluster Max Local Load. (Default: 100)." name="Little Cluster max local load"
+			action="max_l_l_gabriel_l" unit="%" min="0" reversed="false" step="5" max="100"/>
+
+		<seekBar description="Select big cluster Sampling Down Factor. When CPU jumps to the highest frequency, CPU will last longer in higher frequencies before recalculating if you set higher value. (Default: 0)." name="Big Cluster Sampling Down Factor"
+			action="samp_d_f_gabriel_b" unit="step" min="0" reversed="false" step="1" max="10"/>
+
+		<seekBar description="Select little cluster Sampling Down Factor. (Default: 0)." name="Little Cluster Sampling Down Factor"
+			action="samp_d_f_gabriel_l" unit="step" min="0" reversed="false" step="1" max="10"/>
+
+		<spinner description="Select Little Cluster Two Phase Frequency. Two phase scheduling idle/busy phases to prevent from jumping directly to max freq." name="Little Cluster Two Phase Frequency"
+			action="two_phase_freq_gabriel_l">
+			<spinnerItem name="1.26 GHz" value="1267200"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="998 MHz" value="998400"/>
+			<spinnerItem name="902 MHz" value="902400"/>
+			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
+		<spinner description="Select Big Cluster Two Phase Frequency." name="Big Cluster Two Phase Frequency"
+			action="two_phase_freq_gabriel_b">
+			<spinnerItem name="1.65 GHz" value="1651200"/>
+			<spinnerItem name="1.61 GHz" value="1612800"/>
+			<spinnerItem name="1.53 GHz" value="1536000"/>
+			<spinnerItem name="1.49 GHz" value="1497600"/>
+			<spinnerItem name="1.40 GHz" value="1401000"/>
+			<spinnerItem name="1.34 GHz" value="1344000"/>
+			<spinnerItem name="1.24 GHz" value="1248000"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="Set the profile for custom governors. Set here if you chosen same cpu governor in CPU Active Governor section." name="Custom CPU Governor Profile">

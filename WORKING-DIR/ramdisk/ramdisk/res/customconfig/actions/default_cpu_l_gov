@@ -61,6 +61,9 @@ fi;
 		$BB sh /res/uci.sh cpu_l_interactive_profile_hisp_freq $cpu_l_interactive_profile_hisp_freq > /dev/null;
 		$BB sh /res/uci.sh idle_threshold_gabriel_l $idle_threshold_gabriel_l > /dev/null;
 		$BB sh /res/uci.sh sample_rate_gabriel_l $sample_rate_gabriel_l > /dev/null;
+		$BB sh /res/uci.sh max_l_l_gabriel_l $max_l_l_gabriel_l > /dev/null;
+		$BB sh /res/uci.sh samp_d_f_gabriel_l $samp_d_f_gabriel_l > /dev/null;
+		$BB sh /res/uci.sh two_phase_freq_gabriel_l $two_phase_freq_gabriel_l > /dev/null;
 	elif [ "$CPUGOV4" = "chill" ] ||
 		[ "$CPUGOV4" = "relaxed" ]; then
 		$BB sh /res/uci.sh cpu_l_gov_profile $cpu_l_gov_profile > /dev/null;

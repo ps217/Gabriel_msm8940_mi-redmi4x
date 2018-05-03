@@ -1,0 +1,25 @@
+#!/sbin/busybox sh
+
+# $1 - "max_l_l_gabriel_b"
+# $2 - value=
+# Created By Dorimanx
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	max_l_l_gabriel_b=$2;
+
+	for i in 0 1 2 3; do
+		CPUB=sys/devices/system/cpu/cpu$i/cpufreq
+		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+			GOV0_NAME=$(cat /$CPUB/scaling_governor);
+			echo "$max_l_l_gabriel_b" > /$CPUB/$GOV0_NAME/max_local_load;
+	        break
+	    fi;
+	done;
+
+fi;
+
+echo ${max_l_l_gabriel_b};

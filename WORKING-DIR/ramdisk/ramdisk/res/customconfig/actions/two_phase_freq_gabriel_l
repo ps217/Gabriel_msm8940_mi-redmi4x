@@ -1,0 +1,25 @@
+#!/sbin/busybox sh
+
+# $1 - "two_phase_freq_gabriel_l"
+# $2 - value=
+# Created By Dorimanx
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	two_phase_freq_gabriel_l=$2;
+
+	for i in 4 5 6 7; do
+		CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+			GOV0_NAME=$(cat /$CPUL/scaling_governor);
+			echo "$two_phase_freq_gabriel_l" > /$CPUL/$GOV0_NAME/two_phase_freq;
+	        break
+	    fi;
+	done;
+
+fi;
+
+echo ${two_phase_freq_gabriel_l};
