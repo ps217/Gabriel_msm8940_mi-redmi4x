@@ -11,23 +11,43 @@ if [ "a$2" != "a" ]; then
 
 	case "${core_ctrl_b_min}" in
 		0)
-			echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+			BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
+			echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+			echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+			echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 			$BB sync
 		;;
 		1)
-			echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+			BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
+			echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+			echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+			echo 1 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 			$BB sync
 		;;
 		2)
-			echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+			BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
+			echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+			echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+			echo 2 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 			$BB sync
 		;;
 		3)
-			echo 3 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+			BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
+			echo 3 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+			echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+			echo 3 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 			$BB sync
 		;;
 		4)
-			echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus
+			BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
+			echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+			echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+			echo 4 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
 			$BB sync
 		;;
 		*)
