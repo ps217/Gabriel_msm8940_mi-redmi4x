@@ -340,6 +340,21 @@ CRITICAL_PERM_FIX;
 	sleep 2;
 	echo $LMAXCPUS > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
 
+OPEN_RW;
+
+	# "init" process battery drain fixer
+	# get 5 sample of top processes to seeking for init process
+	# credits to xda@magic_doc & xda@justandy32
+	if [ "$($BB top -n 5 -d 1 | grep init | wc -l)" -gt "0" ];then
+		$BB cp /system/bin/dpmd /system/bin/dpmd.bak;
+		$BB cp /vendor/bin/msm_irqbalance /vendor/bin/msm_irqbalance.bak;
+		$BB sed -i '1d' /system/bin/dpmd;
+		$BB sed -i '1d' /vendor/bin/msm_irqbalance;
+		echo 1 > /data/.gabriel/init_proc_fixer;
+	else
+		echo 0 > /data/.gabriel/init_proc_fixer;
+	fi;
+
 if [ "$stweaks_boot_control" == "no" ]; then
 	$BB pkill -f "/gabriel/ext/cortexbrain-tune.sh";
 	echo cfq > /sys/block/mmcblk0/queue/scheduler;
