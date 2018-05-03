@@ -1,0 +1,25 @@
+#!/sbin/busybox sh
+
+# $1 - "samp_d_f_gabriel_l"
+# $2 - value=
+# Created By Dorimanx
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	samp_d_f_gabriel_l=$2;
+
+	for i in 4 5 6 7; do
+		CPUL=sys/devices/system/cpu/cpu$i/cpufreq
+		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
+			GOV0_NAME=$(cat /$CPUL/scaling_governor);
+			echo "$samp_d_f_gabriel_l" > /$CPUL/$GOV0_NAME/sampling_down_factor;
+	        break
+	    fi;
+	done;
+
+fi;
+
+echo ${samp_d_f_gabriel_l};
