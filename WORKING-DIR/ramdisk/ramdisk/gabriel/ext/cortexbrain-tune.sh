@@ -215,41 +215,41 @@ CORE_CTRL_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_preference $core_ctrl_l_preference > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_max $core_ctrl_l_max > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_min $core_ctrl_l_min > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_down_thres $core_ctrl_l_down_thres > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_up_thres $core_ctrl_l_up_thres > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_off_delay $core_ctrl_l_off_delay > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_task_thres $core_ctrl_l_task_thres > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_preference $core_ctrl_l_preference_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_max $core_ctrl_l_max_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_min $core_ctrl_l_min_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min_suspend > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_down_thres $core_ctrl_l_down_thres_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_up_thres $core_ctrl_l_up_thres_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres_suspend > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_off_delay $core_ctrl_l_off_delay_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay_suspend > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres_suspend > /dev/null;
 		$BB sh /res/uci.sh core_ctrl_l_task_thres $core_ctrl_l_task_thres_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres_suspend > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** CORE-CONTROL-STATE ***: $state - $PROFILE";
