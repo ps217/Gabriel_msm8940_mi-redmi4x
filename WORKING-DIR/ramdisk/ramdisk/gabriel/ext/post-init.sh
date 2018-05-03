@@ -321,10 +321,6 @@ CRITICAL_PERM_FIX;
 	pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver
 	pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver
 
-	while [ "$(cat /sys/class/thermal/thermal_zone5/temp)" -ge "45" ]; do
-		sleep 5;
-	done;
-
 	# make sure rom's services doesn't affect on max value.
 	# and it's done when system load has been finished.
 	BMAXCPUS="$(cat /sys/devices/system/cpu/cpu0/core_ctl/max_cpus)";
@@ -332,13 +328,19 @@ CRITICAL_PERM_FIX;
 	LMAXCPUS="$(cat /sys/devices/system/cpu/cpu4/core_ctl/max_cpus)";
 	LMINCPUS="$(cat /sys/devices/system/cpu/cpu4/core_ctl/min_cpus)";
 
-	echo $BMINCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
-	sleep 2;
-	echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+	while [ "$(cat /sys/class/thermal/thermal_zone5/temp)" -ge "50" ]; do
+		sleep 5;
+	done;
 
-	echo $LMINCPUS > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
-	sleep 2;
-	echo $LMAXCPUS > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+	if [ "$(cat /sys/module/ft5x06_ts/parameters/sleep_state)" -eq "0" ]; then
+		echo $BMINCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+		sleep 2;
+		echo $BMAXCPUS > /sys/devices/system/cpu/cpu0/core_ctl/max_cpus;
+
+		echo $LMINCPUS > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+		sleep 2;
+		echo $LMAXCPUS > /sys/devices/system/cpu/cpu4/core_ctl/max_cpus;
+	fi;
 
 OPEN_RW;
 
