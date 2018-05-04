@@ -1195,6 +1195,18 @@
 
 	</settingsPane>
 
+	<settingsPane description="INIT Porcess Fixer" name="INIT Porcess Fixer">
+
+		<spinner description="Enable init process fixer if you found that init process is draining the battery. it will apply only once per Rom or push Restore Rom's Bins button to apply it again. Reboot needed. (Default: Don't Load)." name="Enable On Boot"
+			action="generic_cortex /tmp/stweaks_init_proc_fixer">
+			<spinnerItem name="Load init fixer on boot." value="yes"/> 
+			<spinnerItem name="Don't load init fixer on boot." value="no"/> 
+		</spinner>
+
+		<button description="Push this button to Restore Rom's Binaries which Patched with init process fixer, in case of you found it's not working or suddenly applied in a rom which doesn't have init process battery drainage and start draining battery by init process. It will remove restriction of applying the patch for 2nd time so disable init process fixer if you don't want it." name="Remove Init Process Patch" action="push-actions/Restore_init_proc" label="Restore Rom's Bins"/>
+
+	</settingsPane>
+
 </settingsTab>
 
 <settingsTab name="Tweaks">
