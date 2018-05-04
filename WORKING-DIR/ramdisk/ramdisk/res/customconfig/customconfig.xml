@@ -351,6 +351,38 @@
 			<spinnerItem name="249 MHz" value="249600"/>
 		</spinner>
 
+		<spinner description="Select Little Cluster Frequency calculation threshold. Avoid freq oscillations up to this threshold and allow for dynamic changes above." name="Little Cluster Frequency calculation threshold"
+			action="freq_calc_t_gabriel_l">
+			<spinnerItem name="1.26 GHz" value="1267200"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="998 MHz" value="998400"/>
+			<spinnerItem name="902 MHz" value="902400"/>
+			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
+		<spinner description="Select Big Cluster Frequency calculation threshold." name="Big Cluster Frequency calculation threshold"
+			action="freq_calc_t_gabriel_b">
+			<spinnerItem name="1.65 GHz" value="1651200"/>
+			<spinnerItem name="1.61 GHz" value="1612800"/>
+			<spinnerItem name="1.53 GHz" value="1536000"/>
+			<spinnerItem name="1.49 GHz" value="1497600"/>
+			<spinnerItem name="1.40 GHz" value="1401000"/>
+			<spinnerItem name="1.34 GHz" value="1344000"/>
+			<spinnerItem name="1.24 GHz" value="1248000"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="249 MHz" value="249600"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="Set the profile for custom governors. Set here if you chosen same cpu governor in CPU Active Governor section." name="Custom CPU Governor Profile">
