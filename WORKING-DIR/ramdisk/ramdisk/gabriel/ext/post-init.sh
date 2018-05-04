@@ -329,6 +329,7 @@ CRITICAL_PERM_FIX;
 
 OPEN_RW;
 
+if [ "$stweaks_init_proc_fixer" == "yes" ]; then
 	# "init" process battery drain fixer
 	# get 5 sample of top processes to seeking for init process
 	# credits to xda@magic_doc & xda@justandy32
@@ -344,6 +345,7 @@ OPEN_RW;
 		$BB sed -i '1d' /vendor/bin/msm_irqbalance;
 		echo 1 > /data/init_proc_fixer;
 	fi;
+fi;
 
 if [ "$stweaks_boot_control" == "no" ]; then
 	$BB pkill -f "/gabriel/ext/cortexbrain-tune.sh";

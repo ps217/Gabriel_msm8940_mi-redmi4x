@@ -137,6 +137,7 @@ tcp_congestion_control=westwood
 usb_adb=rom
 gpsregion=No_GPS_Zone_changes
 init_d=off
+stweaks_init_proc_fixer=no
 cortexbrain_background_process=1
 cortexbrain_memory=on
 cortexbrain_kernel_tweaks=on
