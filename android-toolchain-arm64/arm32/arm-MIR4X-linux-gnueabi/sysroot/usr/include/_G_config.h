@@ -1,59 +1,25 @@
-/* This file is needed by libio to define various configuration parameters.
-   These are always the same in the GNU C library.  */
+/* Copyright (C) 2017-2018 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#ifndef _G_config_h
-#define _G_config_h 1
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-/* Define types for libio in terms of the standard internal type names.  */
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-#include <bits/types.h>
-#define __need_size_t
-#if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
-# define __need_wchar_t
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#ifndef _G_CONFIG_H
+#define _G_CONFIG_H 1
+
+#warning "<_G_config.h> is deprecated; use <stdio.h> instead."
+
+#include <bits/_G_config.h>
+
 #endif
-#define __need_NULL
-#include <stddef.h>
-
-#include <bits/types/__mbstate_t.h>
-#if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
-# include <bits/types/wint_t.h>
-#endif
-
-typedef struct
-{
-  __off_t __pos;
-  __mbstate_t __state;
-} _G_fpos_t;
-typedef struct
-{
-  __off64_t __pos;
-  __mbstate_t __state;
-} _G_fpos64_t;
-#if defined _LIBC || defined _GLIBCPP_USE_WCHAR_T
-# include <gconv.h>
-typedef union
-{
-  struct __gconv_info __cd;
-  struct
-  {
-    struct __gconv_info __cd;
-    struct __gconv_step_data __data;
-  } __combined;
-} _G_iconv_t;
-#endif
-
-
-/* These library features are always available in the GNU C library.  */
-#define _G_va_list __gnuc_va_list
-
-#define _G_HAVE_MMAP 1
-#define _G_HAVE_MREMAP 1
-
-#define _G_IO_IO_FILE_VERSION 0x20001
-
-/* This is defined by <bits/stat.h> if `st_blksize' exists.  */
-#define _G_HAVE_ST_BLKSIZE defined (_STATBUF_ST_BLKSIZE)
-
-#define _G_BUFSIZ 8192
-
-#endif	/* _G_config.h */

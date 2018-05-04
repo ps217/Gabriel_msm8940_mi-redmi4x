@@ -1,5 +1,5 @@
 /* Definitions for POSIX memory map interface.  Linux generic version.
-   Copyright (C) 2001-2017 Free Software Foundation, Inc.
+   Copyright (C) 2001-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -21,10 +21,7 @@
 #endif
 
 /* The following definitions basically come from the kernel headers.
-   But the kernel header is not namespace clean.
-
-   This file is also used by some non-Linux configurations of the
-   GNU C Library, for other systems that use these same bit values.  */
+   But the kernel header is not namespace clean.  */
 
 
 /* Protections are chosen from these bits, OR'd together.  The
@@ -92,6 +89,8 @@
 # define MADV_DONTDUMP	  16    /* Explicity exclude from the core dump,
                                    overrides the coredump filter bits.  */
 # define MADV_DODUMP	  17	/* Clear the MADV_DONTDUMP flag.  */
+# define MADV_WIPEONFORK  18	/* Zero memory on fork, child only.  */
+# define MADV_KEEPONFORK  19	/* Undo MADV_WIPEONFORK.  */
 # define MADV_HWPOISON	  100	/* Poison a page for testing.  */
 #endif
 
@@ -112,3 +111,5 @@
 # define MCL_ONFAULT	4		/* Lock all pages that are
 					   faulted in.  */
 #endif
+
+#include <bits/mman-shared.h>
