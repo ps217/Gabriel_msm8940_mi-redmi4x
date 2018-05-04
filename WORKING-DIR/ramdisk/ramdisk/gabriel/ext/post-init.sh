@@ -337,7 +337,7 @@ if [ "$stweaks_init_proc_fixer" == "yes" ]; then
 		echo 0 > /data/init_proc_fixer;
 	fi;
 
-	if [ "$($BB top -n 5 -d 1 | grep init | wc -l)" -gt "0" ] &&
+	if [ "$($BB top -n 10 -d 1 | grep init | wc -l)" -gt "5" ] &&
 	   [ "$(cat /data/init_proc_fixer)" -ne "1" ];then
 		$BB cp /system/bin/dpmd /system/bin/dpmd.bak;
 		$BB cp /vendor/bin/msm_irqbalance /vendor/bin/msm_irqbalance.bak;
