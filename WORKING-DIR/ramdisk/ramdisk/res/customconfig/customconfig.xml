@@ -161,6 +161,7 @@
 			action="default_cpu_l_gov">
 			<spinnerItem name="Interactive" value="interactive"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Gabriel Plus" value="gabrielplus"/>
 			<spinnerItem name="Impulse" value="impulse"/>
 			<spinnerItem name="Cultivation" value="cultivation"/>
 			<spinnerItem name="Alucard" value="alucard"/>
@@ -178,6 +179,7 @@
 			action="default_cpu_b_gov">
 			<spinnerItem name="Interactive" value="interactive"/>
 			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Gabriel Plus" value="gabrielplus"/>
 			<spinnerItem name="Impulse" value="impulse"/>
 			<spinnerItem name="Cultivation" value="cultivation"/>
 			<spinnerItem name="Alucard" value="alucard"/>
@@ -293,34 +295,34 @@
 
 	</settingsPane>
 
-	<settingsPane description="Set the parameters if you enabled Gabriel governor above." name="Gabriel Governor Tuning">
+	<settingsPane description="Set the parameters if you enabled Gabriel Plus governor above." name="Gabriel Plus Governor Tuning">
 
-		<seekBar description="Select big cluster idle Threshold. If average load is lower than idle threshold, the system is idle and should not be interrupted by CPUFreq governor timer. (Default: 20)." name="Big Cluster idle Threshold"
-			action="idle_threshold_gabriel_b" unit="%" min="0" reversed="false" step="5" max="100"/>
+		<seekBar description="Select big cluster idle Threshold. If average load is lower than idle threshold, the system is idle and should not be interrupted by CPUFreq governor timer. it's a common parameter with gabriel and gabriel plus. (Default: 20)." name="Big Cluster idle Threshold"
+			action="idle_threshold_gabrielp_b" unit="%" min="0" reversed="false" step="5" max="100"/>
 
 		<seekBar description="Select little cluster idle Threshold. (Default: 20)." name="Little Cluster idle Threshold"
-			action="idle_threshold_gabriel_l" unit="%" min="0" reversed="false" step="5" max="100"/>
+			action="idle_threshold_gabrielp_l" unit="%" min="0" reversed="false" step="5" max="100"/>
 
-		<seekBar description="Select big cluster idle Sample Rate which works in Power Save mode. Switch sample rate to idle sample rate when system is idle to save power. (Default: 20000)." name="Big Cluster idle Sample Rate"
-			action="sample_rate_gabriel_b" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+		<seekBar description="Select big cluster idle Sample Rate which works in Power Save mode. Switch sample rate to idle sample rate when system is idle to save power. it's a common parameter with gabriel and gabriel plus. (Default: 20000)." name="Big Cluster idle Sample Rate"
+			action="sample_rate_gabrielp_b" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
 
 		<seekBar description="Select little cluster idle Sample Rate which works in Power Save mode. (Default: 20000)." name="Little Cluster idle Sample Rate"
-			action="sample_rate_gabriel_l" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
+			action="sample_rate_gabrielp_l" unit="rate" min="10000" reversed="false" step="5000" max="100000"/>
 
 		<seekBar description="Select big cluster Max Local Load. Target frequency direclty jump beyond hispeed frequency and ignore above hispeed delay if cpu load exceeds Max local load. (Default: 100)." name="Big Cluster max local load"
-			action="max_l_l_gabriel_b" unit="%" min="0" reversed="false" step="5" max="100"/>
+			action="max_l_l_gabrielp_b" unit="%" min="0" reversed="false" step="5" max="100"/>
 
 		<seekBar description="Select little cluster Max Local Load. (Default: 100)." name="Little Cluster max local load"
-			action="max_l_l_gabriel_l" unit="%" min="0" reversed="false" step="5" max="100"/>
+			action="max_l_l_gabrielp_l" unit="%" min="0" reversed="false" step="5" max="100"/>
 
 		<seekBar description="Select big cluster Sampling Down Factor. When CPU jumps to the highest frequency, CPU will last longer in higher frequencies before recalculating if you set higher value. (Default: 0)." name="Big Cluster Sampling Down Factor"
-			action="samp_d_f_gabriel_b" unit="step" min="0" reversed="false" step="1" max="10"/>
+			action="samp_d_f_gabrielp_b" unit="step" min="0" reversed="false" step="1" max="10"/>
 
 		<seekBar description="Select little cluster Sampling Down Factor. (Default: 0)." name="Little Cluster Sampling Down Factor"
-			action="samp_d_f_gabriel_l" unit="step" min="0" reversed="false" step="1" max="10"/>
+			action="samp_d_f_gabrielp_l" unit="step" min="0" reversed="false" step="1" max="10"/>
 
 		<spinner description="Select Little Cluster Two Phase Frequency. Two phase scheduling idle/busy phases to prevent from jumping directly to max freq." name="Little Cluster Two Phase Frequency"
-			action="two_phase_freq_gabriel_l">
+			action="two_phase_freq_gabrielp_l">
 			<spinnerItem name="1.26 GHz" value="1267200"/>
 			<spinnerItem name="1.20 GHz" value="1209600"/>
 			<spinnerItem name="1.09 GHz" value="1094400"/>
@@ -333,7 +335,7 @@
 		</spinner>
 
 		<spinner description="Select Big Cluster Two Phase Frequency." name="Big Cluster Two Phase Frequency"
-			action="two_phase_freq_gabriel_b">
+			action="two_phase_freq_gabrielp_b">
 			<spinnerItem name="1.65 GHz" value="1651200"/>
 			<spinnerItem name="1.61 GHz" value="1612800"/>
 			<spinnerItem name="1.53 GHz" value="1536000"/>
@@ -352,7 +354,7 @@
 		</spinner>
 
 		<spinner description="Select Little Cluster Frequency calculation threshold. Avoid freq oscillations up to this threshold and allow for dynamic changes above." name="Little Cluster Frequency calculation threshold"
-			action="freq_calc_t_gabriel_l">
+			action="freq_calc_t_gabrielp_l">
 			<spinnerItem name="1.26 GHz" value="1267200"/>
 			<spinnerItem name="1.20 GHz" value="1209600"/>
 			<spinnerItem name="1.09 GHz" value="1094400"/>
@@ -365,7 +367,7 @@
 		</spinner>
 
 		<spinner description="Select Big Cluster Frequency calculation threshold." name="Big Cluster Frequency calculation threshold"
-			action="freq_calc_t_gabriel_b">
+			action="freq_calc_t_gabrielp_b">
 			<spinnerItem name="1.65 GHz" value="1651200"/>
 			<spinnerItem name="1.61 GHz" value="1612800"/>
 			<spinnerItem name="1.53 GHz" value="1536000"/>
