@@ -54,17 +54,21 @@ fi;
 
 	if [ "$CPUGOV0" = "interactive" ] ||
 		[ "$CPUGOV0" = "gabriel" ] ||
+		[ "$CPUGOV0" = "gabrielplus" ] ||
 		[ "$CPUGOV0" = "impulse" ] ||
 		[ "$CPUGOV0" = "cultivation" ]; then
 		$BB sh /res/uci.sh cpu_b_interactive_profile $cpu_b_interactive_profile > /dev/null;
 		$BB sh /res/uci.sh cpu_b_interactive_profile_boost $cpu_b_interactive_profile_boost > /dev/null;
 		$BB sh /res/uci.sh cpu_b_interactive_profile_hisp_freq $cpu_b_interactive_profile_hisp_freq > /dev/null;
-		$BB sh /res/uci.sh idle_threshold_gabriel_b $idle_threshold_gabriel_b > /dev/null;
-		$BB sh /res/uci.sh sample_rate_gabriel_b $sample_rate_gabriel_b > /dev/null;
-		$BB sh /res/uci.sh max_l_l_gabriel_b $max_l_l_gabriel_b > /dev/null;
-		$BB sh /res/uci.sh samp_d_f_gabriel_b $samp_d_f_gabriel_b > /dev/null;
-		$BB sh /res/uci.sh two_phase_freq_gabriel_b $two_phase_freq_gabriel_b > /dev/null;
-		$BB sh /res/uci.sh freq_calc_t_gabriel_b $freq_calc_t_gabriel_b > /dev/null;
+		if [ "$CPUGOV0" = "gabriel" ] ||
+		   [ "$CPUGOV0" = "gabrielplus" ]; then
+			$BB sh /res/uci.sh idle_threshold_gabriel_b $idle_threshold_gabriel_b > /dev/null;
+			$BB sh /res/uci.sh sample_rate_gabriel_b $sample_rate_gabriel_b > /dev/null;
+			$BB sh /res/uci.sh max_l_l_gabriel_b $max_l_l_gabriel_b > /dev/null;
+			$BB sh /res/uci.sh samp_d_f_gabriel_b $samp_d_f_gabriel_b > /dev/null;
+			$BB sh /res/uci.sh two_phase_freq_gabriel_b $two_phase_freq_gabriel_b > /dev/null;
+			$BB sh /res/uci.sh freq_calc_t_gabriel_b $freq_calc_t_gabriel_b > /dev/null;
+		fi;
 	elif [ "$CPUGOV0" = "chill" ] ||
 		[ "$CPUGOV0" = "relaxed" ]; then
 		$BB sh /res/uci.sh cpu_l_gov_profile $cpu_l_gov_profile > /dev/null;
