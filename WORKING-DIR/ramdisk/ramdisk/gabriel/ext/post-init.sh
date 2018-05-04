@@ -296,6 +296,10 @@ CRITICAL_PERM_FIX;
 	PROFILE=$(cat /data/.gabriel/.active.profile);
 	. /data/.gabriel/"$PROFILE".profile;
 
+	while [ "$(cat /sys/class/thermal/thermal_zone5/temp)" -ge "50" ]; do
+		sleep 5;
+	done;
+
 	# stop google service and restart it on boot. this remove high cpu load and ram leak!
 	if [ "$($BB pidof com.google.android.gms | wc -l)" -eq "1" ]; then
 		$BB kill "$($BB pidof com.google.android.gms)";
@@ -322,10 +326,6 @@ CRITICAL_PERM_FIX;
 	pm enable com.google.android.gsf/.update.SystemUpdateService
 	pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver
 	pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver
-
-	while [ "$(cat /sys/class/thermal/thermal_zone5/temp)" -ge "50" ]; do
-		sleep 5;
-	done;
 
 OPEN_RW;
 
