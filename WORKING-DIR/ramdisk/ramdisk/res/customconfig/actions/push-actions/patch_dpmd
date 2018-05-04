@@ -1,0 +1,22 @@
+#!/sbin/busybox sh
+
+(
+BB=/gabriel/busybox
+
+	$BB mount -o remount,rw /system;
+
+if [ ! -e /system/bin/dpmd.bak ]; then
+	$BB cp /system/bin/dpmd /system/bin/dpmd.bak;
+	echo "binary backup completed"
+
+	$BB sed -i '1d' /system/bin/dpmd;
+	echo "binary has been patched"
+else
+	echo "binary backup founded"
+
+	$BB sed -i '1d' /system/bin/dpmd;
+	echo "binary has been patched"
+fi;
+
+	$BB mount -o remount,ro /system;
+)&

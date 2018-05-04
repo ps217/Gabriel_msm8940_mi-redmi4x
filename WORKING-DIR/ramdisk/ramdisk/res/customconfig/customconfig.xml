@@ -1229,15 +1229,19 @@
 
 	</settingsPane>
 
-	<settingsPane description="INIT Porcess Fixer" name="INIT Porcess Fixer">
+	<settingsPane description="INIT Porcess Fixer. Select patch on boot to patch both binaries at boot if stweak found init process is mostly active or push patch button for each of them one by one if you are sure about draining battery by init process, it's better to patch one binary and check idle drain then patch another one if idle drain didn't fix by first one." name="INIT Porcess Fixer">
 
-		<spinner description="Enable init process fixer if you found that init process is draining the battery. it will apply only once per Rom or push Restore Rom's Bins button to apply it again. Reboot needed. (Default: Don't Load)." name="Enable On Boot"
+		<spinner description="Enable init process fixer if you found that init process is draining the battery. it will apply only once per Rom or push Restore Rom's Binaries button to apply it again at boot. (Default: Don't Load)." name="Patch On Boot"
 			action="generic_cortex /tmp/stweaks_init_proc_fixer">
 			<spinnerItem name="Load init fixer on boot." value="yes"/> 
 			<spinnerItem name="Don't load init fixer on boot." value="no"/> 
 		</spinner>
 
-		<button description="Push this button to Restore Rom's Binaries which Patched with init process fixer, in case of you found it's not working or suddenly applied in a rom which doesn't have init process battery drainage and start draining battery by init process. It will remove restriction of applying the patch for 2nd time so disable init process fixer if you don't want it." name="Remove Init Process Patch" action="push-actions/Restore_init_proc" label="Restore Rom's Bins"/>
+		<button description="Push this button to apply the patch only to dpmd binary." name="Patch dpmd binary" action="push-actions/patch_dpmd" label="Patch dpmd binary"/>
+
+		<button description="Push this button to apply the patch only to irq balance binary." name="Patch irq balance binary" action="push-actions/patch_irqbalance" label="Patch irq balance binary"/>
+
+		<button description="Push this button to Restore Rom's Binaries which Patched with init process fixer, in case of you found it's not working or suddenly applied in a rom which doesn't have init process battery drainage and start draining battery by init process. It will remove restriction of applying the patch for 2nd time so disable init process fixer if you don't want it to apply at boot again." name="Remove Init Process Patch" action="push-actions/Restore_init_proc" label="Restore Rom's Binaries"/>
 
 	</settingsPane>
 

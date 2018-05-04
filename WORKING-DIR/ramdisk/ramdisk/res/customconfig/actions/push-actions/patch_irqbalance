@@ -1,0 +1,22 @@
+#!/sbin/busybox sh
+
+(
+BB=/gabriel/busybox
+
+	$BB mount -o remount,rw /system;
+
+if [ ! -e /vendor/bin/msm_irqbalance.bak ]; then
+	$BB cp /vendor/bin/msm_irqbalance /vendor/bin/msm_irqbalance.bak;
+	echo "binary backup completed"
+
+	$BB sed -i '1d' /vendor/bin/msm_irqbalance;
+	echo "binary has been patched"
+else
+	echo "binary backup founded"
+
+	$BB sed -i '1d' /vendor/bin/msm_irqbalance;
+	echo "binary has been patched"
+fi;
+
+	$BB mount -o remount,ro /system;
+)&

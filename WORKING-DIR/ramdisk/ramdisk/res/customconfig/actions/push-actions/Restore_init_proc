@@ -7,23 +7,25 @@ BB=/gabriel/busybox
 
 if [ -e /system/bin/dpmd.bak ]; then
 	$BB cp -a /system/bin/dpmd.bak /system/bin/dpmd;
-	echo "binary has been restored"
+	echo "dpmd has been restored"
 else
-	echo "binary backup not found !"
+	echo "dpmd backup not found !"
 fi;
 
 if [ -e /vendor/bin/msm_irqbalance.bak ]; then                                                       
 	$BB cp -a /vendor/bin/msm_irqbalance.bak /vendor/bin/msm_irqbalance
-	echo "binary has been restored"
+	echo "irq balance has been restored"
 else
-	echo "binary backup not found !"
+	echo "irq balance backup not found !"
 fi;
 
 if [ -e /data/init_proc_fixer ]; then
 	$BB rm /data/init_proc_fixer;
+	echo " "
 	echo "patch restriction has been removed"
 else
-	echo "patch didn't applied previously !"
+	echo " "
+	echo "patch didn't applied at boot !"
 fi;
 
 	$BB mount -o remount,ro /system;
