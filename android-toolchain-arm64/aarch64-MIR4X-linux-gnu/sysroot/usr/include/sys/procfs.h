@@ -1,4 +1,4 @@
-/* Copyright (C) 1996-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2018 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -36,7 +36,7 @@
 __BEGIN_DECLS
 
 /* Type for a general-purpose register.  */
-typedef unsigned long elf_greg_t;
+typedef __uint64_t elf_greg_t;
 
 /* And the whole bunch of them.  We could have used `struct
    pt_regs' directly in the typedef, but tradition says that

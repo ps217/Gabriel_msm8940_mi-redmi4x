@@ -1,5 +1,5 @@
 /* bits/types.h -- definitions of __*_t types underlying *_t types.
-   Copyright (C) 2002-2017 Free Software Foundation, Inc.
+   Copyright (C) 2002-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -188,7 +188,6 @@ __STD_TYPE __SYSCALL_ULONG_TYPE __syscall_ulong_t;
 /* These few don't really vary by system, they always correspond
    to one of the other defined types.  */
 typedef __off64_t __loff_t;	/* Type of file sizes and offsets (LFS).  */
-typedef __quad_t *__qaddr_t;
 typedef char *__caddr_t;
 
 /* Duplicates info from stdint.h but this is used in unistd.h.  */

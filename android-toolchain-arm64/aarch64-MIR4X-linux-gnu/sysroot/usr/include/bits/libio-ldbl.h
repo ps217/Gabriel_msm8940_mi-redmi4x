@@ -1,5 +1,5 @@
 /* -mlong-double-64 compatibility mode for libio functions.
-   Copyright (C) 2006-2017 Free Software Foundation, Inc.
+   Copyright (C) 2006-2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +16,14 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifndef _IO_STDIO_H
+#ifndef _BITS_LIBIO_LDBL_H
+#define _BITS_LIBIO_LDBL_H 1
+
+#ifndef _BITS_LIBIO_H
 # error "Never include <bits/libio-ldbl.h> directly; use <libio.h> instead."
 #endif
 
 __LDBL_REDIR_DECL (_IO_vfscanf)
 __LDBL_REDIR_DECL (_IO_vfprintf)
+
+#endif
