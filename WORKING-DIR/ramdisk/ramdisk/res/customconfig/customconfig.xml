@@ -1128,6 +1128,29 @@
 
 	</settingsPane>
 
+	<settingsPane description="Fast Charge and Battery options." name="USB and AC Charger control">
+
+		<spinner description="Device will charge faster when connected with USB. Replug the calbe when changing this option." name="USB Fast Charge"
+			action="generic /sys/kernel/fast_charge/force_fast_charge">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
+		<spinner description="This option will Control Maximum Allowed Current Gain from an AC Charger. Charging rate control has tolerance around this threshold. (default 1800)." name="AC Charger Current limiter"
+			action="charger_current_limiter">
+			<spinnerItem name="2500" value="2500"/>
+			<spinnerItem name="2200" value="2200"/>
+			<spinnerItem name="2000" value="2000"/>
+			<spinnerItem name="1800" value="1800"/>
+			<spinnerItem name="1500" value="1500"/>
+			<spinnerItem name="1200" value="1200"/>
+			<spinnerItem name="1000" value="1000"/>
+			<spinnerItem name="700" value="700"/>
+			<spinnerItem name="500" value="500"/>
+		</spinner>
+
+	</settingsPane>
+
 	<settingsPane description="Here you can set Driver Message logging options for kernel debugging." name="Drivers Logging">
 
 		<checkbox description="Kernel Logging can be switched ON and OFF. if you Turn this OFF kernel no more logging it's activities and DEV can't help you in case of Panic or etc." name="DMESG logging ON and OFF"
@@ -1135,16 +1158,6 @@
 
 		<checkbox description="By Turning OFF this option the Low Memory Killer won't log app killing info in DMESG. if you Turn this OFF then DEV can't help you in case of Panic or etc." name="Low Memory Killer Log"
 			action="generic01 /sys/module/lowmemorykiller/parameters/debug_level" label="LMK Log Mode"/>
-
-	</settingsPane>
-
-	<settingsPane description="Force Fast Charge." name="USB Charging rate control">
-
-		<spinner description="Device will charge faster when connected with USB. Replug the calbe when changing this option." name="USB Fast Charge"
-			action="generic /sys/kernel/fast_charge/force_fast_charge">
-			<spinnerItem name="Disable" value="0"/>
-			<spinnerItem name="Enable" value="1"/>
-		</spinner>
 
 	</settingsPane>
 

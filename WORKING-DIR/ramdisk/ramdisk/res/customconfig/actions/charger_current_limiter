@@ -1,0 +1,68 @@
+#!/sbin/busybox sh
+
+# $1 - "charger_current_limiter"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/gabriel/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	charger_current_limiter=$2;
+
+	case "${charger_current_limiter}" in
+		500)
+			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		700)
+			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		1000)
+			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		1200)
+			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		1500)
+			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		1800)
+			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		2000)
+			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		2200)
+			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		2500)
+			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		*)
+			charger_current_limiter=1800;
+		;;
+	esac;
+fi;
+
+echo ${charger_current_limiter};
