@@ -649,6 +649,14 @@ KBUILD_CFLAGS   += $(call cc-option,-fno-store-merging,)
 # Disable format-truncation warnings
 KBUILD_CFLAGS   += $(call cc-disable-warning,format-truncation,)
 
+# Disable GCC 8.x warnings
+KBUILD_CFLAGS  += $(call cc-disable-warning, attribute-alias)
+KBUILD_CFLAGS  += $(call cc-disable-warning, sizeof-pointer-memaccess)
+KBUILD_CFLAGS  += $(call cc-disable-warning, packed-not-aligned)
+KBUILD_CFLAGS  += $(call cc-disable-warning, array-bounds)
+KBUILD_CFLAGS  += $(call cc-disable-warning, format-overflow)
+KBUILD_CFLAGS  += $(call cc-disable-warning, stringop-overflow)
+
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= -Os $(call cc-disable-warning,maybe-uninitialized,)
 else
