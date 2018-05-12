@@ -100,14 +100,6 @@ SCHED_FEAT(NUMA_RESIST_LOWER, false)
  */
 SCHED_FEAT(ENERGY_AWARE, true)
 
-/*
- * Minimum capacity capping. Keep track of minimum capacity factor when
- * minimum frequency available to a policy is modified.
- * If enabled, this can be used to inform the scheduler about capacity
- * restrictions.
- */
-SCHED_FEAT(ENERGY_AWARE, false)
-
 
 /*
  * UtilEst. Use estimated utilization for CPUs and TASKs.
@@ -132,3 +124,11 @@ SCHED_FEAT(ENERGY_NORMALIZE, false)
 SCHED_FEAT(ENERGY_FILTER, true)
 
 #endif
+
+/*
+ * Minimum capacity capping. Keep track of minimum capacity factor when
+ * minimum frequency available to a policy is modified.
+ * If enabled, this can be used to inform the scheduler about capacity
+ * restrictions.
+ */
+SCHED_FEAT(MIN_CAPACITY_CAPPING, false)

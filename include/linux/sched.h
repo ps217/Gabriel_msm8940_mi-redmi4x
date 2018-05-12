@@ -59,7 +59,6 @@ struct sched_param {
 #include <linux/uidgid.h>
 #include <linux/gfp.h>
 #include <linux/magic.h>
-#include <linux/cgroup-defs.h>
 #include <linux/average.h>
 
 #include <asm/processor.h>
@@ -1257,7 +1256,7 @@ struct sched_avg {
 	unsigned long load_avg, util_avg;
 
 	/* Utilization estimation */
-	struct ewma_util                util_ewma;
+	struct ewma_util util_ewma;
 	struct {
 		unsigned long ewma;
 		unsigned long last;
