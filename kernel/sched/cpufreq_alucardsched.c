@@ -40,7 +40,9 @@ unsigned long boosted_cpu_util(int cpu);
 #define UP_RATE_LIMIT_US			(20000)
 #define UP_RATE_LIMIT_US_BIGC		(10000)
 #define DOWN_RATE_LIMIT_US			(20000)
+/* to use per-cluster min/max tuning
 #define FREQ_RESPONSIVENESS			1036800
+*/
 #define PUMP_INC_STEP_AT_MIN_FREQ	6
 #define PUMP_INC_STEP				3
 #define PUMP_DEC_STEP_AT_MIN_FREQ	3
@@ -48,7 +50,9 @@ unsigned long boosted_cpu_util(int cpu);
 #define BOOST_PERC					10
 #else
 #define LATENCY_MULTIPLIER			(2000)
+/* to use per-cluster min/max tuning
 #define FREQ_RESPONSIVENESS			1036800
+*/
 #define PUMP_INC_STEP_AT_MIN_FREQ	1
 #define PUMP_INC_STEP				1
 #define PUMP_DEC_STEP_AT_MIN_FREQ	1
@@ -1031,7 +1035,7 @@ initialize:
 		tunables->up_rate_limit_us *= lat;
 		tunables->down_rate_limit_us *= lat;
 	}
-	tunables->freq_responsiveness = FREQ_RESPONSIVENESS;
+	tunables->freq_responsiveness = policy->min;
 	tunables->pump_inc_step_at_min_freq = PUMP_INC_STEP_AT_MIN_FREQ;
 	tunables->pump_dec_step_at_min_freq = PUMP_DEC_STEP_AT_MIN_FREQ;
 	tunables->pump_inc_step = PUMP_INC_STEP;
