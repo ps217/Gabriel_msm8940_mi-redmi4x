@@ -452,7 +452,9 @@ limCheckAndAddBssDescription(tpAniSirGlobal pMac,
      */
     if(pBPR->channelSwitchPresent || pBPR->ecsa_present)
     {
-        return;
+       if (pBPR->ext_chan_switch_ann.new_channel !=
+           limGetChannelFromBeacon(pMac, pBPR))
+           return;
     }
 
     /* If beacon/probe resp DS param channel does not match with 

@@ -866,12 +866,16 @@ static int hdd_parse_setrmcactionperiod_command(tANI_U8 *pValue,
 
     return 0;
 }
-/*
- * hdd_set_vowifi_mode() - Process the VOWIFI command and invoke the SME api
- *
- * @hHal: context handler
+
+/**
+ * hdd_set_vowifi_mode() - Process VOWIFI command.
+ * @hdd_ctx: context handler
  * @enable: Value to be sent as a part of the VOWIFI command
  *
+ * Invoke the SME api if station is connected in 2.4 GHz band.
+ * Also start split scan if VOWIFIMODE and dynamic split scan
+ * both are enabled.
+
  * Return: void
  */
 void hdd_set_vowifi_mode(hdd_context_t *hdd_ctx, bool enable)

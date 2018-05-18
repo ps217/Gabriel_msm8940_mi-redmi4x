@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2015 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2015, 2018 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -261,6 +261,7 @@ limSetRSNieWPAiefromSmeStartBSSReqMessage(tpAniSirGlobal pMac,
 {
     tANI_U8  wpaIndex = 0;
     tANI_U32 privacy, val;
+    tANI_U32 status;
 
     if (wlan_cfgGetInt(pMac, WNI_CFG_PRIVACY_ENABLED,
                   &privacy) != eSIR_SUCCESS)
