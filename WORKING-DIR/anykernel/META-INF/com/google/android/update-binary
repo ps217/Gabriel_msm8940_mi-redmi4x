@@ -176,11 +176,10 @@ if [ "$(file_getprop /tmp/anykernel/fstab.patch do.fstab)" == 1 ]; then
 fi;
 
 mount -o rw,remount -t auto /system;
-if [ "$(grep 'ro.miui*' /system/build.prop | wc -l)" -lt "1" ] &&
-  [ "$(cat /system/usr/keylayout/Generic.kl | grep "key 139   MENU" | wc -l)" -gt 0 ]; then
+if [ "$(cat /system/usr/keylayout/Generic.kl | grep "key 139   MENU" | wc -l)" -gt 0 ]; then
   ui_print " ";
-  ui_print "Non miui rom detected";
-  ui_print "- Patching key layout...";
+  ui_print "Patching key layout...";
+  $bb cp /system/usr/keylayout/Generic.kl /system/usr/keylayout/Generic.kl.bak;
   sed -i 's/key 139   MENU/key 139   APP_SWITCH/g' /system/usr/keylayout/Generic.kl;
   sed -i 's/key 580   APP_SWITCH/key 580   MENU/g' /system/usr/keylayout/Generic.kl;
 fi;
