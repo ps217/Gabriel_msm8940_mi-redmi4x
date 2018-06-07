@@ -8221,7 +8221,7 @@ static struct rq *move_queued_task(struct task_struct *p, int new_cpu)
 static void get_adjusted_cpumask(const struct task_struct *p,
 	struct cpumask *new_mask, const struct cpumask *old_mask)
 {
-	static const unsigned long little_cluster_cpus = 0x3;
+	static const unsigned long little_cluster_cpus = 0xf1;
 
 	/* Force all unbound kthreads onto the little cluster */
 	if (p->flags & PF_KTHREAD && cpumask_weight(old_mask) > 1)
