@@ -1,5 +1,8 @@
 #!/gabriel/busybox sh
 
+# a trigger to run only with gabriel, to not mess with other kernels
+if [ "$(cat /dev/block/bootdevice/by-name/boot | grep -m 1 sched_enable_hmp | grep gabriel | wc -l)" -gt "0" ]; then
+
 BB=/gabriel/busybox
 
 DO_NOT_RUN()
@@ -69,3 +72,5 @@ fi;
 }
 
 $BB sh /gabriel/ext/post-init.sh;
+
+fi;
