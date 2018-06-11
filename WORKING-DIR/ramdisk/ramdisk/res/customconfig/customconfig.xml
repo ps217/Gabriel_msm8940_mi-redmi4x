@@ -155,7 +155,7 @@
 
 <settingsTab name="CPU Tuning">
 	
-	<settingsPane description="Customize the CPU Active Governor for each cluster. A governor defines the strategy how to scale CPU cores up and down across frequencies based on system load. Default for all cores is Interactive." name="CPU Active Governor">
+	<settingsPane description="Customize the CPU Active Governor for each cluster. A governor defines the strategy how to scale CPU cores up and down across frequencies based on system load. Default for all cores is Interactive. If you found that cpu is very resposible to tasks and jump to max frequency most of the time or frequency stuck at max for both cluster all the time when running app on both foreground and background then switch to Alucard or Darkness which has different frequency calculation method to keep cpu calm. it's a matter between cpu and governor frequency calculation." name="CPU Active Governor">
 
 		<spinner description="Select governor for little cluster. Some governor's can be unstable on it. It's recommended to leave it as is." name="Little Cluster Governor"
 			action="default_cpu_l_gov">
@@ -565,7 +565,7 @@
 
 	<settingsPane description="Set the HMP Scheduler Profile." name="HMP Scheduler">
 
-		<spinner description="Tweak HMP Scheduler for Cluster utilization. kernel will load it's default hmp parameters if you select default profile but reboot needed." name="HMP Scheduler"
+		<spinner description="Tweak HMP Scheduler for Cluster utilization. the Balance and Battery profile will route tasks to little cluster most of the time when using interactive, ondemand, conservative cpu governor family. kernel will load it's default hmp parameters if you select default profile but reboot needed." name="HMP Scheduler"
 			action="hmp_scheduler">
 			<spinnerItem name="Default" value="default"/>
 			<spinnerItem name="Balance" value="balance"/>
