@@ -19,12 +19,14 @@ device.name3=Redmi 4X
 # shell variables
 block=/dev/block/bootdevice/by-name/boot;
 is_slot_device=0;
+ramdisk_compression=auto;
+
+## end setup
 
 
 ## AnyKernel methods (DO NOT CHANGE)
 # import patching functions/variables - see for reference
 . /tmp/anykernel/tools/ak2-core.sh;
-
 
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
@@ -51,13 +53,12 @@ fi;
 fi;
 
 # init.qcom.rc
-if [ -f /init.qcom.rc ]; then
+if [ -e init.qcom.rc ]; then
 backup_file init.qcom.rc;
 append_file init.qcom.rc "bbinstall" init.qcom.patch;
 else
 backup_file init.rc;
-insert_line init.rc "init.gabriel.rc" before "on early-init" "import init.gabriel.rc";
-insert_line init.rc "" before "on early-init" "";
+insert_line init.rc "init.gabriel.rc" before "import /init.usb.rc" "import /init.gabriel.rc";
 fi;
 
 # end ramdisk changes
