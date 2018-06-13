@@ -1,0 +1,52 @@
+diff --git a/arch/arm/boot/dts/qcom/msm8937.dtsi b/arch/arm/boot/dts/qcom/msm8937.dtsi
+index f893a1095734..81643ad2d291 100644
+--- a/arch/arm/boot/dts/qcom/msm8937.dtsi
++++ b/arch/arm/boot/dts/qcom/msm8937.dtsi
+@@ -32,7 +32,7 @@
+ 				compatible = "android,fstab";
+ 				vendor {
+ 					compatible = "android,vendor";
+-					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/vendor";
++					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/cust";
+ 					type = "ext4";
+ 					mnt_flags = "ro,barrier=1,discard";
+ 					fsmgr_flags = "wait";
+diff --git a/arch/arm/boot/dts/qcom/msm8940-pmi8950-qrd-sku7-full.dts b/arch/arm/boot/dts/qcom/msm8940-pmi8950-qrd-sku7-full.dts
+index 5daabb0f5a93..3d92b06527d9 100644
+--- a/arch/arm/boot/dts/qcom/msm8940-pmi8950-qrd-sku7-full.dts
++++ b/arch/arm/boot/dts/qcom/msm8940-pmi8950-qrd-sku7-full.dts
+@@ -11604,12 +11604,24 @@
+ 		i2c3 = "/soc/i2c@78b7000";
+ 	};
+ 
+-	firmware: firmware {
++	firmware {
++
+ 		android {
+ 			compatible = "android,firmware";
++
+ 			fstab {
+ 				compatible = "android,fstab";
+-				 system {
++
++				vendor {
++					compatible = "android,vendor";
++					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/cust";
++					type = "ext4";
++					mnt_flags = "ro,barrier=1,discard";
++					fsmgr_flags = "wait";
++					status = "ok";
++				};
++
++				system {
+ 					compatible = "android,system";
+ 					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/system";
+ 					type = "ext4";
+@@ -11617,7 +11629,6 @@
+ 					fsmgr_flags = "wait";
+ 					status = "ok";
+ 				};
+-
+ 			};
+ 		};
+ 	};
