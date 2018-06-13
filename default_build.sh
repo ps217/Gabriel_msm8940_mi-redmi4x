@@ -124,7 +124,7 @@ if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 	mv $WD/package/system/lib/modules/wlan.ko $WD/package/system/lib/modules/pronto/pronto_wlan.ko
 fi;
 
-if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz-dtb ]; then
+if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz ]; then
 	echo -e "${red}"
 	echo -e "Kernel STUCK in BUILD! no Image exist !"
 	echo -e "${restore}"
@@ -139,7 +139,10 @@ FUNC_BUILD_RAMDISK_STK()
 	# copy all selected ramdisk files to temp folder
 	\cp -r $WD/ramdisk/* $WD/temp
 	\cp -r $WD/$MODEL/* $WD/temp/ramdisk
-	mv -f $RDIR/arch/$ARCH/boot/Image.gz-dtb $WD/temp/zImage
+
+	DTB=$WD/anykernel/treble-unsupported;
+	cat $RDIR/arch/$ARCH/boot/Image.gz $DTB/*.dtb > $WD/temp/zImage;
+	rm -f $RDIR/arch/$ARCH/boot/Image.gz;
 
 	./$TS/mkboot $WD/temp $WD/boot.img
 }
@@ -183,7 +186,10 @@ FUNC_BUILD_RAMDISK_ANY()
 
 	# copy all selected ramdisk files to temp folder
 	\cp -r $WD/anykernel/* $WD/temp
-	mv -f $RDIR/arch/$ARCH/boot/Image.gz-dtb $WD/temp/Image.gz-dtb
+	if [ ! -d $WD/temp/kernel ]; then
+		mkdir -p $WD/temp/kernel
+	fi;
+	mv -f $RDIR/arch/$ARCH/boot/Image.gz $WD/temp/kernel/Image.gz
 
 	if [ ! -d $WD/temp/ramdisk ]; then
 		mkdir -p $WD/temp/ramdisk
