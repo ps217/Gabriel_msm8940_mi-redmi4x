@@ -1,0 +1,66 @@
+#!/sbin/busybox sh
+
+# $1 - "core_mask"
+# $2 - value=
+# Created By Dorimanx
+
+if [ "a$2" != "a" ]; then
+	core_mask=$2;
+
+	case "${core_mask}" in
+		1)
+			# All cores goes off
+			echo "255" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		2)
+			# b2l2
+			echo "200" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		3)
+			# b4
+			echo "240" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		4)
+			# b2
+			echo "250" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		5)
+			# l3b1
+			echo "16" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		6)
+			# l4
+			echo "14" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		7)
+			# l4b2
+			echo "8" > /sys/module/msm_thermal/parameters/core_control_mask;
+			echo 80 > /cputemp/core_control_mask;
+			sleep 1;
+			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+		;;
+		*)
+			core_mask=1;
+		;;
+	esac;
+fi;
+
+echo ${core_mask};
