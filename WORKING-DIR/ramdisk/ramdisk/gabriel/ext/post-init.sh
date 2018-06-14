@@ -108,8 +108,12 @@ done;
 
 SYSTEM_TUNING()
 {
-echo 1 > /sys/module/msm_thermal/core_control/enabled;
-echo 0 > /cputemp/enabled;
+echo 0 > /sys/module/msm_thermal/core_control/enabled;
+echo 1 > /cputemp/enabled;
+echo 1 > /cputemp/intelli_user_control;
+echo 1000000 > /cputemp/intelli_user_freq;
+echo 70 > /cputemp/limit_temp_degC;
+echo 250 > /cputemp/poll_ms;
 
 # cpuset tuning
 echo "$(cat /dev/cpuset/foreground/cpus)" > /cache/fore_cpu;
