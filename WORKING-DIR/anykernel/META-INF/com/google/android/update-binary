@@ -231,6 +231,12 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.cleanup)" == 1 ]; then
   cleanup;
 fi;
 
+ui_print " ";
+ui_print "Running fstrim...";
+fstrim -v /system;
+fstrim -v /data;
+fstrim -v /vendor;
+
 umount /system;
 umount /vendor 2>/dev/null;
 umount /data 2>/dev/null;
