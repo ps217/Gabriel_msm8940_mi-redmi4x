@@ -1,0 +1,29 @@
+diff --git a/arch/arm/boot/dts/qcom/msm8937-pmi8950-qrd-sku1_S88536AA2.dtsi b/arch/arm/boot/dts/qcom/msm8937-pmi8950-qrd-sku1_S88536AA2.dtsi
+index fa6a973264a8..ced1b9e38dde 100644
+--- a/arch/arm/boot/dts/qcom/msm8937-pmi8950-qrd-sku1_S88536AA2.dtsi
++++ b/arch/arm/boot/dts/qcom/msm8937-pmi8950-qrd-sku1_S88536AA2.dtsi
+@@ -327,11 +327,3 @@
+ 	/delete-node/ qcom,flash_1;
+ 	/delete-node/ qcom,torch_1;
+ };
+-
+-&firmware {
+-	android {
+-		fstab {
+-			/delete-node/ vendor;
+-		};
+-	};
+-};
+diff --git a/arch/arm/boot/dts/qcom/msm8937.dtsi b/arch/arm/boot/dts/qcom/msm8937.dtsi
+index 982a70c78b5e..a736e72777aa 100644
+--- a/arch/arm/boot/dts/qcom/msm8937.dtsi
++++ b/arch/arm/boot/dts/qcom/msm8937.dtsi
+@@ -32,7 +32,7 @@
+ 				compatible = "android,fstab";
+ 				vendor {
+ 					compatible = "android,vendor";
+-					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/vendor";
++					dev = "/dev/block/platform/soc/7824900.sdhci/by-name/cust";
+ 					type = "ext4";
+ 					mnt_flags = "ro,barrier=1,discard";
+ 					fsmgr_flags = "wait";
