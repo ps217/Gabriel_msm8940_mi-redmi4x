@@ -14,6 +14,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		2)
 			# b2l2
@@ -21,6 +31,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		3)
 			# b4
@@ -28,6 +48,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		4)
 			# b2
@@ -35,6 +65,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		5)
 			# l3b1
@@ -42,6 +82,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		6)
 			# l4
@@ -49,6 +99,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		7)
 			# l4b2
@@ -56,6 +116,16 @@ if [ "a$2" != "a" ]; then
 			echo 80 > /cputemp/core_control_mask;
 			sleep 1;
 			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+
+			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_max_freq &cpu_l_max_freq > /dev/null;
+			$BB sh /res/uci.sh cpu_l_min_freq &cpu_l_min_freq > /dev/null;
+
+			$BB sh /res/uci.sh core_ctrl_b_max &core_ctrl_b_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_b_min &core_ctrl_b_min > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_max &core_ctrl_l_max > /dev/null;
+			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		*)
 			core_mask=1;
