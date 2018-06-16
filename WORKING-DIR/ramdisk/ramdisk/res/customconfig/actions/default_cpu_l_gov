@@ -60,8 +60,8 @@ fi;
 		$BB sh /res/uci.sh cpu_l_interactive_profile $cpu_l_interactive_profile > /dev/null;
 		$BB sh /res/uci.sh cpu_l_interactive_profile_boost $cpu_l_interactive_profile_boost > /dev/null;
 		$BB sh /res/uci.sh cpu_l_interactive_profile_hisp_freq $cpu_l_interactive_profile_hisp_freq > /dev/null;
-		if [ "$CPUGOV0" = "gabriel" ] ||
-		   [ "$CPUGOV0" = "gabrielplus" ]; then
+		if [ "$CPUGOV4" = "gabriel" ] ||
+		   [ "$CPUGOV4" = "gabrielplus" ]; then
 			$BB sh /res/uci.sh idle_threshold_gabriel_l $idle_threshold_gabriel_l > /dev/null;
 			$BB sh /res/uci.sh sample_rate_gabriel_l $sample_rate_gabriel_l > /dev/null;
 			$BB sh /res/uci.sh max_l_l_gabriel_l $max_l_l_gabriel_l > /dev/null;
