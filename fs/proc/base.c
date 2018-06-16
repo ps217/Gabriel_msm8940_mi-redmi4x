@@ -1877,9 +1877,6 @@ static int dname_to_vma_addr(struct dentry *dentry,
 	*start = sval;
 	*end = eval;
 
-	*start = sval;
-	*end = eval;
-
 	return 0;
 }
 
