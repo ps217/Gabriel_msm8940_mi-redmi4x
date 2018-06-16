@@ -6,7 +6,10 @@ red='\033[01;31m'
 blink_red='\033[05;31m'
 restore='\033[0m'
 
-export MODEL=santoni
+# ST stands for Stweaks while SP is Spectrum
+export KERNEL_NAME=Gabriel
+export KSCHED=HMP
+export TWEAKER=ST
 export ARCH=arm64
 export BUILD_CROSS_COMPILE=android-toolchain-arm64/bin/arm-eabi-
 export CROSS_COMPILE_ARM32=android-toolchain-arm64/arm32/bin/arm-eabi-
@@ -15,12 +18,12 @@ export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
 export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-32)
-export FILENAME=(Gabriel-$VER-$(date +"[%d-%m-%y]")-$MODEL);
+export DATE=$(date +"[%Y-%m-%d]");
 
-RDIR=$(readlink -f .)
-OUTDIR=$RDIR/arch/$ARCH/boot
-WD=$RDIR/WORKING-DIR
-RK=$RDIR/READY-KERNEL
+export RDIR=$(readlink -f .)
+export OUTDIR=$RDIR/arch/$ARCH/boot
+export WD=$RDIR/WORKING-DIR
+export RK=$RDIR/READY-KERNEL
 
 FUNC_CLEAN_DTB()
 {
@@ -59,7 +62,7 @@ FUNC_ADB()
 {
 	if [ "$(adb devices | wc -l)" -eq "3" ]; then
 		echo -e "${green}"
-		adb push $RK/$TARGET-$FILENAME.zip /sdcard/ | grep 100
+		adb push $RK/$FILENAME.zip /sdcard/ | grep 100
 		echo -e "${restore}"
 	fi;
 }
@@ -72,9 +75,9 @@ sed -i 's/=m/=y/g' arch/$ARCH/configs/$KERNEL_DEFCONFIG
 FUNC_ZIP_NAME()
 {
 	ZIPFILE=$FILENAME
-	if [[ -e $RK/$TARGET-$ZIPFILE.zip ]] ; then
+	if [[ -e $RK/$ZIPFILE.zip ]] ; then
 			i=0
-		while [[ -e $RK/$TARGET-$ZIPFILE-$i.zip ]] ; do
+		while [[ -e $RK/$ZIPFILE-$i.zip ]] ; do
 			let i++
 		done
 	    FILENAME=$ZIPFILE-$i
@@ -155,6 +158,7 @@ FUNC_BUILD_ZIP_STK()
 		mkdir $WD/temp
 	fi;
 
+	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 	\cp -r $WD/package/* $WD/temp
@@ -206,6 +210,7 @@ fi;
 
 FUNC_BUILD_ZIP_ANY()
 {
+	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 	mv -f $RDIR/build.log $WD/temp/build.log
@@ -215,8 +220,8 @@ FUNC_BUILD_ZIP_ANY()
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
 	cd $RDIR
 
-	cp $WD/temp/kernel.zip $RK/$TARGET-$FILENAME.zip
-	md5sum $RK/$TARGET-$FILENAME.zip > $RK/$TARGET-$FILENAME.zip.md5
+	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
+	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
 
 	FUNC_ADB
 }
@@ -287,7 +292,7 @@ rm -rf ./build.log
 		echo "" # shown adb pushed file
 	else
 		echo -e "${green}"
-		echo "File Name is: "$TARGET-$FILENAME
+		echo "File Name is: "$FILENAME
 		echo -e "${restore}"
 	fi;
 
