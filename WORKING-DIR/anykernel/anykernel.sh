@@ -39,6 +39,14 @@ dump_boot;
 
 # begin ramdisk changes
 
+function rc_restore() {
+if [ -e init.qcom.rc~ ]; then
+	cp init.qcom.rc~ init.qcom.rc;
+elif [ -e init.rc~ ]; then
+	cp init.rc~ init.rc;
+fi;
+}
+
 # fstab.qcom
 if [ -e fstab.qcom ] || [ -e /system/vendor/etc/fstab.qcom ] && [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
 touch /tmp/anykernel/fstab.patch
@@ -51,6 +59,9 @@ insert_line /system/vendor/etc/fstab.qcom "data        f2fs" before "data       
 insert_line /system/vendor/etc/fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
 fi;
 fi;
+
+# restore backuped rc file
+rc_restore
 
 # init.qcom.rc
 if [ -e init.qcom.rc ]; then
