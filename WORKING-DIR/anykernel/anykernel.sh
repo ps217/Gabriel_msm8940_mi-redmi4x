@@ -54,9 +54,15 @@ fi;
 
 # init.qcom.rc
 if [ -e init.qcom.rc ]; then
+if [ -e init.qcom.rc~ ]; then
+	cp init.qcom.rc~ init.qcom.rc;
+fi;
 backup_file init.qcom.rc;
 append_file init.qcom.rc "bbinstall" init.qcom.patch;
 else
+if [ -e init.rc~ ]; then
+	cp init.rc~ init.rc;
+fi;
 backup_file init.rc;
 insert_line init.rc "init.gabriel.rc" before "import /init.usb.rc" "import /init.gabriel.rc";
 fi;
