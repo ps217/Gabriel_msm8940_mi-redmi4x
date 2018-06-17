@@ -668,75 +668,6 @@
 
 </settingsTab>
 
-<settingsTab name="CPU Thermal">
-
-	<settingsPane description="Kernel ROM Thermal Service and Intelligent Thermal driver can be enabled together in this section. It protects device from overheating and breaking down components. Controls below are active for Dual Intelligent Temp Control in case of ROM service die. Kernel will protect phone components from any damage only if Dual Intelligent Temp Control is in use. It's better to leave it as is." name="CPU Thermal Protection">
-
-		<spinner description="Select CPU Temp Control driver. Default driver without controls or Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Default Temp Control you'll have only one overheat protection ensured by ROM, so if ROM stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq. lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
-			action="msm_thermal">
-			<spinnerItem name="Default Temp Control" value="msm_temp"/> 
-			<spinnerItem name="Dual Intelligent Temp Control" value="intelli_temp"/> 
-			<spinnerItem name="Intelligent Temp Control Only" value="intelli_temp_only"/> 
-		</spinner>
-
-		<spinner description="By enabling this setting, kernel will obey Minimum CPU frequency defined by user in CPU Tuning Tab, not Minimum Available CPU frequency (249 MHz). It will prevent CPU to get 249 MHz as Maximum frequency at High Heat mitigation. below control is the threshold of this tunable." name="Min Frequency Override"
-			action="generic /sys/module/msm_thermal/parameters/intelli_user_control">
-			<spinnerItem name="Disable" value="0"/>
-			<spinnerItem name="Enable" value="1"/>
-		</spinner>
-
-		<spinner description="Kernel will not set Minimum Available CPU frequency (249 MHz) if Minimum CPU frequency defined by user is Lower than this threshold, for example 768 MHz for little cluster is lower than 800 MHz (in this threshold) so it will not mitigate to under 768 MHz in high temp mitigation, but 960 MHz for big cluster will mitigate to 249 MHz because 960 MHz is higher than this threshold (800 MHz). Depends on Min Frequency Override." name="Min Frequency Threshold"
-			action="generic /sys/module/msm_thermal/parameters/intelli_user_freq">
-			<spinnerItem name="400 MHz" value="400000"/>
-			<spinnerItem name="500 MHz" value="500000"/>
-			<spinnerItem name="600 MHz" value="600000"/>
-			<spinnerItem name="700 MHz" value="700000"/>
-			<spinnerItem name="800 MHz" value="800000"/>
-			<spinnerItem name="900 MHz" value="900000"/>
-			<spinnerItem name="1000 MHz" value="1000000"/>
-			<spinnerItem name="1100 MHz" value="1100000"/>
-		</spinner>
-
-		<seekBar description="Set the Max Allowed CPU Temperature before throttling down in order to cool down the device (Default: 50°C)." name="CPU Max Heat"
-			action="generic /sys/module/msm_thermal/parameters/limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="78"/>
-
-		<seekBar description="Set the Temp Pull Timer intervals. The lower value, the more often kernel will check up the CPU temp (Default: 250 ms)." name="Temp Pull Timer"
-			action="generic /sys/module/msm_thermal/parameters/poll_ms" unit="ms" min="100" reversed="false" step="50" max="500"/>
-
-		<seekBar description="Set the Temperature Hysteresis for driver. It calculates temp differences for adjusting the best CPU frequency, when CPU is in stress too often. Driver will wait until Temp goes down by this step to Unlimit the max frequency. Do NOT reduce below 10°C! (Default: 10°C)." name="Temperature Hysteresis"
-			action="generic /sys/module/msm_thermal/parameters/temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
-
-	</settingsPane>
-
-	<settingsPane description="Setup HotPlug CPU Thermal Controls by deciding how many cores remains ON when they're overheated. It reduces performance, by getting less cores enabled on higher freq. Others will keep waiting until CPU cools down." name="HotPlug CPU Thermal Control">
-
-		<spinner description="HotPlug CPU Thermal Control Main Switch allows to shutdown cores and operate on it's frequency range. If this option is disabled, all CPU cores will be online and operate at lower frequencies on high temperature." name="HotPlug Thermal CPU Control"
-			action="core_control">
-			<spinnerItem name="Enabled" value="1"/> 
-			<spinnerItem name="Disabled" value="0"/> 
-		</spinner>
-
-		<spinner description="Set how many cores will stay active on high temp. The more cores is OFF, the higher frequencies you'll get on the other cores. Disabled Cores will switch online, when temperature is back to normal. This option depends on HotPlug Thermal CPU Control (must be Enabled above)!" name="Max Online CPUs"
-			action="core_mask">
-			<spinnerItem name="1 Core Big" value="1"/>
-			<spinnerItem name="2 Core Big,Little Combo" value="2"/>
-			<spinnerItem name="4 Core Big" value="3"/>
-			<spinnerItem name="2 Core Big" value="4"/>
-			<spinnerItem name="3 Core Little" value="5"/>
-			<spinnerItem name="4 Core Little" value="6"/>
-			<spinnerItem name="4 Core Little,Big Combo" value="7"/>
-		</spinner>
-
-		<seekBar description="Set the HotPlug Maximum Core Temperature. When temperature reaches defined value, it turns cores OFF in order to cool down the device. It can't be higher than CPU Max HEAT Control. This option works only with Intelli CPU Cores Control (Default: 45°C)." name="Intelli CORE Max Heat"
-			action="generic /sys/module/msm_thermal/parameters/core_limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="80"/>
-
-		<seekBar description="Adjust the Core HotPlug Temperature Hysteresis Driver by calculating temperature differences and switching cores ON/OFF. Cores can be brought online if needed. Works only with Intelli CPU Cores Control (Default: 10°C)." name="Core Temperature Hysteresis"
-			action="generic /sys/module/msm_thermal/parameters/core_temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
-
-	</settingsPane>
-
-</settingsTab>
-
 <settingsTab name="CORE CONTROL">
 
 	<settingsPane description="Set the Core Control Parameters for Screen ON state. Kernel Scheduler will manage online cores for idle and workload state if you put it to Maximum. Maximum online core is 8 and Minimum is 1." name="Awake Core Control Tuning">
@@ -896,6 +827,75 @@
 			action="generic_cortex /tmp/core_ctrl_b_task_thres_suspend" unit="" min="0" reversed="false" step="1" max="10"/>
 	</settingsPane>
 
+
+</settingsTab>
+
+<settingsTab name="CPU Thermal">
+
+	<settingsPane description="Kernel ROM Thermal Service and Intelligent Thermal driver can be enabled together in this section. It protects device from overheating and breaking down components. Controls below are active for Dual Intelligent Temp Control in case of ROM service die. Kernel will protect phone components from any damage only if Dual Intelligent Temp Control is in use. It's better to leave it as is." name="CPU Thermal Protection">
+
+		<spinner description="Select CPU Temp Control driver. Default driver without controls or Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Default Temp Control you'll have only one overheat protection ensured by ROM, so if ROM stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq. lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
+			action="msm_thermal">
+			<spinnerItem name="Default Temp Control" value="msm_temp"/>
+			<spinnerItem name="Dual Intelligent Temp Control" value="intelli_temp"/>
+			<spinnerItem name="Intelligent Temp Control Only" value="intelli_temp_only"/>
+		</spinner>
+
+		<spinner description="By enabling this setting, kernel will obey Minimum CPU frequency defined by user in CPU Tuning Tab, not Minimum Available CPU frequency (249 MHz). It will prevent CPU to get 249 MHz as Maximum frequency at High Heat mitigation. below control is the threshold of this tunable." name="Min Frequency Override"
+			action="generic /sys/module/msm_thermal/parameters/intelli_user_control">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
+		<spinner description="Kernel will not set Minimum Available CPU frequency (249 MHz) if Minimum CPU frequency defined by user is Lower than this threshold, for example 768 MHz for little cluster is lower than 800 MHz (in this threshold) so it will not mitigate to under 768 MHz in high temp mitigation, but 960 MHz for big cluster will mitigate to 249 MHz because 960 MHz is higher than this threshold (800 MHz). Depends on Min Frequency Override." name="Min Frequency Threshold"
+			action="generic /sys/module/msm_thermal/parameters/intelli_user_freq">
+			<spinnerItem name="400 MHz" value="400000"/>
+			<spinnerItem name="500 MHz" value="500000"/>
+			<spinnerItem name="600 MHz" value="600000"/>
+			<spinnerItem name="700 MHz" value="700000"/>
+			<spinnerItem name="800 MHz" value="800000"/>
+			<spinnerItem name="900 MHz" value="900000"/>
+			<spinnerItem name="1000 MHz" value="1000000"/>
+			<spinnerItem name="1100 MHz" value="1100000"/>
+		</spinner>
+
+		<seekBar description="Set the Max Allowed CPU Temperature before throttling down in order to cool down the device (Default: 50°C)." name="CPU Max Heat"
+			action="generic /sys/module/msm_thermal/parameters/limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="65"/>
+
+		<seekBar description="Set the Temp Pull Timer intervals. The lower value, the more often kernel will check up the CPU temp (Default: 250 ms)." name="Temp Pull Timer"
+			action="generic /sys/module/msm_thermal/parameters/poll_ms" unit="ms" min="100" reversed="false" step="50" max="500"/>
+
+		<seekBar description="Set the Temperature Hysteresis for driver. It calculates temp differences for adjusting the best CPU frequency, when CPU is in stress too often. Driver will wait until Temp goes down by this step to Unlimit the max frequency. Do NOT reduce below 10°C! (Default: 10°C)." name="Temperature Hysteresis"
+			action="generic /sys/module/msm_thermal/parameters/temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
+
+	</settingsPane>
+
+	<settingsPane description="Setup HotPlug CPU Thermal Controls by deciding how many cores remains ON when they're overheated. It reduces performance, by getting less cores enabled on higher freq. Others will keep waiting until CPU cools down." name="HotPlug CPU Thermal Control">
+
+		<spinner description="HotPlug CPU Thermal Control Main Switch allows to shutdown cores and operate on it's frequency range. If this option is disabled, all CPU cores will be online and operate at lower frequencies on high temperature." name="HotPlug Thermal CPU Control"
+			action="core_control">
+			<spinnerItem name="Enabled" value="1"/>
+			<spinnerItem name="Disabled" value="0"/>
+		</spinner>
+
+		<spinner description="Set how many cores will stay active on high temp. The more cores is OFF, the higher frequencies you'll get on the other cores. Disabled Cores will switch online, when temperature is back to normal. This option depends on HotPlug Thermal CPU Control (must be Enabled above)!" name="Max Online CPUs"
+			action="core_mask">
+			<spinnerItem name="1 Core Big" value="1"/>
+			<spinnerItem name="2 Core Big,Little Combo" value="2"/>
+			<spinnerItem name="4 Core Big" value="3"/>
+			<spinnerItem name="2 Core Big" value="4"/>
+			<spinnerItem name="3 Core Little" value="5"/>
+			<spinnerItem name="4 Core Little" value="6"/>
+			<spinnerItem name="4 Core Little,Big Combo" value="7"/>
+		</spinner>
+
+		<seekBar description="Set the HotPlug Maximum Core Temperature. When temperature reaches defined value, it turns cores OFF in order to cool down the device. It can't be higher than CPU Max HEAT Control. This option works only with Intelli CPU Cores Control (Default: 45°C)." name="Intelli CORE Max Heat"
+			action="generic /sys/module/msm_thermal/parameters/core_limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="60"/>
+
+		<seekBar description="Adjust the Core HotPlug Temperature Hysteresis Driver by calculating temperature differences and switching cores ON/OFF. Cores can be brought online if needed. Works only with Intelli CPU Cores Control (Default: 10°C)." name="Core Temperature Hysteresis"
+			action="generic /sys/module/msm_thermal/parameters/core_temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
+
+	</settingsPane>
 
 </settingsTab>
 
