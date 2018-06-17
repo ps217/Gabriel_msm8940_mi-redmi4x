@@ -52,6 +52,17 @@ function header_info() {
     echo ${restore}
 }
 
+function unzip_clang() {
+if [ ! -e android-toolchain-arm64/clang/bin/clang-7 ]; then
+	clang_tar=1;
+	tar xvf android-toolchain-arm64/clang/bin/clang-7.tar.xz -C android-toolchain-arm64/clang/bin/;
+fi;
+if [ ! -e android-toolchain-arm64/clang/lib64/libclang.so.7 ]; then
+	clang_tar=1;
+	tar xvf android-toolchain-arm64/clang/lib64/libclang.so.7.tar.xz -C android-toolchain-arm64/clang/lib64/;
+fi;
+}
+
 function clean_dtb() {
 	make ARCH=$ARCH mrproper;
 	make clean;
@@ -91,6 +102,7 @@ function build_kernel() {
 
 	echo -e "\ncleaning..."
 	clean_dtb | grep :
+	unzip_clang
 
 	echo "generating .config"
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
@@ -131,6 +143,9 @@ if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 fi;
 
 if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz ]; then
+	if [ $clang_tar -eq 1 ]; then
+		git checkout android-toolchain-arm64/
+	fi;
 	report_error "Kernel STUCK in BUILD! no Image exist !"
 fi;
 }
@@ -192,6 +207,9 @@ rm -rf ./build.log
 	build_zip
 
 	git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+	if [ $clang_tar -eq 1 ]; then
+		git checkout android-toolchain-arm64/
+	fi;
 
 	echo " "
 	echo "${bold}file name is: ${restore}"$FILENAME
