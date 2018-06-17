@@ -14,7 +14,7 @@ bold='\033[1m'
 
 # SP stands for Spectrum while ST is Stweaks
 export KERNEL_NAME=Gabriel
-export KSCHED=HMP
+export KSCHED=EAS
 export TWEAKER=SP
 
 export ARCH=arm64
