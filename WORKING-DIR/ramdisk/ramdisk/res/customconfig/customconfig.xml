@@ -865,30 +865,30 @@
 			<spinnerItem name="Power Save" value="powersave"/> 
 		</spinner>
 
-		<spinner description="Select GPU Maximum frequency only when needed because some higher frequencies can be unstable. Stock MIUI UI start lag under 160 MHz with msm-adreno governor. (Default: 450 MHz)." name="Max GPU Frequency"
-			action="generic /sys/class/kgsl/kgsl-3d0/devfreq/max_freq">
-			<spinnerItem name="575 MHz" value="575000000"/>
-			<spinnerItem name="475 MHz" value="475000000"/> 
-			<spinnerItem name="425 MHz" value="425000000"/> 
-			<spinnerItem name="375 MHz" value="375000000"/> 
-			<spinnerItem name="300 MHz" value="300000000"/> 
-			<spinnerItem name="216 MHz" value="216000000"/> 
-			<spinnerItem name="160 MHz" value="160000000"/> 
-			<spinnerItem name="100 MHz" value="100000000"/>
-			<spinnerItem name="19 MHz" value="19000000"/> 
+		<spinner description="Select GPU Maximum frequency only when needed because some higher frequencies can be unstable. Stock MIUI UI start lag under 160 MHz with msm-adreno governor. (Default: 475 MHz)." name="Max GPU Frequency"
+			action="gpu_max_freq">
+			<spinnerItem name="575 MHz" value="575"/>
+			<spinnerItem name="475 MHz" value="475"/> 
+			<spinnerItem name="425 MHz" value="425"/> 
+			<spinnerItem name="375 MHz" value="375"/> 
+			<spinnerItem name="300 MHz" value="300"/> 
+			<spinnerItem name="216 MHz" value="216"/> 
+			<spinnerItem name="160 MHz" value="160"/> 
+			<spinnerItem name="100 MHz" value="100"/>
+			<spinnerItem name="19 MHz" value="19"/> 
 		</spinner>
 
 		<spinner description="Select GPU Minimum frequency when GPU is IDLE. Stock MIUI UI has better response with msm-adreno governor if min gpu frequency set to 375 MHz. (Default: 375 MHz)." name="Min GPU Frequency"
-			action="generic /sys/class/kgsl/kgsl-3d0/devfreq/min_freq">
-			<spinnerItem name="19 MHz" value="19000000"/> 
-			<spinnerItem name="100 MHz" value="100000000"/> 
-			<spinnerItem name="160 MHz" value="160000000"/> 
-			<spinnerItem name="216 MHz" value="216000000"/> 
-			<spinnerItem name="300 MHz" value="300000000"/> 
-			<spinnerItem name="375 MHz" value="375000000"/> 
-			<spinnerItem name="425 MHz" value="425000000"/> 
-			<spinnerItem name="475 MHz" value="475000000"/> 
-			<spinnerItem name="575 MHz" value="575000000"/>
+			action="gpu_min_freq">
+			<spinnerItem name="19 MHz" value="19"/> 
+			<spinnerItem name="100 MHz" value="100"/> 
+			<spinnerItem name="160 MHz" value="160"/> 
+			<spinnerItem name="216 MHz" value="216"/> 
+			<spinnerItem name="300 MHz" value="300"/> 
+			<spinnerItem name="375 MHz" value="375"/> 
+			<spinnerItem name="425 MHz" value="425"/> 
+			<spinnerItem name="475 MHz" value="475"/> 
+			<spinnerItem name="575 MHz" value="575"/>
 		</spinner>
 
 		<spinner description="Select GPU Initial Frequency (Power Level). (Default: 375 MHz)." name="GPU Initial Frequency"
