@@ -220,13 +220,6 @@ if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
 	nohup sh /gabriel/ext/cortexbrain-tune.sh > /data/.gabriel/cortex.txt &
 fi;
 
-if [ "$(grep 'ro.miui*' /system/build.prop | wc -l)" -gt "0" ]; then
-	sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=1/g" /gabriel/ext/kcal.sh;
-	if [ "$(pgrep -f "kcal.sh" | wc -l)" -eq "0" ]; then
-		nohup sh /gabriel/ext/kcal.sh > /data/.gabriel/kcal.txt &
-	fi;
-fi;
-
 # Fentropy enForcer
 # Thanks to ArjunrambZ (TweakDrypT)
 if [ "$frandom_control" == "yes" ]; then

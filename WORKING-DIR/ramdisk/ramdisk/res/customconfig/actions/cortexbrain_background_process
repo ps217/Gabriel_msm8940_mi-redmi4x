@@ -15,18 +15,12 @@ fi;
 case "${cortexbrain_background_process}" in
 	0)
 		$BB pkill -f "/gabriel/ext/cortexbrain-tune.sh";
-		$BB pkill -f "/gabriel/ext/kcal.sh";
 		$BB sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=0/g" /gabriel/ext/cortexbrain-tune.sh;
-		$BB sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=0/g" /gabriel/ext/kcal.sh;
 	;;
 	1)
 		$BB sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=1/g" /gabriel/ext/cortexbrain-tune.sh;
-		$BB sed -i "s/cortexbrain_background_process=[0-1]*/cortexbrain_background_process=1/g" /gabriel/ext/kcal.sh;
 		if [ "$(pgrep -f "cortexbrain-tune.sh" | wc -l)" -eq "0" ]; then
 			$BB nohup $BB sh /gabriel/ext/cortexbrain-tune.sh > /dev/null 2>&1 &
-			if [ "$(grep 'ro.miui*' /system/build.prop | wc -l)" -gt "0" ]; then
-				$BB nohup $BB sh /gabriel/ext/kcal.sh > /dev/null 2>&1 &
-			fi;
 		fi;
 	;;
 	*)
