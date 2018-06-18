@@ -1,0 +1,54 @@
+#!/sbin/busybox sh
+
+# $1 - "gpu_min_freq"
+# $2 - value=
+# Created By Dorimanx
+
+if [ "a$2" != "a" ]; then
+	gpu_min_freq=$2;
+
+	case "${gpu_min_freq}" in
+		19)
+			echo 19000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 19 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		100)
+			echo 100000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 100 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		160)
+			echo 160000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 160 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		216)
+			echo 216000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 216 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		300)
+			echo 300000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 300 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		375)
+			echo 375000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 375 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		425)
+			echo 425000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 425 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		475)
+			echo 475000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 475 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		575)
+			echo 575000000 > /sys/class/kgsl/kgsl-3d0/devfreq/min_freq;
+			echo 575 > /sys/kernel/gpu/gpu_min_clock;
+		;;
+		*)
+			gpu_min_freq=375;
+		;;
+	esac;
+fi;
+
+echo ${gpu_min_freq};
+
