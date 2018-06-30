@@ -68,6 +68,8 @@ on property:persist.spectrum.profile=0
 	write /proc/sys/vm/dirty_expire_centisecs 200
 	write /proc/sys/vm/dirty_writeback_centisecs 500
 
+	write /proc/sys/net/ipv4/tcp_congestion_control cubic
+
 # Performance
 on property:persist.spectrum.profile=1
     write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor interactive
@@ -123,6 +125,8 @@ on property:persist.spectrum.profile=1
 	write /proc/sys/vm/dirty_background_ratio 5
 	write /proc/sys/vm/dirty_expire_centisecs 200
 	write /proc/sys/vm/dirty_writeback_centisecs 1500
+
+	write /proc/sys/net/ipv4/tcp_congestion_control westwood
 
 # Battery
 on property:persist.spectrum.profile=2
@@ -180,6 +184,8 @@ on property:persist.spectrum.profile=2
 	write /proc/sys/vm/dirty_expire_centisecs 250
 	write /proc/sys/vm/dirty_writeback_centisecs 500
 
+	write /proc/sys/net/ipv4/tcp_congestion_control westwood
+
 # Gaming
 on property:persist.spectrum.profile=3
     write /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor interactive
@@ -235,3 +241,5 @@ on property:persist.spectrum.profile=3
 	write /proc/sys/vm/dirty_background_ratio 10
 	write /proc/sys/vm/dirty_expire_centisecs 500
 	write /proc/sys/vm/dirty_writeback_centisecs 100
+
+	write /proc/sys/net/ipv4/tcp_congestion_control westwood
