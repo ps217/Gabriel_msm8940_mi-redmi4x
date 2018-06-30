@@ -46,9 +46,12 @@ on property:persist.spectrum.profile=0
 	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1401000
 
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
+	write /sys/kernel/gpu/gpu_governor msm-adreno-tz
 	write /sys/class/devfreq/soc\:qcom,cpubw/governor bw_hwmon
-	write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 216000000
+	write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 375000000
 	write /sys/class/kgsl/kgsl-3d0/devfreq/max_freq 450000000
+	write /sys/kernel/gpu/gpu_min_clock 375
+	write /sys/kernel/gpu/gpu_max_clock 450
 	write /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel 3
 
     write /sys/block/mmcblk0/queue/scheduler cfq
@@ -104,9 +107,12 @@ on property:persist.spectrum.profile=1
 	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1401000
 
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor msm-adreno-tz
+	write /sys/kernel/gpu/gpu_governor msm-adreno-tz
 	write /sys/class/devfreq/soc\:qcom,cpubw/governor performance
 	write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 375000000
 	write /sys/class/kgsl/kgsl-3d0/devfreq/max_freq 450000000
+	write /sys/kernel/gpu/gpu_min_clock 375
+	write /sys/kernel/gpu/gpu_max_clock 450
 	write /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel 3
 
     write /sys/block/mmcblk0/queue/scheduler fiops
@@ -162,9 +168,12 @@ on property:persist.spectrum.profile=2
 	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1248000
 
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor powersave
+	write /sys/kernel/gpu/gpu_governor powersave
 	write /sys/class/devfreq/soc\:qcom,cpubw/governor powersave
 	write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 216000000
 	write /sys/class/kgsl/kgsl-3d0/devfreq/max_freq 300000000
+	write /sys/kernel/gpu/gpu_min_clock 216
+	write /sys/kernel/gpu/gpu_max_clock 300
 	write /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel 5
 
     write /sys/block/mmcblk0/queue/scheduler noop
@@ -220,9 +229,12 @@ on property:persist.spectrum.profile=3
 	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1401000
 
     write /sys/class/kgsl/kgsl-3d0/devfreq/governor performance
+	write /sys/kernel/gpu/gpu_governor performance
 	write /sys/class/devfreq/soc\:qcom,cpubw/governor performance
 	write /sys/class/kgsl/kgsl-3d0/devfreq/min_freq 375000000
 	write /sys/class/kgsl/kgsl-3d0/devfreq/max_freq 500000000
+	write /sys/kernel/gpu/gpu_min_clock 375
+	write /sys/kernel/gpu/gpu_max_clock 500
 	write /sys/class/devfreq/1c00000.qcom,kgsl-3d0/device/kgsl/kgsl-3d0/default_pwrlevel 3
 
     write /sys/block/mmcblk0/queue/scheduler deadline
