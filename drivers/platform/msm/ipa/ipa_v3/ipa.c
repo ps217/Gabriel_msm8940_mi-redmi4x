@@ -3903,6 +3903,75 @@ static int ipa3_post_init(const struct ipa3_plat_drv_res *resource_p,
 	int result;
 	struct sps_bam_props bam_props = { 0 };
 	struct gsi_per_props gsi_props;
+	struct ipa3_uc_hdlrs uc_hdlrs = { 0 };
+	struct ipa3_flt_tbl *flt_tbl;
+	int i;
+
+	if (ipa3_ctx == NULL) {
+		IPADBG("IPA driver haven't initialized\n");
+		return -ENXIO;
+	}
+
+	/* Prevent consequent calls from trying to load the FW again. */
+	if (ipa3_ctx->ipa_initialization_complete)
+		return 0;
+
+	/*
+	 * indication whether working in MHI config or non MHI config is given
+	 * in ipa3_write which is launched before ipa3_post_init. i.e. from
+	 * this point it is safe to use ipa3_ep_mapping array and the correct
+	 * entry will be returned from ipa3_get_hw_type_index()
+	 */
+	ipa_init_ep_flt_bitmap();
+	IPADBG("EP with flt support bitmap 0x%x (%u pipes)\n",
+		ipa3_ctx->ep_flt_bitmap, ipa3_ctx->ep_flt_num);
+
+	/* Assign resource limitation to each group */
+	ipa3_set_resorce_groups_min_max_limits();
+
+	for (i = 0; i < ipa3_ctx->ipa_num_pipes; i++) {
+		if (!ipa_is_ep_support_flt(i))
+			continue;
+
+		flt_tbl = &ipa3_ctx->flt_tbl[i][IPA_IP_v4];
+		INIT_LIST_HEAD(&flt_tbl->head_flt_rule_list);
+		flt_tbl->in_sys[IPA_RULE_HASHABLE] =
+			!ipa3_ctx->ip4_flt_tbl_hash_lcl;
+		flt_tbl->in_sys[IPA_RULE_NON_HASHABLE] =
+			!ipa3_ctx->ip4_flt_tbl_nhash_lcl;
+		idr_init(&flt_tbl->rule_ids);
+
+		flt_tbl = &ipa3_ctx->flt_tbl[i][IPA_IP_v6];
+		INIT_LIST_HEAD(&flt_tbl->head_flt_rule_list);
+		flt_tbl->in_sys[IPA_RULE_HASHABLE] =
+			!ipa3_ctx->ip6_flt_tbl_hash_lcl;
+		flt_tbl->in_sys[IPA_RULE_NON_HASHABLE] =
+			!ipa3_ctx->ip6_flt_tbl_nhash_lcl;
+		idr_init(&flt_tbl->rule_ids);
+	}
+
+	if (!ipa3_ctx->apply_rg10_wa) {
+		result = ipa3_init_interrupts();
+		if (result) {
+			IPAERR("ipa initialization of interrupts failed\n");
+			result = -ENODEV;
+			goto fail_register_device;
+		}
+	} else {
+		IPADBG("Initialization of ipa interrupts skipped\n");
+	}
+
+	/*
+	 * IPAv3.5 and above requires to disable prefetch for USB in order
+	 * to allow MBIM to work.
+	 */
+	if ((ipa3_ctx->ipa_hw_type >= IPA_HW_v3_5) &&
+		(!ipa3_ctx->ipa_config_is_mhi))
+		ipa3_disable_prefetch(IPA_CLIENT_USB_CONS);
+
+	if ((ipa3_ctx->ipa_hw_type >= IPA_HW_v3_5) &&
+		(ipa3_ctx->ipa_config_is_mhi))
+		ipa3_disable_prefetch(IPA_CLIENT_MHI_CONS);
 
 	if (ipa3_ctx->transport_prototype == IPA_TRANSPORT_TYPE_GSI) {
 		memset(&gsi_props, 0, sizeof(gsi_props));
@@ -4235,6 +4304,31 @@ static int ipa3_pre_init(const struct ipa3_plat_drv_res *resource_p,
 	ipa3_ctx->apply_rg10_wa = resource_p->apply_rg10_wa;
 	ipa3_ctx->gsi_ch20_wa = resource_p->gsi_ch20_wa;
 	ipa3_ctx->ipa3_active_clients_logging.log_rdy = false;
+	ipa3_ctx->ipa_config_is_mhi = resource_p->ipa_mhi_dynamic_config;
+	if (resource_p->ipa_tz_unlock_reg) {
+		ipa3_ctx->ipa_tz_unlock_reg_num =
+			resource_p->ipa_tz_unlock_reg_num;
+		ipa3_ctx->ipa_tz_unlock_reg = kcalloc(
+			ipa3_ctx->ipa_tz_unlock_reg_num,
+			sizeof(*ipa3_ctx->ipa_tz_unlock_reg),
+			GFP_KERNEL);
+		if (ipa3_ctx->ipa_tz_unlock_reg == NULL) {
+			result = -ENOMEM;
+			goto fail_tz_unlock_reg;
+		}
+		for (i = 0; i < ipa3_ctx->ipa_tz_unlock_reg_num; i++) {
+			ipa3_ctx->ipa_tz_unlock_reg[i].reg_addr =
+				resource_p->ipa_tz_unlock_reg[i].reg_addr;
+			ipa3_ctx->ipa_tz_unlock_reg[i].size =
+				resource_p->ipa_tz_unlock_reg[i].size;
+		}
+	}
+
+	/* unlock registers for uc */
+	result = ipa3_tz_unlock_reg(ipa3_ctx->ipa_tz_unlock_reg,
+				    ipa3_ctx->ipa_tz_unlock_reg_num);
+	if (result)
+		IPAERR("Failed to unlock memory region using TZ\n");
 
 	/* default aggregation parameters */
 	ipa3_ctx->aggregation_type = IPA_MBIM_16;
@@ -4768,6 +4862,7 @@ static int get_ipa_dts_configuration(struct platform_device *pdev,
 	ipa_drv_res->ipa_bam_remote_mode = false;
 	ipa_drv_res->modem_cfg_emb_pipe_flt = false;
 	ipa_drv_res->ipa_wdi2 = false;
+	ipa_drv_res->ipa_mhi_dynamic_config = false;
 	ipa_drv_res->use_64_bit_dma_mask = false;
 	ipa_drv_res->wan_rx_ring_size = IPA_GENERIC_RX_POOL_SZ;
 	ipa_drv_res->lan_rx_ring_size = IPA_GENERIC_RX_POOL_SZ;
@@ -4826,6 +4921,13 @@ static int get_ipa_dts_configuration(struct platform_device *pdev,
 			"qcom,use-ipa-tethering-bridge");
 	IPADBG(": using TBDr = %s",
 		ipa_drv_res->use_ipa_teth_bridge
+		? "True" : "False");
+
+	ipa_drv_res->ipa_mhi_dynamic_config =
+			of_property_read_bool(pdev->dev.of_node,
+			"qcom,use-ipa-in-mhi-mode");
+	IPADBG(": ipa_mhi_dynamic_config (%s)\n",
+		ipa_drv_res->ipa_mhi_dynamic_config
 		? "True" : "False");
 
 	ipa_drv_res->ipa_bam_remote_mode =
