@@ -101,6 +101,7 @@ FUNC_BUILD_KERNEL()
 
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
+			CROSS_COMPILE_ARM32="$CROSS_COMPILE_ARM32" \
 			CC='ccache '${BUILD_CROSS_COMPILE}gcc' --sysroot='$SYSROOT'' | grep :
 
 if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
@@ -108,6 +109,7 @@ if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
+			CROSS_COMPILE_ARM32="$CROSS_COMPILE_ARM32" \
 			modules | grep :
 
 	if [ -d $WD/package/system/lib/modules ]; then
