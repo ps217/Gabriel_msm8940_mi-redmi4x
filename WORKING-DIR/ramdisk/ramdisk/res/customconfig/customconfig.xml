@@ -996,6 +996,8 @@
 			<spinnerItem name="Miui" value="miui"/>
 			<spinnerItem name="Aggressive" value="aggressive"/>
 			<spinnerItem name="Exterminate" value="exterminate"/>
+			<spinnerItem name="Gabriel" value="gabriel"/>
+			<spinnerItem name="Gabriel Exterminate" value="gabriel_ext"/>
 		</spinner>
 
 		<spinner description="Set the low memory reserve ratio mode. Higher ratio gives more free RAM. If you see that your RAM and system is always loaded and device is lagging, then use recommended or high pressure setting." name="Low Memory Reserve"
