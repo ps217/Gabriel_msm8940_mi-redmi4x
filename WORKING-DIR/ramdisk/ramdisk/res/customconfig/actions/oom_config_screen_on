@@ -41,6 +41,14 @@ case "${oom_config_screen_on}" in
 		echo "18432,23040,27648,53760,58880,65536" > /sys/module/lowmemorykiller/parameters/minfree;
 		echo "16" > /sys/module/lowmemorykiller/parameters/cost;
 	;;
+	gabriel)
+		echo "18432,23040,27648,51256,89600,115200" > /sys/module/lowmemorykiller/parameters/minfree;
+		echo "32" > /sys/module/lowmemorykiller/parameters/cost;
+	;;
+	gabriel_ext)
+		echo "18432,23040,27648,51256,150296,200640" > /sys/module/lowmemorykiller/parameters/minfree;
+		echo "16" > /sys/module/lowmemorykiller/parameters/cost;
+	;;
 	*)
 		oom_config_screen_on=stock;
 	;;
