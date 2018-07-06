@@ -23,6 +23,7 @@ if [ -d /sys/devices/system/cpu/cpufreq/policy4 ];then
 
 	chmod 644 /$CPUL/scaling_governor
 	echo "$default_cpu_l_gov" > /$CPUL/scaling_governor;
+	CPUGOV4="$(cat /$CPUL/scaling_governor)";
 	chmod 444 /$CPUL/scaling_governor
 	if [ "LMINCPUS" -eq "0" ];then
 		echo 0 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
@@ -40,6 +41,7 @@ else
 		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 			chmod 644 /$CPUL/scaling_governor
 			echo "$default_cpu_l_gov" > /$CPUL/scaling_governor;
+			CPUGOV4="$(cat /$CPUL/scaling_governor)";
 			chmod 444 /$CPUL/scaling_governor
 			if [ "LMINCPUS" -eq "0" ];then
 				echo 0 > /sys/devices/system/cpu/cpu4/core_ctl/min_cpus;
@@ -49,8 +51,6 @@ else
 	done;
 
 fi;
-
-	CPUGOV4="$(cat /sys/devices/system/cpu/cpufreq/policy4/scaling_governor)";
 
 	if [ "$CPUGOV4" = "interactive" ] ||
 		[ "$CPUGOV4" = "gabriel" ] ||

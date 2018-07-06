@@ -23,6 +23,7 @@ if [ -d /sys/devices/system/cpu/cpufreq/policy0 ];then
 
 	chmod 644 /$CPUB/scaling_governor
 	echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
+	CPUGOV0="$(cat /$CPUB/scaling_governor)";
 	chmod 444 /$CPUB/scaling_governor
 	if [ "BMINCPUS" -eq "0" ];then
 		echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
@@ -40,6 +41,7 @@ else
 		if [ "$(cat /sys/devices/system/cpu/cpu$i/online)" == "1" ];then
 			chmod 644 /$CPUB/scaling_governor
 			echo "$default_cpu_b_gov" > /$CPUB/scaling_governor;
+			CPUGOV0="$(cat /$CPUB/scaling_governor)";
 			chmod 444 /$CPUB/scaling_governor
 			if [ "BMINCPUS" -eq "0" ];then
 				echo 0 > /sys/devices/system/cpu/cpu0/core_ctl/min_cpus;
@@ -49,8 +51,6 @@ else
 	done;
 
 fi;
-
-	CPUGOV0="$(cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor)";
 
 	if [ "$CPUGOV0" = "interactive" ] ||
 		[ "$CPUGOV0" = "gabriel" ] ||
