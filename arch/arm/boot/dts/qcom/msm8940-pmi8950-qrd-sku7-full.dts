@@ -2510,7 +2510,8 @@
 			interrupt-names = "kgsl_3d0_irq";
 			qcom,id = <0x0>;
 			qcom,chipid = <0x5000500>;
-			qcom,idle-timeout = <0x50>;
+			qcom,idle-timeout = <0x50>; //80,msecs
+			qcom,deep-nap-timeout = <0x64>; //100,msecs
 			qcom,strtstp-sleepwake;
 			qcom,highest-bank-bit = <0xe>;
 			qcom,snapshot-size = <0x100000>;
