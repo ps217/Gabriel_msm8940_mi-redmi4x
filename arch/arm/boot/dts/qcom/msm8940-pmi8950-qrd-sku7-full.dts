@@ -11687,7 +11687,7 @@
 			compatible = "shared-dma-pool";
 			reusable;
 			alignment = <0x0 0x400000>;
-			size = <0x0 0x1000000>;
+			size = <0x0 0x1400000>;
 			linux,phandle = <0x32>;
 			phandle = <0x32>;
 		};
