@@ -6426,7 +6426,7 @@
 
 		qcom,cpubw {
 			compatible = "qcom,devbw";
-			governor = "cpufreq";
+			governor = "performance";
 			qcom,src-dst-ports = <0x1 0x200>;
 			qcom,active-only;
 			qcom,bw-tbl = <0x301 0x64b 0x84c 0xb71 0x1005 0x1098 0x13bd 0x1650 0x1808 0x1b77>;
