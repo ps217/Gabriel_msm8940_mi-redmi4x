@@ -9369,7 +9369,7 @@
 				qcom,cam-vreg-name = "cam_vaf";
 				qcom,cam-vreg-min-voltage = <0x2b7cd0>;
 				qcom,cam-vreg-max-voltage = <0x2b7cd0>;
-				qcom,cam-vreg-op-mode = <0x13880>;
+				qcom,cam-vreg-op-mode = <0x249F0>;
 				linux,phandle = <0x137>;
 				phandle = <0x137>;
 			};
