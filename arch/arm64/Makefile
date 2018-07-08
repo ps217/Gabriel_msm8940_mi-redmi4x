@@ -17,14 +17,14 @@ GZFLAGS		:=-9
 
 KBUILD_DEFCONFIG := defconfig
 
-ARM_ARCH_OPT := -mcpu=cortex-a53 -mtune=cortex-a53
+ARM_ARCH_OPT := -mtune=cortex-a53 -march=armv8-a+crc+simd+crypto -mcpu=cortex-a53
 
-GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a,-mpc-relative-literal-loads) \
+GEN_OPT_FLAGS := $(call cc-option,$(ARM_ARCH_OPT),-mpc-relative-literal-loads) \
  -g0 \
+ -O2 \
  -pipe \
  -DNDEBUG \
- -fomit-frame-pointer \
- -fivopts
+ -fomit-frame-pointer
 
 KBUILD_CFLAGS	+= -mgeneral-regs-only
 KBUILD_CFLAGS	+= -fno-pic

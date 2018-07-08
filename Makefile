@@ -294,12 +294,10 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-GRAPHITE = -floop-nest-optimize -fgraphite -fgraphite-identity -floop-interchange -ftree-loop-distribution -floop-parallelize-all -floop-strip-mine -floop-block -ftree-loop-linear -floop-flatten
-
 HOSTCC       = gcc
 HOSTCXX      = g++
-HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -Ofast -fomit-frame-pointer -pipe -DNDEBUG -std=gnu89 $(GRAPHITE)
-HOSTCXXFLAGS = -pipe -DNDEBUG -Ofast $(GRAPHITE)
+HOSTCFLAGS   = -Wall -Wmissing-prototypes -Wstrict-prototypes -O2 -fomit-frame-pointer -pipe -DNDEBUG -std=gnu89
+HOSTCXXFLAGS = -pipe -DNDEBUG -O2
 
 # Decide whether to build built-in, modular, or both.
 # Normally, just do built-in.
@@ -361,20 +359,19 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 
 # fall back to -march=armv8-a in case the compiler isn't compatible 
 # with -mcpu and -mtune
-ARM_ARCH_OPT := -mcpu=cortex-a53 -mtune=cortex-a53
+ARM_ARCH_OPT := -mtune=cortex-a53 -march=armv8-a+crc+simd+crypto -mcpu=cortex-a53
 
-KERNELFLAGS := $(call cc-option,$(ARM_ARCH_OPT),-march=armv8-a) \
+KERNELFLAGS := $(call cc-option,$(ARM_ARCH_OPT)) \
  -g0 \
+ -O2 \
  -pipe \
  -DNDEBUG \
- -fomit-frame-pointer \
- -fivopts \
- $(GRAPHITE)
+ -fomit-frame-pointer
 
 MODFLAGS	= -DMODULE $(KERNELFLAGS)
 CFLAGS_MODULE	= $(MODFLAGS)
 AFLAGS_MODULE	= $(MODFLAGS)
-LDFLAGS_MODULE  = --strip-debug
+LDFLAGS_MODULE  = --strip-debug -O2
 CFLAGS_KERNEL	= $(KERNELFLAGS)
 AFLAGS_KERNEL	= $(KERNELFLAGS)
 CFLAGS_GCOV	= -fprofile-arcs -ftest-coverage -fno-tree-loop-im
@@ -672,10 +669,14 @@ KBUILD_CFLAGS  += $(call cc-disable-warning, array-bounds)
 KBUILD_CFLAGS  += $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS  += $(call cc-disable-warning, stringop-overflow)
 
-ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
+ifneq ($(KBUILD_LOUP_CFLAGS),)
+$(info Using custom flags!!! [${KBUILD_LOUP_CFLAGS}])
+KBUILD_CFLAGS   += $(KBUILD_LOUP_CFLAGS)
+KBUILD_CFLAGS   += $(call cc-disable-warning,maybe-uninitialized,)
+else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS	+= $(call cc-option,-Oz,-Os) $(call cc-disable-warning,maybe-uninitialized,)
 else
-KBUILD_CFLAGS	+= -Ofast
+KBUILD_CFLAGS	+= -O2
 endif
 
 ifdef CONFIG_CC_WERROR
