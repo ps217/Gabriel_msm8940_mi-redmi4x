@@ -9656,7 +9656,7 @@
 				qcom,gpio-req-tbl-flags = <0x1 0x0 0x0>;
 				qcom,gpio-req-tbl-label = "CAMIF_MCLK2", "CAM_RESET2", "CAM_STANDBY2";
 				qcom,sensor-position = <0x1>;
-				qcom,sensor-mode = <0x0>;
+				qcom,sensor-mode = <0x1>;
 				qcom,cci-master = <0x0>;
 				clocks = <0x2b 0x42545468 0x2b 0x222f8fff>;
 				clock-names = "cam_src_clk", "cam_clk";
