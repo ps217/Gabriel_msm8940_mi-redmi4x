@@ -54,6 +54,7 @@ suspend_min_freq_cb=960000
 fpb_enabled=0
 hmp_scheduler=gabriel
 hmp_scheduler_suspend=balance
+sched_autogroup_enabled=1
 cpuset_tuning=performance
 cpuset_tuning_suspend=battery
 perfd_control=disable

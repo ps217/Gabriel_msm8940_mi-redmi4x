@@ -54,6 +54,7 @@ suspend_min_freq_cb=652800
 fpb_enabled=0
 hmp_scheduler=balance
 hmp_scheduler_suspend=battery
+sched_autogroup_enabled=1
 cpuset_tuning=balance
 cpuset_tuning_suspend=battery
 perfd_control=disable
