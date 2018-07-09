@@ -589,6 +589,12 @@
 			<spinnerItem name="Miui" value="miui"/>
 		</spinner>
 
+		<spinner description="This option optimizes the scheduler for common desktop workloads by automatically creating and populating task groups. This separation of workloads isolates aggressive CPU burners (like build jobs) from desktop applications." name="Sched Autogroup"
+			action="generic /proc/sys/kernel/sched_autogroup_enabled">
+			<spinnerItem name="Disable" value="0"/>
+			<spinnerItem name="Enable" value="1"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="The cpuset subsystem assigns individual CPUs to group of Tasks like top apps, system background tasks, foreground tasks, etc." name="CPUSET Tuning">
