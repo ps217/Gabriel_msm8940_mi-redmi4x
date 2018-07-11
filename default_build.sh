@@ -7,13 +7,13 @@ blink_red='\033[05;31m'
 restore='\033[0m'
 
 # ST stands for Stweaks while SP is Spectrum
+# Location of "toolchains" folder
+export TOOLCHAIN_FOLDER=($HOME/toolchains)
 export KERNEL_NAME=Gabriel
 export KSCHED=HMP
 export TWEAKER=ST
 export ARCH=arm64
-export BUILD_CROSS_COMPILE=android-toolchain-arm64/bin/arm-eabi-
-export CROSS_COMPILE_ARM32=android-toolchain-arm64/arm32/bin/arm-eabi-
-export SYSROOT=android-toolchain-arm64/aarch64-MIR4X-linux-gnu/sysroot/
+export BUILD_CROSS_COMPILE=$TOOLCHAIN_FOLDER/gcc/bin/aarch64-linux-gnu-
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
@@ -25,12 +25,13 @@ export OUTDIR=$RDIR/arch/$ARCH/boot
 export WD=$RDIR/WORKING-DIR
 export RK=$RDIR/READY-KERNEL
 
+KBUILD_LOUP_CFLAGS="-Wno-unknown-warning-option -Wno-sometimes-uninitialized -Wno-vectorizer-no-neon -Wno-pointer-sign -Wno-sometimes-uninitialized -Wno-tautological-constant-out-of-range-compare -Wno-literal-conversion -Wno-enum-conversion -Wno-parentheses-equality -Wno-typedef-redefinition -Wno-constant-logical-operand -Wno-array-bounds -Wno-empty-body -Wno-non-literal-null-conversion -Wno-shift-overflow -Wno-logical-not-parentheses -Wno-strlcpy-strlcat-size -Wno-section -Wno-stringop-truncation -mtune=cortex-a53 -march=armv8-a+crc+simd+crypto -mcpu=cortex-a53 -O2"
+
 FUNC_CLEAN_DTB()
 {
 	make ARCH=$ARCH mrproper;
 	make clean;
 
-# force regeneration of .dtb and zImage files for every compile
 	rm -f arch/$ARCH/boot/*.dtb
 	rm -f arch/$ARCH/boot/*.cmd
 	rm -f arch/$ARCH/boot/*.gz
@@ -54,8 +55,6 @@ FUNC_CLEAN_DTB()
 	for i in $(find "$RDIR"/ -name "zImage"); do
 		rm -fv "$i";
 	done;
-
-	git checkout android-toolchain-arm64/
 }
 
 FUNC_ADB()
@@ -84,10 +83,32 @@ FUNC_ZIP_NAME()
 	fi
 }
 
+FUNC_CLANG_COMM()
+{
+export CC=$TOOLCHAIN_FOLDER/clang/bin/clang
+export CLANG_VERSION=$($CC --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+export CLANG_TRIPLE=aarch64-linux-gnu-
+export CLANG_LD_PATH=$TOOLCHAIN_FOLDER/clang/lib
+export LLVM_DIS=$TOOLCHAIN_FOLDER/clang/bin/llvm-dis
+}
+
+FUNC_DTC_COMM()
+{
+export CC=$TOOLCHAIN_FOLDER/dragontc/bin/clang
+export CLANG_TRIPLE=aarch64-linux-gnu-
+export CLANG_LD_PATH=$TOOLCHAIN_FOLDER/dragontc/lib64
+export LLVM_DIS=$TOOLCHAIN_FOLDER/dragontc/bin/llvm-dis
+}
+
 FUNC_BUILD_KERNEL()
 {
-	echo "build config="$KERNEL_DEFCONFIG ""
-	echo "git info="$GIT_LOG1 ""
+	echo "build config: "$KERNEL_DEFCONFIG ""
+	echo "git info: "$GIT_LOG1 ""
+if [ $CLANG -eq "1" ];then
+	echo "compiling with clang"
+else
+	echo "compiling with gcc"
+fi;
 
 	echo -e "\ncleaning..."
 	FUNC_CLEAN_DTB | grep :
@@ -99,18 +120,52 @@ FUNC_BUILD_KERNEL()
 
 	echo "compiling..."
 
+if [ $CLANG -eq "1" ];then
+	LD_LIBRARY_PATH="$CLANG_LD_PATH:$LD_LIBARY_PATH" \
+	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE="$BUILD_CROSS_COMPILE" \
+			CC="ccache $CC" CLANG_TRIPLE="$CLANG_TRIPLE" \
+			KBUILD_COMPILER_STRING="$CLANG_VERSION" \
+			LLVM_DIS="$LLVM_DIS" \
+			KBUILD_LOUP_CFLAGS="$KBUILD_LOUP_CFLAGS" \
+			KCFLAGS="-mllvm -polly \
+					-mllvm -polly-run-dce \
+					-mllvm -polly-run-inliner \
+					-mllvm -polly-opt-fusion=max \
+					-mllvm -polly-ast-use-context \
+					-mllvm -polly-vectorizer=stripmine \
+					-mllvm -polly-detect-keep-going" | grep :
+else
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
-			CROSS_COMPILE_ARM32="$CROSS_COMPILE_ARM32" \
-			CC='ccache '${BUILD_CROSS_COMPILE}gcc' --sysroot='$SYSROOT'' | grep :
+			CC='ccache '${BUILD_CROSS_COMPILE}gcc \
+			KBUILD_LOUP_CFLAGS="$KBUILD_LOUP_CFLAGS" | grep :
+fi;
 
 if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 	echo -e "compiling modules..."
 
+if [ $CLANG -eq "1" ];then
+	LD_LIBRARY_PATH="$CLANG_LD_PATH:$LD_LIBARY_PATH" \
+	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE="$BUILD_CROSS_COMPILE" \
+			CC="$CC" CLANG_TRIPLE="$CLANG_TRIPLE" \
+			LLVM_DIS="$LLVM_DIS" \
+			KBUILD_LOUP_CFLAGS="$KBUILD_LOUP_CFLAGS" \
+			KCFLAGS="-mllvm -polly \
+					-mllvm -polly-run-dce \
+					-mllvm -polly-run-inliner \
+					-mllvm -polly-opt-fusion=max \
+					-mllvm -polly-ast-use-context \
+					-mllvm -polly-vectorizer=stripmine \
+					-mllvm -polly-detect-keep-going" \
+					modules | grep :
+else
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
-			CROSS_COMPILE_ARM32="$CROSS_COMPILE_ARM32" \
+			KBUILD_LOUP_CFLAGS="$KBUILD_LOUP_CFLAGS" \
 			modules | grep :
+fi;
 
 	if [ -d $WD/package/system/lib/modules ]; then
 		rm -rf $WD/package/system/lib/modules/*
@@ -118,7 +173,7 @@ if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
 		mkdir -p $WD/package/system/lib/modules
 	fi;
 
-	find . -name '*ko' ! -path "*android-toolchain-arm64/*" ! -path "*.git/*" -exec \cp '{}' $WD/package/system/lib/modules/ \;
+	find . -name '*ko' ! -path "*.git/*" -exec \cp '{}' $WD/package/system/lib/modules/ \;
 	chmod 755 $WD/package/system/lib/modules/*
 
 	# strip not needed debugs from modules.
@@ -135,6 +190,22 @@ if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz ]; then
 	echo -e "${restore}"
 	exit 1
 fi;
+}
+
+# Export version variable
+function evv() {
+    FILE=$RDIR/include/generated/compile.h
+    export "$(grep "${1}" "${FILE}" | cut -d'"' -f1 | awk '{print $2}')"="$(grep "${1}" "${FILE}" | cut -d'"' -f2)"
+}
+
+# Show the version as if looking at "/proc/version"
+function parse_version() {
+    evv UTS_VERSION
+    evv LINUX_COMPILE_BY
+    evv LINUX_COMPILE_HOST
+    evv LINUX_COMPILER
+    VERSION=$(cat $RDIR/include/config/kernel.release)
+    echo "Linux version ${VERSION} (${LINUX_COMPILE_BY}@${LINUX_COMPILE_HOST}) (${LINUX_COMPILER}) ${UTS_VERSION}"
 }
 
 FUNC_BUILD_RAMDISK_STK()
@@ -171,6 +242,8 @@ FUNC_BUILD_ZIP_STK()
 	mv -f $WD/boot.img $WD/temp/boot/boot.img
 	mv -f $RDIR/build.log $WD/temp/build.log
 	\cp $RDIR/.config $WD/temp/kernel_config_view_only
+	echo "ROM Target: $TARGET" > $WD/temp/banner
+	echo $(parse_version) >> $WD/temp/banner
 
 	cd $WD/temp
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
@@ -217,6 +290,8 @@ FUNC_BUILD_ZIP_ANY()
 
 	mv -f $RDIR/build.log $WD/temp/build.log
 	mv -f $RDIR/.config $WD/temp/kernel_config_view_only
+	echo "ROM Target: $TARGET" > $WD/temp/banner
+	echo $(parse_version) >> $WD/temp/banner
 
 	cd $WD/temp
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
@@ -227,6 +302,27 @@ FUNC_BUILD_ZIP_ANY()
 
 	FUNC_ADB
 }
+
+echo -e "${green}"
+echo "------------------"
+echo "Which Toolchain ?!";
+echo "------------------"
+echo -e "${restore}"
+select CHOICE in gcc clang dragontc; do
+	case "$CHOICE" in
+		"gcc")
+			CLANG=0
+			break;;
+		"clang")
+			CLANG=1
+			FUNC_CLANG_COMM
+			break;;
+		"dragontc")
+			CLANG=1
+			FUNC_DTC_COMM
+			break;;
+	esac;
+done;
 
 echo -e "${green}"
 echo "----------------"
@@ -289,6 +385,8 @@ rm -rf ./build.log
 	git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
 
 	DATE_END=$(date +"%s")
+
+	echo "$(parse_version)"
 
 	if [ "$(adb devices | wc -l)" -eq "3" ]; then
 		echo "" # shown adb pushed file
