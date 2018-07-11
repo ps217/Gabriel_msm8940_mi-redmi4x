@@ -1,4 +1,5 @@
 /* Copyright (c) 2014-2017, The Linux Foundation. All rights reserved.
+ * Copyright (C) 2018 XiaoMi, Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -248,7 +249,7 @@ static struct fg_mem_setting settings[FG_MEM_SETTING_MAX] = {
 	SETTING(CHG_TERM_CURRENT, 0x4F8,   2,      250),
 	SETTING(IRQ_VOLT_EMPTY,	 0x458,   3,      3100),
 	SETTING(CUTOFF_VOLTAGE,	 0x40C,   0,      3200),
-	SETTING(VBAT_EST_DIFF,	 0x000,   0,      100),
+	SETTING(VBAT_EST_DIFF,	 0x000,   0,      30),
 	SETTING(DELTA_SOC,	 0x450,   3,      1),
 	SETTING(BATT_LOW,	 0x458,   0,      4200),
 	SETTING(THERM_DELAY,	 0x4AC,   3,      0),
@@ -325,7 +326,7 @@ module_param_named(
 	first_est_dump, fg_est_dump, int, S_IRUSR | S_IWUSR
 );
 
-char *fg_batt_type = "qrd_msm8937_Coslight_4100mah";
+static char *fg_batt_type;
 module_param_named(
 	battery_type, fg_batt_type, charp, S_IRUSR | S_IWUSR
 );
@@ -2020,11 +2021,15 @@ static void fg_handle_battery_insertion(struct fg_chip *chip)
 {
 	reinit_completion(&chip->batt_id_avail);
 	reinit_completion(&chip->fg_reset_done);
-	queue_delayed_work(system_power_efficient_wq,
-		&chip->batt_profile_init, 0);
+	schedule_delayed_work(&chip->batt_profile_init, 0);
 	cancel_delayed_work(&chip->update_sram_data);
-	queue_delayed_work(system_power_efficient_wq,
-		&chip->update_sram_data, msecs_to_jiffies(0));
+	schedule_delayed_work(&chip->update_sram_data, msecs_to_jiffies(0));
+}
+
+
+static int soc_to_setpoint(int soc)
+{
+	return DIV_ROUND_CLOSEST(soc * 255, 100);
 }
 
 static void batt_to_setpoint_adc(int vbatt_mv, u8 *data)
@@ -2254,9 +2259,6 @@ static int get_prop_capacity(struct fg_chip *chip)
 	if (chip->battery_missing)
 		return MISSING_CAPACITY;
 
-	if (!chip->profile_loaded && !chip->use_otp_profile)
-		return DEFAULT_CAPACITY;
-
 	if (chip->charge_full)
 		return FULL_CAPACITY;
 
@@ -2357,7 +2359,7 @@ static int set_prop_jeita_temp(struct fg_chip *chip,
 
 	cancel_delayed_work_sync(
 		&chip->update_jeita_setting);
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_jeita_setting, 0);
 
 	return rc;
@@ -2657,20 +2659,6 @@ out:
 	return rc;
 }
 
-// Read the beat count and write it into the beat_count arg;
-// return non-zero on failure.
-static int read_beat(struct fg_chip *chip, u8 *beat_count)
-{
-	int rc = fg_read(chip, beat_count,
-			 chip->mem_base + MEM_INTF_FG_BEAT_COUNT, 1);
-	if (rc)
-		pr_err("failed to read beat count rc=%d\n", rc);
-	else if (fg_debug_mask & FG_STATUS)
-		pr_info("current: %d, prev: %d\n", *beat_count,
-			chip->last_beat_count);
-	return rc;
-}
-
 #define SANITY_CHECK_PERIOD_MS	5000
 static void check_sanity_work(struct work_struct *work)
 {
@@ -2681,24 +2669,19 @@ static void check_sanity_work(struct work_struct *work)
 	u8 beat_count;
 	bool tried_once = false;
 
-	// Try one beat check once up-front to avoid the common
-	// case where the beat has changed and we don't need to hold
-	// the chip awake.
-	rc = read_beat(chip, &beat_count);
-	if (rc == 0 && chip->last_beat_count != beat_count) {
-		chip->last_beat_count = beat_count;
-		schedule_delayed_work(
-			&chip->check_sanity_work,
-			msecs_to_jiffies(SANITY_CHECK_PERIOD_MS));
-		return;
-	}
-
 	fg_stay_awake(&chip->sanity_wakeup_source);
 
 try_again:
-	rc = read_beat(chip, &beat_count);
-	if (rc)
+	rc = fg_read(chip, &beat_count,
+			chip->mem_base + MEM_INTF_FG_BEAT_COUNT, 1);
+	if (rc) {
+		pr_err("failed to read beat count rc=%d\n", rc);
 		goto resched;
+	}
+
+	if (fg_debug_mask & FG_STATUS)
+		pr_info("current: %d, prev: %d\n", beat_count,
+			chip->last_beat_count);
 
 	if (chip->last_beat_count == beat_count) {
 		if (!tried_once) {
@@ -2715,7 +2698,7 @@ try_again:
 		chip->last_beat_count = beat_count;
 	}
 resched:
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->check_sanity_work,
 		msecs_to_jiffies(SANITY_CHECK_PERIOD_MS));
 out:
@@ -2754,7 +2737,7 @@ wait:
 
 out:
 	if (!rc)
-		queue_delayed_work(system_power_efficient_wq,
+		schedule_delayed_work(
 			&chip->update_sram_data,
 			msecs_to_jiffies(resched_ms));
 }
@@ -2873,7 +2856,7 @@ out:
 	fg_relax(&chip->update_temp_wakeup_source);
 
 resched:
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_temp_work,
 		msecs_to_jiffies(TEMP_PERIOD_UPDATE_MS));
 }
@@ -3322,6 +3305,55 @@ done:
 	return rc;
 }
 
+#ifdef CONFIG_A13N_PMI8952
+static void battery_age_work(struct work_struct *work)
+{
+	struct fg_chip *chip = container_of(work,
+			struct fg_chip,
+			battery_age_work);
+	int rc = 0;
+	u8 reg[4], reg1[4];
+	u32 vin_error = 0, vin_error2 = 0;
+	int capacity = 0;
+	static int count_error = 0;
+
+	estimate_battery_age(chip, &chip->actual_cap_uah);
+
+	pr_info("wingtech battery_age_work count_error=%d\n", count_error);
+
+	rc = fg_mem_read(chip, reg, fg_data[8].address,
+			fg_data[8].len, fg_data[8].offset, 0);
+	if (rc) {
+		pr_err("Tmie 1 Failed to update temp data\n");
+	} else{
+		vin_error = reg[0] | (reg[1] << 8)|(reg[2] << 16) | (reg[3] << 24);
+		pr_info("REG[560]=%x %x %x %x,vin_error=%x\n",
+				reg[0], reg[1], reg[2], reg[3], vin_error);
+
+		capacity = get_prop_capacity(chip);
+		if ((chip->status == POWER_SUPPLY_STATUS_CHARGING) && ((capacity < 100) && capacity >= 85) && (vin_error == 0)) {
+			msleep(2000);
+			rc = fg_mem_read(chip, reg1, fg_data[8].address,
+					fg_data[8].len, fg_data[8].offset, 0);
+
+			if (rc) {
+				pr_err("Time 2 Failed to update temp data\n");
+				vin_error2 = 0xFF;
+			} else {
+				vin_error2 = reg1[0] | (reg1[1] << 8)|(reg1[2] << 16) | (reg1[3] << 24);
+				pr_info("REG2[560]=%x %x %x %x, vin_error=%x\n", reg1[0], reg1[1], reg1[2], reg1[3], vin_error2);
+			}
+			if (vin_error == 0 && vin_error2 == 0) {
+				pr_info("wingtech try to reset FG for error at capcity=%d\n", capacity);
+				count_error++;
+				fg_check_ima_error_handling(chip);
+				pr_info("End! wingtech try to reset FG for error\n");
+			}
+		}
+	}
+}
+
+#else
 static void battery_age_work(struct work_struct *work)
 {
 	struct fg_chip *chip = container_of(work,
@@ -3330,6 +3362,7 @@ static void battery_age_work(struct work_struct *work)
 
 	estimate_battery_age(chip, &chip->actual_cap_uah);
 }
+#endif
 
 static int correction_times[] = {
 	1470,
@@ -3737,11 +3770,11 @@ static void fg_cap_learning_post_process(struct fg_chip *chip)
 		return;
 	}
 
-	max_inc_val = (int64_t)chip->learning_data.learned_cc_uah
+	max_inc_val = chip->learning_data.learned_cc_uah
 			* (1000 + chip->learning_data.max_increment);
 	do_div(max_inc_val, 1000);
 
-	min_dec_val = (int64_t)chip->learning_data.learned_cc_uah
+	min_dec_val = chip->learning_data.learned_cc_uah
 			* (1000 - chip->learning_data.max_decrement);
 	do_div(min_dec_val, 1000);
 
@@ -4128,8 +4161,7 @@ static void status_change_work(struct work_struct *work)
 		 */
 		if (chip->last_temp_update_time && chip->soc_slope_limiter_en) {
 			cancel_delayed_work_sync(&chip->update_temp_work);
-			queue_delayed_work(system_power_efficient_wq,
-				&chip->update_temp_work,
+			schedule_delayed_work(&chip->update_temp_work,
 				msecs_to_jiffies(0));
 		}
 
@@ -4145,8 +4177,7 @@ static void status_change_work(struct work_struct *work)
 		 */
 		if (chip->last_sram_update_time + 5 < current_time) {
 			cancel_delayed_work(&chip->update_sram_data);
-			queue_delayed_work(system_power_efficient_wq,
-				&chip->update_sram_data,
+			schedule_delayed_work(&chip->update_sram_data,
 				msecs_to_jiffies(0));
 		}
 
@@ -4226,49 +4257,75 @@ static void check_gain_compensation(struct fg_chip *chip)
 	}
 }
 
+#define WARNTEMP 30
+#define COOLTEMP 10
 static void fg_hysteresis_config(struct fg_chip *chip)
 {
 	int hard_hot = 0, hard_cold = 0;
+	int soft_hot = 0, soft_cold = 0;
 
 	hard_hot = get_prop_jeita_temp(chip, FG_MEM_HARD_HOT);
 	hard_cold = get_prop_jeita_temp(chip, FG_MEM_HARD_COLD);
+	soft_hot = get_prop_jeita_temp(chip, FG_MEM_SOFT_HOT);
+	soft_cold = get_prop_jeita_temp(chip, FG_MEM_SOFT_COLD);
+
 	if (chip->health == POWER_SUPPLY_HEALTH_OVERHEAT && !chip->batt_hot) {
 		/* turn down the hard hot threshold */
+		set_prop_jeita_temp(chip, FG_MEM_HARD_HOT, hard_hot - chip->hot_hysteresis);
 		chip->batt_hot = true;
-		set_prop_jeita_temp(chip, FG_MEM_HARD_HOT,
-			hard_hot - chip->hot_hysteresis);
-		if (fg_debug_mask & FG_STATUS)
-			pr_info("hard hot hysteresis: old hot=%d, new hot=%d\n",
-				hard_hot, hard_hot - chip->hot_hysteresis);
-	} else if (chip->health == POWER_SUPPLY_HEALTH_COLD &&
-		!chip->batt_cold) {
-		/* turn up the hard cold threshold */
-		chip->batt_cold = true;
-		set_prop_jeita_temp(chip, FG_MEM_HARD_COLD,
-			hard_cold + chip->cold_hysteresis);
-		if (fg_debug_mask & FG_STATUS)
-			pr_info("hard cold hysteresis: old cold=%d, new cold=%d\n",
-				hard_cold, hard_cold + chip->hot_hysteresis);
-	} else if (chip->health != POWER_SUPPLY_HEALTH_OVERHEAT &&
-		chip->batt_hot) {
+		chip->batt_warm = false;
+		chip->batt_cold = false;
+		chip->batt_cold = false;
+	}  else if (chip->health != POWER_SUPPLY_HEALTH_OVERHEAT && chip->batt_hot) {
 		/* restore the hard hot threshold */
-		set_prop_jeita_temp(chip, FG_MEM_HARD_HOT,
-			hard_hot + chip->hot_hysteresis);
-		chip->batt_hot = !chip->batt_hot;
-		if (fg_debug_mask & FG_STATUS)
-			pr_info("restore hard hot threshold: old hot=%d, new hot=%d\n",
-				hard_hot,
-				hard_hot + chip->hot_hysteresis);
-	} else if (chip->health != POWER_SUPPLY_HEALTH_COLD &&
+		set_prop_jeita_temp(chip, FG_MEM_HARD_HOT, hard_hot + chip->hot_hysteresis);
+		chip->batt_hot = false;
+		chip->batt_warm = true;
+		chip->batt_cold = false;
+		chip->batt_cool = false;
+	}  else if (chip->health == POWER_SUPPLY_HEALTH_WARM && !chip->batt_warm) {
+		/* turn down the soft hot threshold */
+		set_prop_jeita_temp(chip, FG_MEM_SOFT_HOT, soft_hot - WARNTEMP);
+		chip->batt_hot = false;
+		chip->batt_warm = true;
+		chip->batt_cold = false;
+		chip->batt_cool = false;
+	} else if (chip->health != POWER_SUPPLY_HEALTH_WARM && chip->batt_warm) {
+		/* restore the soft hot threshold */
+		set_prop_jeita_temp(chip, FG_MEM_SOFT_HOT, soft_hot + WARNTEMP);
+		chip->batt_warm = false;
+		chip->batt_hot = false;
+		chip->batt_cold = false;
+		chip->batt_cool = false;
+	} else if (chip->health == POWER_SUPPLY_HEALTH_COOL && !chip->batt_cool) {
+		/* turn up the soft cold threshold */
+		set_prop_jeita_temp(chip, FG_MEM_SOFT_COLD, soft_cold + COOLTEMP);
+		chip->batt_hot = false;
+		chip->batt_warm = false;
+		chip->batt_cold = false;
+		chip->batt_cool = true;
+	} else if (chip->health != POWER_SUPPLY_HEALTH_COOL && chip->batt_cool) {
+		/* restore the soft cold threshold */
+		set_prop_jeita_temp(chip, FG_MEM_SOFT_COLD, soft_cold - COOLTEMP);
+		chip->batt_cool = false;
+		chip->batt_hot = false;
+		chip->batt_warm = false;
+		chip->batt_cold = false;
+	}  else if (chip->health == POWER_SUPPLY_HEALTH_COLD && !chip->batt_cold) {
+		/* turn up the hard cold threshold */
+		set_prop_jeita_temp(chip, FG_MEM_HARD_COLD, hard_cold + chip->cold_hysteresis);
+		chip->batt_hot = false;
+		chip->batt_warm = false;
+		chip->batt_cold = true;
+		chip->batt_cool = false;
+	}  else if (chip->health != POWER_SUPPLY_HEALTH_COLD &&
 		chip->batt_cold) {
 		/* restore the hard cold threshold */
-		set_prop_jeita_temp(chip, FG_MEM_HARD_COLD,
-			hard_cold - chip->cold_hysteresis);
-		chip->batt_cold = !chip->batt_cold;
-		if (fg_debug_mask & FG_STATUS)
-			pr_info("restore hard cold threshold: old cold=%d, new cold=%d\n",
-				hard_cold,
-				hard_cold - chip->cold_hysteresis);
+		set_prop_jeita_temp(chip, FG_MEM_HARD_COLD, hard_cold - chip->cold_hysteresis);
+		chip->batt_cold = false;
+		chip->batt_hot = false;
+		chip->batt_warm = false;
+		chip->batt_cool = true;
 	}
 }
 
@@ -4298,6 +4355,8 @@ static int fg_init_batt_temp_state(struct fg_chip *chip)
 		(batt_info_sts & JEITA_HARD_HOT_RT_STS) ? true : false;
 	chip->batt_cold =
 		(batt_info_sts & JEITA_HARD_COLD_RT_STS) ? true : false;
+	chip->batt_warm = false;
+	chip->batt_cool = false;
 	if (chip->batt_hot || chip->batt_cold) {
 		if (chip->batt_hot) {
 			chip->health = POWER_SUPPLY_HEALTH_OVERHEAT;
@@ -4794,8 +4853,7 @@ static int fg_power_set_property(struct power_supply *psy,
 			schedule_work(&chip->set_resume_soc_work);
 		}
 
-		if (chip->jeita_hysteresis_support)
-			fg_hysteresis_config(chip);
+		fg_hysteresis_config(chip);
 		break;
 	case POWER_SUPPLY_PROP_CHARGE_DONE:
 		chip->charge_done = val->intval;
@@ -5278,8 +5336,7 @@ static irqreturn_t fg_vbatt_low_handler(int irq, void *_chip)
 			disable_irq_nosync(chip->batt_irq[VBATT_LOW].irq);
 			chip->vbat_low_irq_enabled = false;
 			fg_stay_awake(&chip->empty_check_wakeup_source);
-			queue_delayed_work(system_power_efficient_wq,
-				&chip->check_empty_work,
+			schedule_delayed_work(&chip->check_empty_work,
 				msecs_to_jiffies(FG_EMPTY_DEBOUNCE_MS));
 		} else {
 			if (fg_debug_mask & FG_IRQS)
@@ -5411,8 +5468,7 @@ static irqreturn_t fg_soc_irq_handler(int irq, void *_chip)
 		msoc = get_monotonic_soc_raw(chip);
 		if (msoc == 0 || chip->soc_empty) {
 			fg_stay_awake(&chip->empty_check_wakeup_source);
-			queue_delayed_work(system_power_efficient_wq,
-				&chip->check_empty_work,
+			schedule_delayed_work(&chip->check_empty_work,
 				msecs_to_jiffies(FG_EMPTY_DEBOUNCE_MS));
 		}
 	}
@@ -5472,8 +5528,7 @@ static irqreturn_t fg_empty_soc_irq_handler(int irq, void *_chip)
 		pr_info("triggered 0x%x\n", soc_rt_sts);
 	if (fg_is_batt_empty(chip)) {
 		fg_stay_awake(&chip->empty_check_wakeup_source);
-		queue_delayed_work(system_power_efficient_wq,
-			&chip->check_empty_work,
+		schedule_delayed_work(&chip->check_empty_work,
 			msecs_to_jiffies(FG_EMPTY_DEBOUNCE_MS));
 	} else {
 		chip->soc_empty = false;
@@ -6109,8 +6164,7 @@ try_again:
 
 			if (!tried_once) {
 				cancel_delayed_work(&chip->update_sram_data);
-				queue_delayed_work(system_power_efficient_wq,
-					&chip->update_sram_data,
+				schedule_delayed_work(&chip->update_sram_data,
 					msecs_to_jiffies(0));
 				msleep(1000);
 				tried_once = true;
@@ -6327,6 +6381,42 @@ fail:
 	return -EINVAL;
 }
 
+#define REDO_BATID_DURING_FIRST_EST	BIT(4)
+static void fg_hw_restart(struct fg_chip *chip)
+{
+	u8 reg, rc;
+	int batt_id;
+	u8 data[4];
+
+	reg = 0x80;
+	fg_masked_write(chip, 0x4150, reg, reg, 1);
+	fg_masked_write(chip, chip->soc_base + SOC_RESTART, 0xFF, 0, 1);
+	mdelay(5);
+
+	reg = REDO_BATID_DURING_FIRST_EST|REDO_FIRST_ESTIMATE;
+	fg_masked_write(chip, chip->soc_base + SOC_RESTART, reg, reg, 1);
+	mdelay(5);
+
+	reg = REDO_BATID_DURING_FIRST_EST | REDO_FIRST_ESTIMATE | RESTART_GO;
+	fg_masked_write(chip, chip->soc_base + SOC_RESTART, reg, reg, 1);
+	mdelay(1000);
+
+	fg_masked_write(chip, chip->soc_base + SOC_RESTART, 0xFF, 0, 1);
+	fg_masked_write(chip, 0x4150, 0x80, 0, 1);
+
+	mdelay(2000);
+
+	rc = fg_mem_read(chip, data, fg_data[FG_DATA_BATT_ID].address,
+			fg_data[FG_DATA_BATT_ID].len, fg_data[FG_DATA_BATT_ID].offset, 0);
+	if (rc) {
+		pr_err("XJB Failed to get sram battery id data\n");
+	} else {
+		fg_data[FG_DATA_BATT_ID].value = data[0] * LSB_8B;
+	}
+	batt_id = get_sram_prop_now(chip, FG_DATA_BATT_ID);
+	pr_err("fg_hw_restart. wingtech after restart battery id = %d\n", batt_id);
+}
+
 #define FG_PROFILE_LEN			128
 #define PROFILE_COMPARE_LEN		32
 #define THERMAL_COEFF_ADDR		0x444
@@ -6341,6 +6431,7 @@ static int fg_batt_profile_init(struct fg_chip *chip)
 	const char *data, *batt_type_str;
 	bool tried_again = false, vbat_in_range, profiles_same;
 	u8 reg = 0;
+	int value = 0;
 
 wait:
 	fg_stay_awake(&chip->profile_wakeup_source);
@@ -6360,6 +6451,14 @@ wait:
 	/* Check whether the charger is ready */
 	if (!is_charger_available(chip))
 		goto reschedule;
+
+	value = get_sram_prop_now(chip, FG_DATA_BATT_ID);
+	pr_err("wingtech later init FG_DATA_BATT_ID =%d\n", value);
+	if (!(((value > 85000) && (value < 115000)) ||
+	   ((value > 57000) && (value < 78000)) ||
+	   ((value > 24000) && (value < 35000)))) {
+		fg_hw_restart(chip);
+	}
 
 	/* Disable charging for a FG cycle before calculating vbat_in_range */
 	if (!chip->charging_disabled) {
@@ -6427,6 +6526,10 @@ wait:
 
 	if (rc)
 		pr_warn("couldn't find battery max voltage\n");
+
+#ifdef CONFIG_DISABLE_TEMP_PROTECT
+	chip->batt_max_voltage_uv = 4100000;
+#endif
 
 	/*
 	 * Only configure from profile if fg-cc-cv-threshold-mv is not
@@ -6632,14 +6735,15 @@ no_profile:
 	return rc;
 update:
 	cancel_delayed_work(&chip->update_sram_data);
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_sram_data,
 		msecs_to_jiffies(0));
 reschedule:
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->batt_profile_init,
 		msecs_to_jiffies(BATTERY_PSY_WAIT_MS));
 	fg_relax(&chip->profile_wakeup_source);
+	pr_err("wingtech enter reschedule\n");
 	return 0;
 }
 
@@ -7040,6 +7144,13 @@ static int fg_of_init(struct fg_chip *chip)
 	OF_READ_SETTING(FG_MEM_SOFT_COLD, "cool-bat-decidegc", rc, 1);
 	OF_READ_SETTING(FG_MEM_HARD_HOT, "hot-bat-decidegc", rc, 1);
 	OF_READ_SETTING(FG_MEM_HARD_COLD, "cold-bat-decidegc", rc, 1);
+
+#ifdef CONFIG_DISABLE_TEMP_PROTECT
+	settings[FG_MEM_HARD_HOT].value = 850;
+	settings[FG_MEM_SOFT_HOT].value = 850;
+	settings[FG_MEM_HARD_COLD].value = -250;
+	settings[FG_MEM_SOFT_COLD].value = -250;
+#endif
 
 	if (of_find_property(node, "qcom,cold-hot-jeita-hysteresis", NULL)) {
 		int hard_hot = 0, soft_hot = 0, hard_cold = 0, soft_cold = 0;
@@ -8065,7 +8176,7 @@ static int fg_common_hw_init(struct fg_chip *chip)
 	}
 
 	rc = fg_mem_masked_write(chip, settings[FG_MEM_DELTA_SOC].address, 0xFF,
-			settings[FG_MEM_DELTA_SOC].value,
+			soc_to_setpoint(settings[FG_MEM_DELTA_SOC].value),
 			settings[FG_MEM_DELTA_SOC].offset);
 	if (rc) {
 		pr_err("failed to write delta soc rc=%d\n", rc);
@@ -8534,8 +8645,7 @@ out:
 	fg_enable_irqs(chip, true);
 	update_sram_data_work(&chip->update_sram_data.work);
 	update_temp_data(&chip->update_temp_work.work);
-	queue_delayed_work(system_power_efficient_wq,
-		&chip->check_sanity_work,
+	schedule_delayed_work(&chip->check_sanity_work,
 		msecs_to_jiffies(1000));
 	chip->ima_error_handling = false;
 	mutex_unlock(&chip->ima_recovery_lock);
@@ -8671,7 +8781,7 @@ static void delayed_init_work(struct work_struct *work)
 	/* release memory access before update_sram_data is called */
 	fg_mem_release(chip);
 
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_jeita_setting,
 		msecs_to_jiffies(INIT_JEITA_DELAY_MS));
 
@@ -8682,12 +8792,10 @@ static void delayed_init_work(struct work_struct *work)
 		update_temp_data(&chip->update_temp_work.work);
 
 	if (!chip->use_otp_profile)
-		queue_delayed_work(system_power_efficient_wq,
-			&chip->batt_profile_init, 0);
+		schedule_delayed_work(&chip->batt_profile_init, 0);
 
 	if (chip->ima_supported && fg_reset_on_lockup)
-		queue_delayed_work(system_power_efficient_wq,
-			&chip->check_sanity_work,
+		schedule_delayed_work(&chip->check_sanity_work,
 			msecs_to_jiffies(1000));
 
 	if (chip->wa_flag & IADC_GAIN_COMP_WA) {
@@ -8992,7 +9100,7 @@ static void check_and_update_sram_data(struct fg_chip *chip)
 	else
 		time_left = 0;
 
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_temp_work, msecs_to_jiffies(time_left * 1000));
 
 	next_update_time = chip->last_sram_update_time
@@ -9003,7 +9111,7 @@ static void check_and_update_sram_data(struct fg_chip *chip)
 	else
 		time_left = 0;
 
-	queue_delayed_work(system_power_efficient_wq,
+	schedule_delayed_work(
 		&chip->update_sram_data, msecs_to_jiffies(time_left * 1000));
 }
 
@@ -9115,8 +9223,7 @@ static int fg_reset_lockup_set(const char *val, const struct kernel_param *kp)
 		pr_info("fg_reset_on_lockup set to %d\n", fg_reset_on_lockup);
 
 	if (fg_reset_on_lockup)
-		queue_delayed_work(system_power_efficient_wq,
-			&chip->check_sanity_work,
+		schedule_delayed_work(&chip->check_sanity_work,
 			msecs_to_jiffies(1000));
 	else
 		cancel_delayed_work_sync(&chip->check_sanity_work);
