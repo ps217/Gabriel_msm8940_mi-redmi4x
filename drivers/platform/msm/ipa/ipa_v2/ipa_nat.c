@@ -331,6 +331,11 @@ int ipa2_nat_init_cmd(struct ipa_ioc_v4_nat_init *init)
 		return -EPERM;
 	}
 
+	if (!ipa_ctx->nat_mem.is_dev_init) {
+		IPAERR_RL("Nat table not initialized\n");
+		return -EPERM;
+	}
+
 	IPADBG("\n");
 	if (init->table_entries == 0) {
 		IPADBG("Table entries is zero\n");
@@ -580,6 +585,11 @@ int ipa2_nat_dma_cmd(struct ipa_ioc_nat_dma_cmd *dma)
 		return -EPERM;
 	}
 
+	if (!ipa_ctx->nat_mem.is_dev_init) {
+		IPAERR_RL("Nat table not initialized\n");
+		return -EPERM;
+	}
+
 	IPADBG("\n");
 	if (dma->entries <= 0) {
 		IPAERR_RL("Invalid number of commands %d\n",
@@ -764,6 +774,16 @@ int ipa2_nat_del_cmd(struct ipa_ioc_v4_nat_del *del)
 	u8 mem_type = IPA_NAT_SHARED_MEMORY;
 	u32 base_addr = IPA_NAT_PHYS_MEM_OFFSET;
 	int result;
+
+	if (!ipa_ctx->nat_mem.is_dev_init) {
+		IPAERR_RL("Nat table not initialized\n");
+		return -EPERM;
+	}
+
+	if (ipa_ctx->nat_mem.public_ip_addr) {
+		IPAERR_RL("Public IP addr not assigned and trying to delete\n");
+		return -EPERM;
+	}
 
 	if (!ipa_ctx->nat_mem.is_dev_init) {
 		IPAERR_RL("Nat table not initialized\n");
