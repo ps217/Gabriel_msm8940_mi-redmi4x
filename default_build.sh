@@ -249,7 +249,9 @@ FUNC_BUILD_ZIP_STK()
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
 	cd $RDIR
 
-	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
+	java -jar "$TS/zipsigner-2.1.jar" \
+	          "$WD/temp/kernel.zip" \
+	          "$RK/$FILENAME.zip"
 	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
 
 	FUNC_ADB
@@ -297,7 +299,9 @@ FUNC_BUILD_ZIP_ANY()
 	zip -r9 kernel.zip -r * -x README kernel.zip > /dev/null
 	cd $RDIR
 
-	cp $WD/temp/kernel.zip $RK/$FILENAME.zip
+	java -jar "$TS/zipsigner-2.1.jar" \
+	          "$WD/temp/kernel.zip" \
+	          "$RK/$FILENAME.zip"
 	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
 
 	FUNC_ADB
