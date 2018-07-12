@@ -17,7 +17,7 @@ export BUILD_CROSS_COMPILE=$TOOLCHAIN_FOLDER/gcc/bin/aarch64-linux-gnu-
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
-export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-32)
+export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-34)
 export DATE=$(date +"[%Y-%m-%d]");
 
 export RDIR=$(readlink -f .)
@@ -231,7 +231,8 @@ FUNC_BUILD_ZIP_STK()
 		mkdir $WD/temp
 	fi;
 
-	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$VER-$DATE
+#	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-CPU8998-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 	\cp -r $WD/package/* $WD/temp
@@ -240,7 +241,9 @@ FUNC_BUILD_ZIP_STK()
 		mkdir $WD/temp/boot/
 	fi;
 	mv -f $WD/boot.img $WD/temp/boot/boot.img
+if [ "$BUILD_PROCESS" = "1" ]; then
 	mv -f $RDIR/build.log $WD/temp/build.log
+fi;
 	\cp $RDIR/.config $WD/temp/kernel_config_view_only
 	echo "ROM Target: $TARGET" > $WD/temp/banner
 	echo $(parse_version) >> $WD/temp/banner
@@ -287,10 +290,13 @@ fi;
 
 FUNC_BUILD_ZIP_ANY()
 {
-	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$VER-$DATE
+#	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-CPU8998-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
+if [ "$BUILD_PROCESS" = "1" ]; then
 	mv -f $RDIR/build.log $WD/temp/build.log
+fi;
 	mv -f $RDIR/.config $WD/temp/kernel_config_view_only
 	echo "ROM Target: $TARGET" > $WD/temp/banner
 	echo $(parse_version) >> $WD/temp/banner
@@ -307,6 +313,132 @@ FUNC_BUILD_ZIP_ANY()
 	FUNC_ADB
 }
 
+FUNC_BUILD_PROC_INFO()
+{
+echo -e "${blink_red}"
+echo "starting build of $TARGET - $COMPILER"
+echo -e "${restore}"
+}
+
+echo -e "${green}"
+echo "----------------"
+echo "Build Process ?!";
+echo "----------------"
+echo -e "${restore}"
+select CHOICE in all custom; do
+	case "$CHOICE" in
+		"all")
+			BUILD_PROCESS=0
+			break;;
+		"custom")
+			BUILD_PROCESS=1
+			break;;
+	esac;
+done;
+
+if [ "$BUILD_PROCESS" = "0" ]; then
+DATE_START=$(date +"%s")
+
+#gcc
+ccache -c -C
+#miui
+CLANG=0
+COMPILER=GCC
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=MIUI
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+echo "$(parse_version)"
+echo " "
+
+#aosp
+CLANG=0
+COMPILER=GCC
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=AOSP
+FUNC_BUILTIN
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+echo "$(parse_version)"
+echo " "
+
+#dragontc
+ccache -c -C
+#miui
+CLANG=1
+COMPILER=DTC
+FUNC_DTC_COMM
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=MIUI
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+echo "$(parse_version)"
+echo " "
+
+#aosp
+CLANG=1
+COMPILER=DTC
+FUNC_DTC_COMM
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=AOSP
+FUNC_BUILTIN
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+echo "$(parse_version)"
+echo " "
+
+#clang
+ccache -c -C
+#miui
+CLANG=1
+COMPILER=CLANG
+FUNC_CLANG_COMM
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=MIUI
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+echo "$(parse_version)"
+echo " "
+
+#aosp
+CLANG=1
+COMPILER=CLANG
+FUNC_CLANG_COMM
+RAMDTYPE=ANY
+KERNEL_DEFCONFIG=gabriel_defconfig
+TARGET=AOSP
+FUNC_BUILTIN
+FUNC_BUILD_PROC_INFO
+FUNC_BUILD_KERNEL
+FUNC_BUILD_RAMDISK_$RAMDTYPE
+FUNC_BUILD_ZIP_$RAMDTYPE
+git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+echo "$(parse_version)"
+echo " "
+
+DATE_END=$(date +"%s")
+DIFF=$(($DATE_END - $DATE_START))
+echo "Time: $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds."
+#end of all build process
+else
+#start of custom build process
 echo -e "${green}"
 echo "------------------"
 echo "Which Toolchain ?!";
@@ -316,13 +448,16 @@ select CHOICE in gcc clang dragontc; do
 	case "$CHOICE" in
 		"gcc")
 			CLANG=0
+			COMPILER=GCC
 			break;;
 		"clang")
 			CLANG=1
+			COMPILER=CLANG
 			FUNC_CLANG_COMM
 			break;;
 		"dragontc")
 			CLANG=1
+			COMPILER=DTC
 			FUNC_DTC_COMM
 			break;;
 	esac;
@@ -376,8 +511,12 @@ select CHOICE in module built-in; do
 			break;;
 	esac;
 done;
+#end of custom build process
+fi;
 
 # MAIN FUNCTION
+# Run for custom build process
+if [ "$BUILD_PROCESS" = "1" ]; then
 rm -rf ./build.log
 (
 	DATE_START=$(date +"%s")
@@ -404,3 +543,4 @@ rm -rf ./build.log
 	DIFF=$(($DATE_END - $DATE_START))
 	echo "Time: $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds."
 ) 2>&1	| tee -a ./build.log
+fi;
