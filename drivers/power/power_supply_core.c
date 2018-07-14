@@ -279,7 +279,7 @@ int power_supply_get_battery_charge_state(struct power_supply *psy)
 	}
 
 	if (psy->get_property) {
-		psy->get_property(psy, POWER_SUPPLY_PROP_PRESENT,  &ret);
+		psy->get_property(psy, POWER_SUPPLY_PROP_PRESENT, &ret);
 	}
 
 	pr_debug("online:%d\n", ret.intval);
