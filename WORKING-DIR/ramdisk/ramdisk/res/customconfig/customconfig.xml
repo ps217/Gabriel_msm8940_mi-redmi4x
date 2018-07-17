@@ -834,9 +834,8 @@
 
 	<settingsPane description="Kernel ROM Thermal Service and Intelligent Thermal driver can be enabled together in this section. It protects device from overheating and breaking down components. Controls below are active for Dual Intelligent Temp Control in case of ROM service die. Kernel will protect phone components from any damage only if Dual Intelligent Temp Control is in use. It's better to leave it as is." name="CPU Thermal Protection">
 
-		<spinner description="Select CPU Temp Control driver. Default driver without controls or Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Default Temp Control you'll have only one overheat protection ensured by ROM, so if ROM stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq. lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
+		<spinner description="Select CPU Temp Control driver. Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Only Intelligent Temp Control you'll have only one overheat protection, so if Driver stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
 			action="msm_thermal">
-			<spinnerItem name="Default Temp Control" value="msm_temp"/>
 			<spinnerItem name="Dual Intelligent Temp Control" value="intelli_temp"/>
 			<spinnerItem name="Intelligent Temp Control Only" value="intelli_temp_only"/>
 		</spinner>
@@ -872,7 +871,7 @@
 
 	<settingsPane description="Setup HotPlug CPU Thermal Controls by deciding how many cores remains ON when they're overheated. It reduces performance, by getting less cores enabled on higher freq. Others will keep waiting until CPU cools down." name="HotPlug CPU Thermal Control">
 
-		<spinner description="HotPlug CPU Thermal Control Main Switch allows to shutdown cores and operate on it's frequency range. If this option is disabled, all CPU cores will be online and operate at lower frequencies on high temperature." name="HotPlug Thermal CPU Control"
+		<spinner description="HotPlug CPU Thermal Control Main Switch allows to shutdown cores and operate on it's frequency range. If this option is disabled, all CPU cores will be online and operate at lower frequencies on high temperature. It will not let you to Disable it if Temperature is Above 49°C. Increase core max heat threshold or wait until CPU Temperature goes down to switch Disabled cores online again." name="HotPlug Thermal CPU Control"
 			action="core_control">
 			<spinnerItem name="Enabled" value="1"/>
 			<spinnerItem name="Disabled" value="0"/>
