@@ -10,7 +10,7 @@
 	<settingsPane description="I like to create new things and get better results by them. I named this Kernel to Gabriel as respect to God's Holly Angel." name="History">
 	</settingsPane>
 
-	<settingsPane description="Set desired Profile in Profiles tab, then you can modify it with what you need and like. If you found something wrong with this APP please remove /data/.gabriel directory, wait some seconds and reboot, it will load with default profile again. press backup settings in profiles tab and you can found it in /data/.gabriel folder or internal storage with the appended _backup to end of the base profile name, if you changed battery profile parameters it will be battery.profile_backup, it's your config and you can share it." name="Help">
+	<settingsPane description="Set desired Profile in Profiles tab, then you can modify it with what you need and like. If you found something wrong with this APP please remove /data/.gabriel directory, wait some seconds and reboot, it will load with default profile again. press backup settings in profiles tab and you can found it in /data/.gabriel folder or internal storage with the appended _backup to end of the base profile name, if you changed battery profile parameters it will be battery.profile_backup, it's your config and you can share it. In case of the config changes are not stable or thermal trigger has been activated with an aggressive thermal config you can reset profiles to their default parameters by flashing gabriel_profiles_reseter.zip which is located in internal storage." name="Help">
 	</settingsPane>
 
 </settingsTab>
