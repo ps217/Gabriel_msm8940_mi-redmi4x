@@ -10,10 +10,10 @@ if [ "a$2" != "a" ]; then
 	case "${core_mask}" in
 		1)
 			# All cores goes off
-			echo "255" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			echo 255 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -27,10 +27,10 @@ if [ "a$2" != "a" ]; then
 		;;
 		2)
 			# b2l2
-			echo "200" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			echo 200 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -44,10 +44,10 @@ if [ "a$2" != "a" ]; then
 		;;
 		3)
 			# b4
-			echo "240" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			echo 240 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -61,10 +61,10 @@ if [ "a$2" != "a" ]; then
 		;;
 		4)
 			# b2
-			echo "250" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			echo 250 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -77,11 +77,11 @@ if [ "a$2" != "a" ]; then
 			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		5)
-			# l3b1
-			echo "16" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			# l4
+			echo 14 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -94,11 +94,11 @@ if [ "a$2" != "a" ]; then
 			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		6)
-			# l4
-			echo "14" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			# l4b2
+			echo 8 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
@@ -111,11 +111,11 @@ if [ "a$2" != "a" ]; then
 			$BB sh /res/uci.sh core_ctrl_l_min &core_ctrl_l_min > /dev/null;
 		;;
 		7)
-			# l4b2
-			echo "8" > /sys/module/msm_thermal/parameters/core_control_mask;
-			echo 80 > /cputemp/core_control_mask;
+			# l3b3
+			echo 45 > /cputemp/core_control_mask;
+			echo 80 > /cputemp/core_limit_temp_degC;
 			sleep 1;
-			echo $core_limit_temp_degC > /cputemp/core_control_mask;
+			echo $core_limit_temp_degC > /cputemp/core_limit_temp_degC;
 
 			$BB sh /res/uci.sh cpu_b_max_freq &cpu_b_max_freq > /dev/null;
 			$BB sh /res/uci.sh cpu_b_min_freq &cpu_b_min_freq > /dev/null;
