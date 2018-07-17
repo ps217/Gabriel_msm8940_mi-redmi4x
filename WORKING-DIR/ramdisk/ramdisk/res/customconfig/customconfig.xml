@@ -884,9 +884,9 @@
 			<spinnerItem name="2 Core Big,Little Combo" value="2"/>
 			<spinnerItem name="4 Core Big" value="3"/>
 			<spinnerItem name="2 Core Big" value="4"/>
-			<spinnerItem name="3 Core Little" value="5"/>
-			<spinnerItem name="4 Core Little" value="6"/>
-			<spinnerItem name="4 Core Little,Big Combo" value="7"/>
+			<spinnerItem name="4 Core Little" value="5"/>
+			<spinnerItem name="4 Core Little,Big Combo" value="6"/>
+			<spinnerItem name="6 Core Little,Big Combo" value="7"/>
 		</spinner>
 
 		<seekBar description="Set the HotPlug Maximum Core Temperature. When temperature reaches defined value, it turns cores OFF in order to cool down the device. It can't be higher than CPU Max HEAT Control. This option works only with Intelli CPU Cores Control (Default: 45°C)." name="Intelli CORE Max Heat"
