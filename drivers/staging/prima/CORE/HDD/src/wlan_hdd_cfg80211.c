@@ -459,6 +459,16 @@ wlan_hdd_iface_combination[] = {
 };
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)) || defined(WITH_BACKPORTS)
+static const struct wiphy_wowlan_support wowlan_support_cfg80211_init = {
+    .flags = WIPHY_WOWLAN_ANY |
+             WIPHY_WOWLAN_MAGIC_PKT,
+    .n_patterns = WOWL_MAX_PTRNS_ALLOWED,
+    .pattern_min_len = 1,
+    .pattern_max_len = WOWL_PTRN_MAX_SIZE,
+};
+#endif
+
 static struct cfg80211_ops wlan_hdd_cfg80211_ops;
 
 /* Data rate 100KBPS based on IE Index */
@@ -7810,6 +7820,23 @@ static int wlan_hdd_cfg80211_get_link_properties(struct wiphy *wiphy,
 #define PARAM_BCNMISS_PENALTY_PARAM_COUNT \
         QCA_WLAN_VENDOR_ATTR_CONFIG_PENALIZE_AFTER_NCONS_BEACON_MISS
 
+/*
+ * hdd_set_qpower() - Process the qpower command and invoke the SME api
+ * @hdd_ctx: hdd context
+ * @enable: Value received in the command, 1 for disable and 2 for enable
+ *
+ * Return: void
+ */
+static void hdd_set_qpower(hdd_context_t *hdd_ctx, uint8_t enable)
+{
+    if (!hdd_ctx) {
+        hddLog(LOGE, "hdd_ctx NULL");
+        return;
+    }
+
+    sme_set_qpower(hdd_ctx->hHal, enable);
+}
+
 /**
  * __wlan_hdd_cfg80211_wifi_configuration_set() - Wifi configuration
  * vendor command
@@ -7839,6 +7866,7 @@ static int __wlan_hdd_cfg80211_wifi_configuration_set(struct wiphy *wiphy,
     eHalStatus status;
     int ret_val;
     uint8_t hb_thresh_val;
+    uint8_t qpower;
 
     static const struct nla_policy policy[PARAM_WIFICONFIG_MAX + 1] = {
                         [PARAM_STATS_AVG_FACTOR] = { .type = NLA_U16 },
@@ -8012,6 +8040,21 @@ static int __wlan_hdd_cfg80211_wifi_configuration_set(struct wiphy *wiphy,
            pReq = NULL;
            return -EPERM;
        }
+    }
+
+    if (tb[QCA_WLAN_VENDOR_ATTR_CONFIG_QPOWER]) {
+       qpower = nla_get_u8(
+              tb[QCA_WLAN_VENDOR_ATTR_CONFIG_QPOWER]);
+
+       if(qpower > 1) {
+           hddLog(LOGE, "Invalid QPOWER value %d", qpower);
+           vos_mem_free(pReq);
+           pReq = NULL;
+           return -EINVAL;
+       }
+       /* FW is expacting qpower as 1 for Disable and 2 for enable */
+       qpower++;
+       hdd_set_qpower(pHddCtx, qpower);
     }
 
     EXIT();
@@ -9075,6 +9118,29 @@ int wlan_hdd_cfg80211_update_band(struct wiphy *wiphy, eCsrBand eBand)
     }
     return 0;
 }
+
+/**
+ * hdd_add_channel_switch_support()- Adds Channel Switch flag if supported
+ * @wiphy: Pointer to the wiphy.
+ *
+ * This Function adds Channel Switch support flag, if channel switch is
+ * supported by kernel.
+ * Return: void.
+ */
+#ifdef CHANNEL_SWITCH_SUPPORTED
+static inline
+void hdd_add_channel_switch_support(struct wiphy *wiphy)
+{
+   wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
+   wiphy->max_num_csa_counters = WLAN_HDD_MAX_NUM_CSA_COUNTERS;
+}
+#else
+static inline
+void hdd_add_channel_switch_support(struct wiphy *wiphy)
+{
+}
+#endif
+
 /*
  * FUNCTION: wlan_hdd_cfg80211_init
  * This function is called by hdd_wlan_startup()
@@ -9114,6 +9180,15 @@ int wlan_hdd_cfg80211_init(struct device *dev,
     wiphy->flags |=   WIPHY_FLAG_DISABLE_BEACON_HINTS;
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0)) || defined(WITH_BACKPORTS)
+    wiphy->wowlan = &wowlan_support_cfg80211_init;
+#else
+    wiphy->wowlan.flags = WIPHY_WOWLAN_ANY |
+                          WIPHY_WOWLAN_MAGIC_PKT;
+    wiphy->wowlan.n_patterns = WOWL_MAX_PTRNS_ALLOWED;
+    wiphy->wowlan.pattern_min_len = 1;
+    wiphy->wowlan.pattern_max_len = WOWL_PTRN_MAX_SIZE;
+#endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,4,0))
     wiphy->flags |= WIPHY_FLAG_HAVE_AP_SME
@@ -9298,6 +9373,7 @@ int wlan_hdd_cfg80211_init(struct device *dev,
     wiphy->max_remain_on_channel_duration = 5000;
 #endif
 
+    hdd_add_channel_switch_support(wiphy);
     wiphy->n_vendor_commands = ARRAY_SIZE(hdd_wiphy_vendor_commands);
     wiphy->vendor_commands = hdd_wiphy_vendor_commands;
     wiphy->vendor_events = wlan_hdd_cfg80211_vendor_events;
@@ -10743,7 +10819,7 @@ int wlan_hdd_restore_channels(hdd_context_t *hdd_ctx)
 
 	mutex_lock(&hdd_ctx->cache_channel_lock);
 
-	cache_chann = hdd_ctx->orginal_channels;
+	cache_chann = hdd_ctx->original_channels;
 
 	if (!cache_chann || !cache_chann->num_channels) {
 		hddLog(VOS_TRACE_LEVEL_INFO,
@@ -10822,7 +10898,7 @@ static int wlan_hdd_disable_channels(hdd_context_t *hdd_ctx)
 	wiphy = hdd_ctx->wiphy;
 
 	mutex_lock(&hdd_ctx->cache_channel_lock);
-	cache_chann = hdd_ctx->orginal_channels;
+	cache_chann = hdd_ctx->original_channels;
 
 	if (!cache_chann || !cache_chann->num_channels) {
 		hddLog(VOS_TRACE_LEVEL_INFO,
@@ -12890,7 +12966,11 @@ VOS_STATUS wlan_hdd_send_sta_authorized_event(
 
 	vendor_event =
 		cfg80211_vendor_event_alloc(
-			hdd_ctx->wiphy, &adapter->wdev, sizeof(sta_flags) +
+			hdd_ctx->wiphy,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
+			&adapter->wdev,
+#endif
+			sizeof(sta_flags) +
 			VOS_MAC_ADDR_SIZE + NLMSG_HDRLEN,
 			QCA_NL80211_VENDOR_SUBCMD_LINK_PROPERTIES_INDEX,
 			GFP_KERNEL);
@@ -14179,7 +14259,8 @@ wlan_hdd_cfg80211_inform_bss_frame( hdd_adapter_t *pAdapter,
     struct ieee80211_channel *chan;
     struct ieee80211_mgmt *mgmt = NULL;
     struct cfg80211_bss *bss_status = NULL;
-    size_t frame_len = sizeof (struct ieee80211_mgmt) + ie_length;
+    size_t frame_len = ie_length + offsetof(struct ieee80211_mgmt,
+                                            u.probe_resp.variable);
     int rssi = 0;
     hdd_context_t *pHddCtx;
     int status;
@@ -14195,7 +14276,7 @@ wlan_hdd_cfg80211_inform_bss_frame( hdd_adapter_t *pAdapter,
         return NULL;
     }
 
-    mgmt = kzalloc((sizeof (struct ieee80211_mgmt) + ie_length), GFP_KERNEL);
+    mgmt = kzalloc(frame_len, GFP_KERNEL);
     if (!mgmt)
     {
         VOS_TRACE( VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
@@ -18114,6 +18195,11 @@ static int __wlan_hdd_cfg80211_get_station(struct wiphy *wiphy, struct net_devic
             (int) rate_flags,
             (int) pAdapter->hdd_stats.ClassA_stat.mcs_index);
 #endif //LINKSPEED_DEBUG_ENABLED
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)) || defined(WITH_BACKPORTS)
+    /* assume basic BW. anything else will override this later */
+    sinfo->txrate.bw = RATE_INFO_BW_20;
+#endif
 
     if (eHDD_LINK_SPEED_REPORT_ACTUAL != pCfg->reportMaxLinkSpeed)
     {

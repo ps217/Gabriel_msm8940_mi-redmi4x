@@ -1483,13 +1483,13 @@ struct hdd_fw_mem_dump_req_ctx {
  * callback type to check fw mem dump request.Called from SVC
  * context and update status in HDD.
  */
-typedef void (*hdd_fw_mem_dump_req_cb)(struct hdd_fw_mem_dump_req_ctx *);
+typedef void (*hdd_fw_mem_dump_req_cb)(void *context);
 
 int memdump_init(void);
 int memdump_deinit(void);
 void wlan_hdd_fw_mem_dump_cb(void *,tAniFwrDumpRsp *);
 int wlan_hdd_fw_mem_dump_req(hdd_context_t * pHddCtx);
-void wlan_hdd_fw_mem_dump_req_cb(struct hdd_fw_mem_dump_req_ctx*);
+void wlan_hdd_fw_mem_dump_req_cb(void *context);
 #ifdef WLAN_FEATURE_LINK_LAYER_STATS
 /**
  * struct hdd_ll_stats_context - hdd link layer stats context
@@ -1562,7 +1562,7 @@ struct hdd_offloaded_packets_ctx
 
 struct hdd_cache_channel_info {
 	int channel_num;
-	int reg_status;
+	eNVChannelEnabledType reg_status;
 	int wiphy_status;
 };
 
@@ -1775,6 +1775,7 @@ struct hdd_context_s
     */
     vos_timer_t    tx_rx_trafficTmr;
     v_U8_t         drvr_miracast;
+    bool           is_vowifi_enabled;
     v_U8_t         issplitscan_enabled;
     v_U8_t         isTdlsScanCoexistence;
 
@@ -1858,7 +1859,7 @@ struct hdd_context_s
 
     uint32_t track_arp_ip;
 
-    struct hdd_cache_channels *orginal_channels;
+    struct hdd_cache_channels *original_channels;
     struct mutex cache_channel_lock;
 };
 
@@ -2371,7 +2372,7 @@ int hdd_parse_disable_chan_cmd(hdd_adapter_t *adapter, tANI_U8 *ptr);
  * @return: length of data copied to buf
  */
 int hdd_get_disable_ch_list(hdd_context_t *hdd_ctx, tANI_U8 *buf,
-                            tANI_U8 buf_len);
+                            uint32_t buf_len);
 
 /**
  * hdd_is_memdump_supported() - to check if memdump feature support
@@ -2382,5 +2383,14 @@ int hdd_get_disable_ch_list(hdd_context_t *hdd_ctx, tANI_U8 *buf,
  * Return: true if supported and false otherwise
  */
 bool hdd_is_memdump_supported(void);
+
+/**
+ * hdd_is_cli_iface_up() - check if there is any cli iface up
+ * @hdd_ctx: HDD context
+ *
+ * Return: return true if there is any cli iface(STA/P2P_CLI) is up
+ *         else return false
+ */
+bool hdd_is_cli_iface_up(hdd_context_t *hdd_ctx);
 
 #endif    // end #if !defined( WLAN_HDD_MAIN_H )
