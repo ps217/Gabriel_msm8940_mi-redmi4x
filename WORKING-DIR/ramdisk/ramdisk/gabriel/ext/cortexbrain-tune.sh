@@ -791,8 +791,11 @@ SLEEP_MODE()
 	fi;
 
 	CHARGER_STATE=$(cat /sys/class/qns/charging_state);
+	BOOT_STATE=$(cat /cache/boot_state);
 
-	if [ "$CHARGER_STATE" -eq "0" ]; then
+	if [ "$CHARGER_STATE" -eq "0" ] &&
+	   [ "$BOOT_STATE" -eq "0" ] &&
+	   [ "$(pgrep -f "push-actions/config_backup_restore" | wc -l)" -eq "0" ]; then
 		CPU_CENTRAL_CONTROL "sleep";
 		CORE_CTRL_STATE "sleep";
 		SAMPLE_RATE_STATE "sleep";
