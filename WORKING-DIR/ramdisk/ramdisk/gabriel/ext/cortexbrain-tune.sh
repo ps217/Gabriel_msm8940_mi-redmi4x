@@ -164,9 +164,9 @@ ENTROPY()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh entropytweaks $entropy_awake > /dev/null;
+		$BB sh /res/uci.sh entropytweaks "$entropy_awake" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh entropytweaks $entropy_sleep > /dev/null;
+		$BB sh /res/uci.sh entropytweaks "$entropy_sleep" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** ENTROPY ***: $state - $PROFILE";
@@ -181,9 +181,9 @@ CLOCK_FREQ_SCALE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh devfreq_soc_gov $devfreq_soc_gov > /dev/null;
+		$BB sh /res/uci.sh devfreq_soc_gov "$devfreq_soc_gov" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh devfreq_soc_gov $devfreq_soc_gov_suspend > /dev/null;
+		$BB sh /res/uci.sh devfreq_soc_gov "$devfreq_soc_gov_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** CLOCK-FREQUENCY-SCALE ***: $state - $PROFILE";
@@ -198,9 +198,9 @@ BCL_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh bcl $bcl > /dev/null;
+		$BB sh /res/uci.sh bcl "$bcl" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh bcl $bcl_suspend > /dev/null;
+		$BB sh /res/uci.sh bcl "$bcl_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** BATTERY-CURRENT-LIMIT ***: $state - $PROFILE";
@@ -215,41 +215,41 @@ CORE_CTRL_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh core_ctrl_l_preference $core_ctrl_l_preference > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_max $core_ctrl_l_max > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_min $core_ctrl_l_min > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_preference "$core_ctrl_l_preference" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_max "$core_ctrl_l_max" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_min "$core_ctrl_l_min" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_preference "$core_ctrl_b_preference" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_max "$core_ctrl_b_max" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_min "$core_ctrl_b_min" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_down_thres $core_ctrl_l_down_thres > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_up_thres $core_ctrl_l_up_thres > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_down_thres "$core_ctrl_l_down_thres" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_up_thres "$core_ctrl_l_up_thres" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_down_thres "$core_ctrl_b_down_thres" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_up_thres "$core_ctrl_b_up_thres" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_off_delay $core_ctrl_l_off_delay > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_off_delay "$core_ctrl_l_off_delay" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_off_delay "$core_ctrl_b_off_delay" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_task_thres $core_ctrl_l_task_thres > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_task_thres "$core_ctrl_l_task_thres" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_task_thres "$core_ctrl_b_task_thres" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh core_ctrl_l_preference $core_ctrl_l_preference_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_max $core_ctrl_l_max_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_min $core_ctrl_l_min_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_preference $core_ctrl_b_preference_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_max $core_ctrl_b_max_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_min $core_ctrl_b_min_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_preference "$core_ctrl_l_preference_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_max "$core_ctrl_l_max_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_min "$core_ctrl_l_min_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_preference "$core_ctrl_b_preference_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_max "$core_ctrl_b_max_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_min "$core_ctrl_b_min_suspend" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_down_thres $core_ctrl_l_down_thres_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_l_up_thres $core_ctrl_l_up_thres_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_down_thres $core_ctrl_b_down_thres_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_up_thres $core_ctrl_b_up_thres_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_down_thres "$core_ctrl_l_down_thres_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_up_thres "$core_ctrl_l_up_thres_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_down_thres "$core_ctrl_b_down_thres_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_up_thres "$core_ctrl_b_up_thres_suspend" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_off_delay $core_ctrl_l_off_delay_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_off_delay $core_ctrl_b_off_delay_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_off_delay "$core_ctrl_l_off_delay_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_off_delay "$core_ctrl_b_off_delay_suspend" > /dev/null;
 
-		$BB sh /res/uci.sh core_ctrl_l_task_thres $core_ctrl_l_task_thres_suspend > /dev/null;
-		$BB sh /res/uci.sh core_ctrl_b_task_thres $core_ctrl_b_task_thres_suspend > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_l_task_thres "$core_ctrl_l_task_thres_suspend" > /dev/null;
+		$BB sh /res/uci.sh core_ctrl_b_task_thres "$core_ctrl_b_task_thres_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** CORE-CONTROL-STATE ***: $state - $PROFILE";
@@ -264,11 +264,11 @@ SAMPLE_RATE_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh sample_rate_c1 $sample_rate_c1 > /dev/null;
-		$BB sh /res/uci.sh sample_rate_c2 $sample_rate_c2 > /dev/null;
+		$BB sh /res/uci.sh sample_rate_c1 "$sample_rate_c1" > /dev/null;
+		$BB sh /res/uci.sh sample_rate_c2 "$sample_rate_c2" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh sample_rate_c1 $sample_rate_c1_suspend > /dev/null;
-		$BB sh /res/uci.sh sample_rate_c2 $sample_rate_c2_suspend > /dev/null;
+		$BB sh /res/uci.sh sample_rate_c1 "$sample_rate_c1_suspend" > /dev/null;
+		$BB sh /res/uci.sh sample_rate_c2 "$sample_rate_c2_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** SAMPLE-RATE-STATE ***: $state - $PROFILE";
@@ -388,9 +388,9 @@ HMP_SCHEDULER_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh hmp_scheduler $hmp_scheduler > /dev/null;
+		$BB sh /res/uci.sh hmp_scheduler "$hmp_scheduler" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh hmp_scheduler $hmp_scheduler_suspend > /dev/null;
+		$BB sh /res/uci.sh hmp_scheduler "$hmp_scheduler_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** HMP-SCHEDULER-STATE ***: $state - $PROFILE";
@@ -405,9 +405,9 @@ CPUSET_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh cpuset_tuning $cpuset_tuning > /dev/null;
+		$BB sh /res/uci.sh cpuset_tuning "$cpuset_tuning" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh cpuset_tuning $cpuset_tuning_suspend > /dev/null;
+		$BB sh /res/uci.sh cpuset_tuning "$cpuset_tuning_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** CPUSET-STATE ***: $state - $PROFILE";
@@ -422,9 +422,9 @@ GPU_GOV_STATE()
 	local state="$1";
 
 	if [ "$state" == "awake" ]; then
-		$BB sh /res/uci.sh gpu_governor $gpu_governor > /dev/null;
+		$BB sh /res/uci.sh gpu_governor "$gpu_governor" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh gpu_governor $gpu_governor_suspend > /dev/null;
+		$BB sh /res/uci.sh gpu_governor "$gpu_governor_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** GPU-GOVERNOR-STATE ***: $state - $PROFILE";
