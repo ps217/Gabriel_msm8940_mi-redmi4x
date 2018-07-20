@@ -6,6 +6,7 @@
 BB=/gabriel/busybox
 
 MEM_ALL=`free | grep Mem | $BB awk '{ print $2 }'`;
+echo 1 > /cache/boot_state;
 
 # protect init from oom
 if [ -f /system/xbin/su ]; then
@@ -391,4 +392,6 @@ fi;
 	echo "$TIME_NOW" > /data/.gabriel/boot_log
 
 	$BB mount -o remount,ro /system;
+
+	echo 0 > /cache/boot_state;
 )&
