@@ -387,6 +387,9 @@ if [ "$stweaks_boot_control" == "no" ]; then
 	done;
 fi;
 
+	# stop core control if need to
+	echo "$core_control" > /sys/module/msm_thermal/core_control/enabled;
+
 	# script finish here, so let me know when
 	TIME_NOW=$(date)
 	echo "$TIME_NOW" > /data/.gabriel/boot_log
