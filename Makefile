@@ -1,6 +1,6 @@
 VERSION = 3
 PATCHLEVEL = 18
-SUBLEVEL = 116
+SUBLEVEL = 117
 EXTRAVERSION =
 NAME = Diseased Newt
 
@@ -645,9 +645,10 @@ include $(srctree)/arch/$(SRCARCH)/Makefile
 
 KBUILD_CFLAGS	+= $(call cc-option,-fno-delete-null-pointer-checks,)
 KBUILD_CFLAGS	+= $(call cc-disable-warning,frame-address,)
-KBUILD_CFLAGS  += $(call cc-disable-warning, misleading-indentation)
-KBUILD_CFLAGS  += $(call cc-option,-fno-PIE)
-KBUILD_AFLAGS  += $(call cc-option,-fno-PIE)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, misleading-indentation)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
+KBUILD_CFLAGS	+= $(call cc-option,-fno-PIE)
+KBUILD_AFLAGS	+= $(call cc-option,-fno-PIE)
 
 # Disable maybe-uninitialized warnings
 KBUILD_CFLAGS  += $(call cc-disable-warning,maybe-uninitialized,)
