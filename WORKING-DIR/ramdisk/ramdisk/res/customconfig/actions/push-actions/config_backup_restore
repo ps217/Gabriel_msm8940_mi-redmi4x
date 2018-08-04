@@ -149,6 +149,15 @@ case "${config_backup_restore}" in
 			RELOAD_STWEAKS;
 		)&
 	;;
+	10)
+		(
+			$BB cp -a /res/customconfig/ps217_mod.profile /data/.gabriel/;
+			echo "ps217_mod" > /data/.gabriel/.active.profile;
+			echo "Restoring ps217 mod config file, wait until app reloads.";
+			$BB sh /res/uci.sh apply > /dev/null;
+			RELOAD_STWEAKS;
+		)&
+	;;
 	*)
 		echo "need input";
 	;;
