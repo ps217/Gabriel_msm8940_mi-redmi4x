@@ -1442,6 +1442,8 @@
 
 		<button description="Salvation" name="salvation Profile" action="push-actions/config_backup_restore 9" label="Salvation"/>
 
+		<button description="I'm feeling lucky" name="ps217 modified Profile" action="push-actions/config_backup_restore 10" label="PS217 mod"/>
+
 	</settingsPane>
 
 	<settingsPane description="Backup or restore current profile after installing or updating kernel. Some settings will work only after reboot." name="Profile Backup or Restore">
