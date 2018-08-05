@@ -69,6 +69,9 @@ FUNC_ADB()
 FUNC_BUILTIN()
 {
 sed -i 's/=m/=y/g' arch/$ARCH/configs/$KERNEL_DEFCONFIG
+
+# enable rfkill_input only for aosp builds/p-gsi
+sed -i 's/# CONFIG_RFKILL_INPUT is not set/CONFIG_RFKILL_INPUT=y/g' arch/$ARCH/configs/$KERNEL_DEFCONFIG
 }
 
 FUNC_ZIP_NAME()
