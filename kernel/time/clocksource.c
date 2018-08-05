@@ -108,7 +108,7 @@ static int finished_booting;
 
 #ifdef CONFIG_CLOCKSOURCE_WATCHDOG
 static void clocksource_watchdog_work(struct work_struct *work);
-static void clocksource_select(bool force);
+static void clocksource_select(void);
 
 static LIST_HEAD(watchdog_list);
 static struct clocksource *watchdog;
@@ -217,7 +217,7 @@ static void clocksource_watchdog(unsigned long data)
 			continue;
 
 		/* Check the deviation from the watchdog clocksource. */
-		if (abs64(cs_nsec - wd_nsec) > WATCHDOG_THRESHOLD) {
+		if ((abs(cs_nsec - wd_nsec) > WATCHDOG_THRESHOLD)) {
 			pr_warn("timekeeping watchdog: Marking clocksource '%s' as unstable because the skew is too large:\n",
 				cs->name);
 			pr_warn("                      '%s' wd_now: %llx wd_last: %llx mask: %llx\n",
@@ -386,7 +386,7 @@ static int clocksource_watchdog_kthread(void *data)
 {
 	mutex_lock(&clocksource_mutex);
 	if (__clocksource_watchdog_kthread())
-		clocksource_select(false);
+		clocksource_select();
 	mutex_unlock(&clocksource_mutex);
 	return 0;
 }
@@ -525,12 +525,11 @@ static inline void clocksource_update_max_deferment(struct clocksource *cs)
 
 #ifndef CONFIG_ARCH_USES_GETTIMEOFFSET
 
-static struct clocksource *clocksource_find_best(bool oneshot, bool skipcur,
-						bool force)
+static struct clocksource *clocksource_find_best(bool oneshot, bool skipcur)
 {
 	struct clocksource *cs;
 
-	if ((!finished_booting && !force) || list_empty(&clocksource_list))
+	if (!finished_booting || list_empty(&clocksource_list))
 		return NULL;
 
 	/*
@@ -548,13 +547,13 @@ static struct clocksource *clocksource_find_best(bool oneshot, bool skipcur,
 	return NULL;
 }
 
-static void __clocksource_select(bool skipcur, bool force)
+static void __clocksource_select(bool skipcur)
 {
 	bool oneshot = tick_oneshot_mode_active();
 	struct clocksource *best, *cs;
 
 	/* Find the best suitable clocksource */
-	best = clocksource_find_best(oneshot, skipcur, force);
+	best = clocksource_find_best(oneshot, skipcur);
 	if (!best)
 		return;
 
@@ -594,39 +593,22 @@ static void __clocksource_select(bool skipcur, bool force)
  * Select the clocksource with the best rating, or the clocksource,
  * which is selected by userspace override.
  */
-static void clocksource_select(bool force)
+static void clocksource_select(void)
 {
-	return __clocksource_select(false, force);
+	return __clocksource_select(false);
 }
 
 static void clocksource_select_fallback(void)
 {
-	return __clocksource_select(true, false);
+	return __clocksource_select(true);
 }
 
 #else /* !CONFIG_ARCH_USES_GETTIMEOFFSET */
 
-static inline void clocksource_select(bool force) { }
+static inline void clocksource_select(void) { }
 static inline void clocksource_select_fallback(void) { }
 
 #endif
-
-/**
- * clocksource_select_force - Force re-selection of the best clocksource
- *				among registered clocksources
- *
- * clocksource_select() can't select the best clocksource before
- * calling clocksource_done_booting() and since clocksource_select()
- * should be called with clocksource_mutex held, provide a new API
- * can be called from other files to select best clockrouce irrespective
- * of finished_booting flag.
- */
-void clocksource_select_force(void)
-{
-	mutex_lock(&clocksource_mutex);
-	clocksource_select(true);
-	mutex_unlock(&clocksource_mutex);
-}
 
 /*
  * clocksource_done_booting - Called near the end of core bootup
@@ -644,7 +626,7 @@ static int __init clocksource_done_booting(void)
 	 * Run the watchdog first to eliminate unstable clock sources
 	 */
 	__clocksource_watchdog_kthread();
-	clocksource_select(false);
+	clocksource_select();
 	mutex_unlock(&clocksource_mutex);
 	return 0;
 }
@@ -754,38 +736,11 @@ int __clocksource_register_scale(struct clocksource *cs, u32 scale, u32 freq)
 	mutex_lock(&clocksource_mutex);
 	clocksource_enqueue(cs);
 	clocksource_enqueue_watchdog(cs);
-	clocksource_select(false);
+	clocksource_select();
 	mutex_unlock(&clocksource_mutex);
 	return 0;
 }
 EXPORT_SYMBOL_GPL(__clocksource_register_scale);
-
-
-/**
- * clocksource_register - Used to install new clocksources
- * @cs:		clocksource to be registered
- *
- * Returns -EBUSY if registration fails, zero otherwise.
- */
-int clocksource_register(struct clocksource *cs)
-{
-	/* calculate max adjustment for given mult/shift */
-	cs->maxadj = clocksource_max_adjustment(cs);
-	WARN_ONCE(cs->mult + cs->maxadj < cs->mult,
-		"Clocksource %s might overflow on 11%% adjustment\n",
-		cs->name);
-
-	/* Update max idle time permitted for this clocksource */
-	clocksource_update_max_deferment(cs);
-
-	mutex_lock(&clocksource_mutex);
-	clocksource_enqueue(cs);
-	clocksource_enqueue_watchdog(cs);
-	clocksource_select(false);
-	mutex_unlock(&clocksource_mutex);
-	return 0;
-}
-EXPORT_SYMBOL(clocksource_register);
 
 static void __clocksource_change_rating(struct clocksource *cs, int rating)
 {
@@ -803,7 +758,7 @@ void clocksource_change_rating(struct clocksource *cs, int rating)
 {
 	mutex_lock(&clocksource_mutex);
 	__clocksource_change_rating(cs, rating);
-	clocksource_select(false);
+	clocksource_select();
 	mutex_unlock(&clocksource_mutex);
 }
 EXPORT_SYMBOL(clocksource_change_rating);
@@ -906,7 +861,7 @@ static ssize_t sysfs_override_clocksource(struct device *dev,
 
 	ret = sysfs_get_uname(buf, override_name, count);
 	if (ret >= 0)
-		clocksource_select(false);
+		clocksource_select();
 
 	mutex_unlock(&clocksource_mutex);
 
