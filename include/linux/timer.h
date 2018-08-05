@@ -23,15 +23,17 @@ struct timer_list {
 
 	int slack;
 
+#ifdef CONFIG_TIMER_STATS
+	int start_pid;
+	void *start_site;
+	char start_comm[16];
+#endif
 #ifdef CONFIG_LOCKDEP
 	struct lockdep_map lockdep_map;
 #endif
 };
 
 extern struct tvec_base boot_tvec_bases;
-#ifdef CONFIG_SMP
-extern struct tvec_base tvec_base_deferrable;
-#endif
 
 #ifdef CONFIG_LOCKDEP
 /*
@@ -68,21 +70,12 @@ extern struct tvec_base tvec_base_deferrable;
 
 #define TIMER_FLAG_MASK			0x3LU
 
-#ifdef CONFIG_SMP
-#define __TIMER_BASE(_flags) \
-	((_flags) & TIMER_DEFERRABLE ? \
-	 (unsigned long)&tvec_base_deferrable + (_flags) : \
-	 (unsigned long)&boot_tvec_bases + (_flags))
-#else
-#define __TIMER_BASE(_flags) ((unsigned long)&boot_tvec_bases + (_flags))
-#endif
-
 #define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
 		.entry = { .prev = TIMER_ENTRY_STATIC },	\
 		.function = (_function),			\
 		.expires = (_expires),				\
 		.data = (_data),				\
-		.base = (void *)(__TIMER_BASE(_flags)),		\
+		.base = (void *)((unsigned long)&boot_tvec_bases + (_flags)), \
 		.slack = -1,					\
 		__TIMER_LOCKDEP_MAP_INITIALIZER(		\
 			__FILE__ ":" __stringify(__LINE__))	\
@@ -185,9 +178,6 @@ extern int mod_timer_pending(struct timer_list *timer, unsigned long expires);
 extern int mod_timer_pinned(struct timer_list *timer, unsigned long expires);
 
 extern void set_timer_slack(struct timer_list *time, int slack_hz);
-#ifdef CONFIG_SMP
-extern bool check_pending_deferrable_timers(int cpu);
-#endif
 
 #define TIMER_NOT_PINNED	0
 #define TIMER_PINNED		1
@@ -203,6 +193,49 @@ extern bool check_pending_deferrable_timers(int cpu);
  * jiffie.
  */
 extern unsigned long get_next_timer_interrupt(unsigned long now);
+
+/*
+ * Timer-statistics info:
+ */
+#ifdef CONFIG_TIMER_STATS
+
+extern int timer_stats_active;
+
+#define TIMER_STATS_FLAG_DEFERRABLE	0x1
+
+extern void init_timer_stats(void);
+
+extern void timer_stats_update_stats(void *timer, pid_t pid, void *startf,
+				     void *timerf, char *comm,
+				     unsigned int timer_flag);
+
+extern void __timer_stats_timer_set_start_info(struct timer_list *timer,
+					       void *addr);
+
+static inline void timer_stats_timer_set_start_info(struct timer_list *timer)
+{
+	if (likely(!timer_stats_active))
+		return;
+	__timer_stats_timer_set_start_info(timer, __builtin_return_address(0));
+}
+
+static inline void timer_stats_timer_clear_start_info(struct timer_list *timer)
+{
+	timer->start_site = NULL;
+}
+#else
+static inline void init_timer_stats(void)
+{
+}
+
+static inline void timer_stats_timer_set_start_info(struct timer_list *timer)
+{
+}
+
+static inline void timer_stats_timer_clear_start_info(struct timer_list *timer)
+{
+}
+#endif
 
 extern void add_timer(struct timer_list *timer);
 
