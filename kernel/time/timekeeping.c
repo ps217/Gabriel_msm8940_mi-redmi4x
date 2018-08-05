@@ -529,7 +529,8 @@ static inline void tk_update_leap_state(struct timekeeper *tk)
  */
 static inline void tk_update_ktime_data(struct timekeeper *tk)
 {
-	s64 nsec;
+	u64 seconds;
+	u32 nsec;
 
 	/*
 	 * The xtime based monotonic readout is:
@@ -795,6 +796,54 @@ void ktime_get_ts64(struct timespec64 *ts)
 	timespec64_add_ns(ts, nsec + tomono.tv_nsec);
 }
 EXPORT_SYMBOL_GPL(ktime_get_ts64);
+
+/**
+ * ktime_get_seconds - Get the seconds portion of CLOCK_MONOTONIC
+ *
+ * Returns the seconds portion of CLOCK_MONOTONIC with a single non
+ * serialized read. tk->ktime_sec is of type 'unsigned long' so this
+ * works on both 32 and 64 bit systems. On 32 bit systems the readout
+ * covers ~136 years of uptime which should be enough to prevent
+ * premature wrap arounds.
+ */
+time64_t ktime_get_seconds(void)
+{
+	struct timekeeper *tk = &tk_core.timekeeper;
+
+	WARN_ON(timekeeping_suspended);
+	return tk->ktime_sec;
+}
+EXPORT_SYMBOL_GPL(ktime_get_seconds);
+
+/**
+ * ktime_get_real_seconds - Get the seconds portion of CLOCK_REALTIME
+ *
+ * Returns the wall clock seconds since 1970. This replaces the
+ * get_seconds() interface which is not y2038 safe on 32bit systems.
+ *
+ * For 64bit systems the fast access to tk->xtime_sec is preserved. On
+ * 32bit systems the access must be protected with the sequence
+ * counter to provide "atomic" access to the 64bit tk->xtime_sec
+ * value.
+ */
+time64_t ktime_get_real_seconds(void)
+{
+	struct timekeeper *tk = &tk_core.timekeeper;
+	time64_t seconds;
+	unsigned int seq;
+
+	if (IS_ENABLED(CONFIG_64BIT))
+		return tk->xtime_sec;
+
+	do {
+		seq = read_seqcount_begin(&tk_core.seq);
+		seconds = tk->xtime_sec;
+
+	} while (read_seqcount_retry(&tk_core.seq, seq));
+
+	return seconds;
+}
+EXPORT_SYMBOL_GPL(ktime_get_real_seconds);
 
 #ifdef CONFIG_NTP_PPS
 
@@ -1304,7 +1353,7 @@ void timekeeping_inject_sleeptime64(struct timespec64 *delta)
 /**
  * timekeeping_resume - Resumes the generic timekeeping subsystem.
  */
-static void timekeeping_resume(void)
+void timekeeping_resume(void)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 	struct clocksource *clock = tk->tkr_mono.clock;
@@ -1383,7 +1432,7 @@ static void timekeeping_resume(void)
 	hrtimers_resume();
 }
 
-static int timekeeping_suspend(void)
+int timekeeping_suspend(void)
 {
 	struct timekeeper *tk = &tk_core.timekeeper;
 	unsigned long flags;
