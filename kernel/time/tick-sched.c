@@ -19,23 +19,17 @@
 #include <linux/percpu.h>
 #include <linux/profile.h>
 #include <linux/sched.h>
-#include <linux/timer.h>
 #include <linux/module.h>
 #include <linux/irq_work.h>
 #include <linux/posix-timers.h>
 #include <linux/perf_event.h>
 #include <linux/context_tracking.h>
-#include <linux/rq_stats.h>
 
 #include <asm/irq_regs.h>
 
 #include "tick-internal.h"
 
 #include <trace/events/timer.h>
-
-struct rq_data rq_info;
-struct workqueue_struct *rq_wq;
-spinlock_t rq_lock;
 
 /*
  * Per cpu nohz control structure
@@ -46,21 +40,6 @@ static DEFINE_PER_CPU(struct tick_sched, tick_cpu_sched);
  * The time, when the last jiffy update happened. Protected by jiffies_lock.
  */
 static ktime_t last_jiffies_update;
-
-u64 jiffy_to_ktime_ns(u64 *now, u64 *jiffy_ktime_ns)
-{
-	u64 cur_jiffies;
-	unsigned long seq;
-
-	do {
-		seq = read_seqbegin(&jiffies_lock);
-		*now = ktime_get_ns();
-		*jiffy_ktime_ns = ktime_to_ns(last_jiffies_update);
-		cur_jiffies = get_jiffies_64();
-	} while (read_seqretry(&jiffies_lock, seq));
-
-	return cur_jiffies;
-}
 
 struct tick_sched *tick_get_tick_sched(int cpu)
 {
@@ -473,7 +452,7 @@ update_ts_time_stats(int cpu, struct tick_sched *ts, ktime_t now, u64 *last_upda
 {
 	ktime_t delta;
 
-	if (ts->idle_active && cpu_online(cpu)) {
+	if (ts->idle_active) {
 		delta = ktime_sub(now, ts->idle_entrytime);
 		if (nr_iowait_cpu(cpu) > 0)
 			ts->iowait_sleeptime = ktime_add(ts->iowait_sleeptime, delta);
@@ -532,7 +511,7 @@ u64 get_cpu_idle_time_us(int cpu, u64 *last_update_time)
 		update_ts_time_stats(cpu, ts, now, last_update_time);
 		idle = ts->idle_sleeptime;
 	} else {
-		if (ts->idle_active && !nr_iowait_cpu(cpu) && cpu_online(cpu)) {
+		if (ts->idle_active && !nr_iowait_cpu(cpu)) {
 			ktime_t delta = ktime_sub(now, ts->idle_entrytime);
 
 			idle = ktime_add(ts->idle_sleeptime, delta);
@@ -573,7 +552,7 @@ u64 get_cpu_iowait_time_us(int cpu, u64 *last_update_time)
 		update_ts_time_stats(cpu, ts, now, last_update_time);
 		iowait = ts->iowait_sleeptime;
 	} else {
-		if (ts->idle_active && nr_iowait_cpu(cpu) > 0 && cpu_online(cpu)) {
+		if (ts->idle_active && nr_iowait_cpu(cpu) > 0) {
 			ktime_t delta = ktime_sub(now, ts->idle_entrytime);
 
 			iowait = ktime_add(ts->iowait_sleeptime, delta);
@@ -814,11 +793,6 @@ static void __tick_nohz_idle_enter(struct tick_sched *ts)
 
 	now = tick_nohz_start_idle(ts);
 
-#ifdef CONFIG_SMP
-	if (check_pending_deferrable_timers(cpu))
-		raise_softirq_irqoff(TIMER_SOFTIRQ);
-#endif
-
 	if (can_stop_idle_tick(cpu, ts)) {
 		int was_stopped = ts->tick_stopped;
 
@@ -1035,9 +1009,11 @@ static void tick_nohz_switch_to_nohz(void)
 	if (!tick_nohz_enabled)
 		return;
 
-	if (tick_switch_to_oneshot(tick_nohz_handler))
+	local_irq_disable();
+	if (tick_switch_to_oneshot(tick_nohz_handler)) {
+		local_irq_enable();
 		return;
-
+	}
 	tick_nohz_active = 1;
 	ts->nohz_mode = NOHZ_MODE_LOWRES;
 
@@ -1055,6 +1031,7 @@ static void tick_nohz_switch_to_nohz(void)
 			break;
 		next = ktime_add(next, tick_period);
 	}
+	local_irq_enable();
 }
 
 /*
@@ -1122,51 +1099,6 @@ void tick_irq_enter(void)
  * High resolution timer specific code
  */
 #ifdef CONFIG_HIGH_RES_TIMERS
-static void update_rq_stats(void)
-{
-	unsigned long jiffy_gap = 0;
-	unsigned int rq_avg = 0;
-	unsigned long flags = 0;
-
-	jiffy_gap = jiffies - rq_info.rq_poll_last_jiffy;
-
-	if (jiffy_gap >= rq_info.rq_poll_jiffies) {
-
-		spin_lock_irqsave(&rq_lock, flags);
-
-		if (!rq_info.rq_avg)
-			rq_info.rq_poll_total_jiffies = 0;
-
-		rq_avg = nr_running() * 10;
-
-		if (rq_info.rq_poll_total_jiffies) {
-			rq_avg = (rq_avg * jiffy_gap) +
-				(rq_info.rq_avg *
-				 rq_info.rq_poll_total_jiffies);
-			do_div(rq_avg,
-			       rq_info.rq_poll_total_jiffies + jiffy_gap);
-		}
-
-		rq_info.rq_avg =  rq_avg;
-		rq_info.rq_poll_total_jiffies += jiffy_gap;
-		rq_info.rq_poll_last_jiffy = jiffies;
-
-		spin_unlock_irqrestore(&rq_lock, flags);
-	}
-}
-
-static void wakeup_user(void)
-{
-	unsigned long jiffy_gap;
-
-	jiffy_gap = jiffies - rq_info.def_timer_last_jiffy;
-
-	if (jiffy_gap >= rq_info.def_timer_jiffies) {
-		rq_info.def_timer_last_jiffy = jiffies;
-		queue_work(rq_wq, &rq_info.def_timer_work);
-	}
-}
-
 /*
  * We rearm the timer until we get disabled by the idle code.
  * Called with interrupts disabled.
@@ -1184,22 +1116,8 @@ static enum hrtimer_restart tick_sched_timer(struct hrtimer *timer)
 	 * Do not call, when we are not in irq context and have
 	 * no valid regs pointer
 	 */
-	if (regs) {
+	if (regs)
 		tick_sched_handle(ts, regs);
-
-		if (rq_info.init == 1 &&
-				tick_do_timer_cpu == smp_processor_id()) {
-			/*
-			 * update run queue statistics
-			 */
-			update_rq_stats();
-
-			/*
-			 * wakeup user if needed
-			 */
-			wakeup_user();
-		}
-	}
 
 	/* No need to reprogram if we are in idle or full dynticks mode */
 	if (unlikely(ts->tick_stopped))
@@ -1298,7 +1216,7 @@ void tick_oneshot_notify(void)
  * Called cyclic from the hrtimer softirq (driven by the timer
  * softirq) allow_nohz signals, that we can switch into low-res nohz
  * mode, because high resolution timers are disabled (either compile
- * or runtime). Called with interrupts disabled.
+ * or runtime).
  */
 int tick_check_oneshot_change(int allow_nohz)
 {
@@ -1318,9 +1236,4 @@ int tick_check_oneshot_change(int allow_nohz)
 
 	tick_nohz_switch_to_nohz();
 	return 0;
-}
-
-ktime_t * get_next_event_cpu(unsigned int cpu)
-{
-	return &(per_cpu(tick_cpu_device, cpu).evtdev->next_event);
 }
