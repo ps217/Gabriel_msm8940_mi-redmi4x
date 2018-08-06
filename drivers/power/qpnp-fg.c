@@ -5231,11 +5231,8 @@ static irqreturn_t fg_jeita_soft_hot_irq_handler(int irq, void *_chip)
 		chip->batt_psy->set_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_HEALTH, &val);
 		/* kick the alarm timer for hard hot polling */
-		rc = alarm_start_relative(&chip->hard_jeita_alarm,
-				ns_to_ktime(HARD_JEITA_ALARM_CHECK_NS));
-		if (rc)
-			pr_err("start alarm for hard HOT detection failed, rc=%d\n",
-									rc);
+		alarm_start_relative(&chip->hard_jeita_alarm,
+			ns_to_ktime(HARD_JEITA_ALARM_CHECK_NS));
 	} else {
 		val.intval = POWER_SUPPLY_HEALTH_GOOD;
 		chip->batt_psy->set_property(chip->batt_psy,
@@ -5277,11 +5274,8 @@ static irqreturn_t fg_jeita_soft_cold_irq_handler(int irq, void *_chip)
 		chip->batt_psy->set_property(chip->batt_psy,
 			POWER_SUPPLY_PROP_HEALTH, &val);
 		/* kick the alarm timer for hard cold polling */
-		rc = alarm_start_relative(&chip->hard_jeita_alarm,
-				ns_to_ktime(HARD_JEITA_ALARM_CHECK_NS));
-		if (rc)
-			pr_err("start alarm for hard COLD detection failed, rc=%d\n",
-									rc);
+		alarm_start_relative(&chip->hard_jeita_alarm,
+			ns_to_ktime(HARD_JEITA_ALARM_CHECK_NS));
 	} else {
 		val.intval = POWER_SUPPLY_HEALTH_GOOD;
 		chip->batt_psy->set_property(chip->batt_psy,
