@@ -35,6 +35,8 @@ static inline struct timespec current_kernel_time(void)
 struct timespec64 get_monotonic_coarse64(void);
 extern void getrawmonotonic64(struct timespec64 *ts);
 extern void ktime_get_ts64(struct timespec64 *ts);
+extern time64_t ktime_get_seconds(void);
+extern time64_t ktime_get_real_seconds(void);
 
 extern int __getnstimeofday64(struct timespec64 *tv);
 extern void getnstimeofday64(struct timespec64 *tv);
@@ -150,7 +152,6 @@ static inline void getboottime(struct timespec *ts)
 }
 #endif
 
-#define do_posix_clock_monotonic_gettime(ts) ktime_get_ts(ts)
 #define ktime_get_real_ts64(ts)	getnstimeofday64(ts)
 
 /*
@@ -242,6 +243,11 @@ static inline void get_monotonic_boottime(struct timespec *ts)
 	*ts = ktime_to_timespec(ktime_get_boottime());
 }
 
+static inline void get_monotonic_boottime64(struct timespec64 *ts)
+{
+	*ts = ktime_to_timespec64(ktime_get_boottime());
+}
+
 static inline void timekeeping_clocktai(struct timespec *ts)
 {
 	*ts = ktime_to_timespec(ktime_get_clocktai());
@@ -254,17 +260,6 @@ extern bool timekeeping_rtc_skipsuspend(void);
 extern bool timekeeping_rtc_skipresume(void);
 
 extern void timekeeping_inject_sleeptime64(struct timespec64 *delta);
-
-/**
- * Deprecated. Use timekeeping_inject_sleeptime64().
- */
-static inline void timekeeping_inject_sleeptime(struct timespec *delta)
-{
-	struct timespec64 delta64;
-
-	delta64 = timespec_to_timespec64(*delta);
-	timekeeping_inject_sleeptime64(&delta64);
-}
 
 /*
  * PPS accessor
