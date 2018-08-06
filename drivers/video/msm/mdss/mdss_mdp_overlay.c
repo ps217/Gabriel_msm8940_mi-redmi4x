@@ -2233,7 +2233,7 @@ static bool __is_video_fps_changed(struct mdss_mdp_frc_info *frc_info)
 
 		if (frc_info->video_stat.last_delta) {
 			video_fps_changed =
-				abs64(delta_t - frc_info->video_stat.last_delta)
+				abs(delta_t - frc_info->video_stat.last_delta)
 				> (FRC_VIDEO_FPS_CHANGE_THRESHOLD_US *
 					FRC_VIDEO_FPS_DETECT_WINDOW);
 
