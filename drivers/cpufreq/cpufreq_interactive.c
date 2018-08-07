@@ -846,8 +846,8 @@ static int load_change_callback(struct notifier_block *nb, unsigned long val,
 	spin_unlock_irqrestore(&ppol->target_freq_lock, flags);
 
 	if (!hrtimer_is_queued(&ppol->notif_timer))
-		hrtimer_start_range_ns(&ppol->notif_timer, ms_to_ktime(1),
-					0, HRTIMER_MODE_REL);
+		hrtimer_start(&ppol->notif_timer, ms_to_ktime(1),
+					HRTIMER_MODE_REL);
 exit:
 	up_read(&ppol->enable_sem);
 	return 0;
