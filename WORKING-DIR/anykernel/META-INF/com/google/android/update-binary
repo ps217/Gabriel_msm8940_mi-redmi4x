@@ -143,27 +143,36 @@ ui_print "Looking for installed kernel...";
 ui_print " ";
 
 if [ ! -d /sdcard/gabriel/backup ]; then
-    mkdir -p /sdcard/gabriel/backup/modules/;
+    mkdir -p /sdcard/gabriel/backup/;
     chmod -R 755 /sdcard/gabriel/backup/;
 fi;
 
 if [ "$(cat /dev/block/bootdevice/by-name/boot | grep -m 1 sched_enable_hmp | grep gabriel | wc -l)" -gt "0" ]; then
   ui_print "Gabriel Kernel detected";
+  gabriel_kernel=1;
+else
+  gabriel_kernel=0;
 fi;
 
-if [ ! -e /sdcard/gabriel/backup/boot_backup.img ]; then
+name_flag=$(file_getprop /system/build.prop ro.product.name);
+date_flag=$(date +%Y-%m-%d);
+dir_flag=$date_flag-$name_flag;
+
+if [ ! -e /sdcard/gabriel/backup/$dir_flag/boot_backup.img ] && [ "$gabriel_kernel" == "0" ]; then
+  mkdir /sdcard/gabriel/backup/$dir_flag/;
   ui_print "Backup boot partition to internal storage";
   ui_print "- /sdcard/gabriel/backup/boot_backup.img";
-  dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/gabriel/backup/boot_backup.img;
+  dd if=/dev/block/bootdevice/by-name/boot of=/sdcard/gabriel/backup/$dir_flag/boot_backup.img;
   if [ -e /system/lib/modules/wil6210.ko ]; then
     ui_print "- /sdcard/gabriel/backup/modules/";
-    cp -r /system/lib/modules/* /sdcard/gabriel/backup/modules;
+    mkdir /sdcard/gabriel/backup/$dir_flag/modules/;
+    cp -r /system/lib/modules/* /sdcard/gabriel/backup/$dir_flag/modules;
   fi;
   ui_print "- Use boot_backup.img to restore previous kernel";
 else
   ui_print "- Boot backup in sdcard detected";
   ui_print "- /sdcard/gabriel/backup/boot_backup.img";
-  if [ -e /sdcard/gabriel/backup/modules/wil6210.ko ] && [ -e /system/lib/modules/wil6210.ko ]; then
+  if [ -e /sdcard/gabriel/backup/$dir_flag/modules/wil6210.ko ] && [ -e /system/lib/modules/wil6210.ko ]; then
     ui_print "- /sdcard/gabriel/backup/modules/";
   fi;
   ui_print "- Use boot_backup.img to restore previous kernel";
