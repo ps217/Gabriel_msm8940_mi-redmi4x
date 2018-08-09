@@ -1,0 +1,56 @@
+#!/sbin/busybox sh
+
+# CPUSET Tuning
+
+# $1 - "cpuset_tuning_susp"
+# $2 - value=
+# Created By Mostafaz
+
+BB=/sbin/busybox
+
+if [ "a$2" != "a" ]; then
+	cpuset_tuning_susp=$2;
+
+	case "${cpuset_tuning_susp}" in
+		default)
+			echo "$(cat /cache/fore_cpu)" > /dev/cpuset/foreground/cpus;
+			echo "$(cat /cache/fore_b_cpu)" > /dev/cpuset/foreground/boost/cpus;
+			echo "$(cat /cache/top_cpu)" > /dev/cpuset/top-app/cpus;
+			echo "$(cat /cache/sysb_cpu)" > /dev/cpuset/system-background/cpus;
+			echo "$(cat /cache/backg_cpu)" > /dev/cpuset/background/cpus;
+		;;
+		balance)
+			echo "0-1,4-6" > /dev/cpuset/foreground/cpus;
+			echo "0-2" > /dev/cpuset/foreground/boost/cpus;
+			echo "2-7" > /dev/cpuset/top-app/cpus;
+			echo "4-5" > /dev/cpuset/system-background/cpus;
+			echo "4-5" > /dev/cpuset/background/cpus;
+		;;
+		battery)
+			echo "0-1,4-5" > /dev/cpuset/foreground/cpus;
+			echo "0-1" > /dev/cpuset/foreground/boost/cpus;
+			echo "0-1,4-7" > /dev/cpuset/top-app/cpus;
+			echo "4-5" > /dev/cpuset/system-background/cpus;
+			echo "4-5" > /dev/cpuset/background/cpus;
+		;;
+		performance)
+			echo "0-6" > /dev/cpuset/foreground/cpus;
+			echo "0-3" > /dev/cpuset/foreground/boost/cpus;
+			echo "0-7" > /dev/cpuset/top-app/cpus;
+			echo "4-5" > /dev/cpuset/system-background/cpus;
+			echo "4-5" > /dev/cpuset/background/cpus;
+		;;
+		gaming)
+			echo "0-6" > /dev/cpuset/foreground/cpus;
+			echo "0-3" > /dev/cpuset/foreground/boost/cpus;
+			echo "0-7" > /dev/cpuset/top-app/cpus;
+			echo "4-5" > /dev/cpuset/system-background/cpus;
+			echo "4-5" > /dev/cpuset/background/cpus;
+		;;
+		*)
+			cpuset_tuning_susp=default;
+		;;
+	esac;
+fi;
+
+echo ${cpuset_tuning_susp};

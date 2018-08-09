@@ -420,7 +420,7 @@ CPUSET_STATE()
 	if [ "$state" == "awake" ]; then
 		$BB sh /res/uci.sh cpuset_tuning "$cpuset_tuning" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh cpuset_tuning "$cpuset_tuning_suspend" > /dev/null;
+		$BB sh /res/uci.sh cpuset_tuning_susp "$cpuset_tuning_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** CPUSET-STATE ***: $state - $PROFILE";
