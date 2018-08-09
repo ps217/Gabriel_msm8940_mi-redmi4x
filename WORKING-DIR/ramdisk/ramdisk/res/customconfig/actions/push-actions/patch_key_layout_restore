@@ -1,0 +1,16 @@
+#!/sbin/busybox sh
+
+(
+BB=/gabriel/busybox
+
+	$BB mount -o remount,rw /system;
+
+if [ -e /system/usr/keylayout/Generic.kl.bak ]; then
+  $BB mv /system/usr/keylayout/Generic.kl.bak /system/usr/keylayout/Generic.kl;
+  echo "key layout has been restored";
+else
+  echo "key layout already is the original file";
+fi;
+
+	$BB mount -o remount,ro /system;
+)&
