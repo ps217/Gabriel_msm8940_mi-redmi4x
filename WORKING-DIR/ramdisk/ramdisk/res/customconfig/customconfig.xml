@@ -148,6 +148,20 @@
 			<spinnerItem name="Turbo" value="turbo"/>
 		</spinner>
 
+		<spinner description="Select gpubw (gpu bandwidth) Policy. Default means Kernel Stock Parameters." name="GPUBW Clock Frequency Scale Policy"
+			action="devfreq_soc_gpubw">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Power" value="power"/>
+			<spinnerItem name="Turbo" value="turbo"/>
+		</spinner>
+
+		<spinner description="Select suspend gpubw Policy." name="Suspend GPUBW Clock Frequency Scale Policy"
+			action="generic_cortex /tmp/devfreq_soc_gpubw_susp">
+			<spinnerItem name="Default" value="default"/>
+			<spinnerItem name="Power" value="power"/>
+			<spinnerItem name="Turbo" value="turbo"/>
+		</spinner>
+
 	</settingsPane>
 
 

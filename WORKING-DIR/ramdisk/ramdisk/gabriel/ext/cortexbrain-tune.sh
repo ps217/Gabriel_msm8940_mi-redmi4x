@@ -189,6 +189,19 @@ CPUBW_CLOCK_FREQ_SCALE()
 	log -p i -t $FILE_NAME "*** CPUBW-CLOCK-FREQUENCY-SCALE ***: $state - $PROFILE";
 }
 
+GPUBW_CLOCK_FREQ_SCALE()
+{
+	local state="$1";
+
+	if [ "$state" == "awake" ]; then
+		$BB sh /res/uci.sh devfreq_soc_gpubw "$devfreq_soc_gpubw" > /dev/null;
+	elif [ "$state" == "sleep" ]; then
+		$BB sh /res/uci.sh devfreq_soc_gpubw_susp "$devfreq_soc_gpubw_susp" > /dev/null;
+	fi;
+
+	log -p i -t $FILE_NAME "*** GPUBW-CLOCK-FREQUENCY-SCALE ***: $state - $PROFILE";
+}
+
 # ==============================================================
 # BCL-STATE
 # ==============================================================
@@ -747,6 +760,7 @@ if [ "$(cat /data/gabriel_cortex_sleep)" -eq "1" ]; then
 	ENTROPY "awake";
 	IO_SCHEDULER "awake";
 	CPUBW_CLOCK_FREQ_SCALE "awake";
+	GPUBW_CLOCK_FREQ_SCALE "awake";
 	BCL_STATE "awake";
 
 	WIFI "awake";
@@ -806,6 +820,7 @@ SLEEP_MODE()
 		ENTROPY "sleep";
 		IO_SCHEDULER "sleep";
 		CPUBW_CLOCK_FREQ_SCALE "sleep";
+		GPUBW_CLOCK_FREQ_SCALE "sleep";
 		BCL_STATE "sleep";
 
 		WIFI "sleep";
