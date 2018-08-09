@@ -1,0 +1,25 @@
+#!/sbin/busybox sh
+
+# $1 - "devfreq_soc_gpubw"
+# $2 - value=
+
+if [ "a$2" != "a" ]; then
+	devfreq_soc_gpubw=$2;
+
+case "${devfreq_soc_gpubw}" in
+	default)
+		echo "bw_vbif" > /sys/class/devfreq/soc\:qcom,gpubw/governor;
+	;;
+	power)
+		echo "powersave" > /sys/class/devfreq/soc\:qcom,gpubw/governor;
+	;;
+	turbo)
+		echo "performance" > /sys/class/devfreq/soc\:qcom,gpubw/governor;
+	;;
+	*)
+		devfreq_soc_gpubw=default;
+	;;
+	esac;
+fi;
+
+echo ${devfreq_soc_gpubw};
