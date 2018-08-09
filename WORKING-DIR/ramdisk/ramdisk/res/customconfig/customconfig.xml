@@ -837,7 +837,6 @@
 		<spinner description="Select CPU Temp Control driver. Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Only Intelligent Temp Control you'll have only one overheat protection, so if Driver stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
 			action="msm_thermal">
 			<spinnerItem name="Dual Intelligent Temp Control" value="intelli_temp"/>
-			<spinnerItem name="Intelligent Temp Control Only" value="intelli_temp_only"/>
 		</spinner>
 
 		<spinner description="By enabling this setting, kernel will obey Minimum CPU frequency defined by user in CPU Tuning Tab, not Minimum Available CPU frequency (249 MHz). It will prevent CPU to get 249 MHz as Maximum frequency at High Heat mitigation. below control is the threshold of this tunable." name="Min Frequency Override"
