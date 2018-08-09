@@ -403,7 +403,7 @@ HMP_SCHEDULER_STATE()
 	if [ "$state" == "awake" ]; then
 		$BB sh /res/uci.sh hmp_scheduler "$hmp_scheduler" > /dev/null;
 	elif [ "$state" == "sleep" ]; then
-		$BB sh /res/uci.sh hmp_scheduler "$hmp_scheduler_suspend" > /dev/null;
+		$BB sh /res/uci.sh hmp_scheduler_susp "$hmp_scheduler_suspend" > /dev/null;
 	fi;
 
 	log -p i -t $FILE_NAME "*** HMP-SCHEDULER-STATE ***: $state - $PROFILE";
