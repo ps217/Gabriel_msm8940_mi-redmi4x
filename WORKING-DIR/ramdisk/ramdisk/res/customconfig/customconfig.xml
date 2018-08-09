@@ -1380,6 +1380,14 @@
 
 	</settingsPane>
 
+	<settingsPane description="Key layout patcher is a generic key layout modifier to remap mi-headphone buttons and hardware navigation keys." name="Patch Key Layout">
+
+		<button description="Push this button to apply the patch." name="Patch key layout" action="push-actions/patch_key_layout" label="Patch key layout"/>
+
+		<button description="Push this button to Restore original key layout of rom." name="Restore key layout" action="push-actions/patch_key_layout_restore" label="Restore key layout"/>
+
+	</settingsPane>
+
 </settingsTab>
 
 <settingsTab name="Tweaks">
