@@ -39,7 +39,6 @@ struct pil_priv;
  * @modem_ssr: true if modem is restarting, false if booting for first time.
  * @clear_fw_region: Clear fw region on failure in loading.
  * @subsys_vmid: memprot id for the subsystem.
- * @clear_fw_region: Clear fw region on failure in loading.
  */
 struct pil_desc {
 	const char *name;
@@ -61,7 +60,6 @@ struct pil_desc {
 	bool modem_ssr;
 	bool clear_fw_region;
 	u32 subsys_vmid;
-	bool clear_fw_region;
 };
 
 /**
@@ -118,7 +116,7 @@ struct md_ssr_toc /* Shared IMEM ToC struct */
  */
 struct pil_reset_ops {
 	int (*init_image)(struct pil_desc *pil, const u8 *metadata,
-			  size_t size,  phys_addr_t addr, size_t sz);
+			  size_t size);
 	int (*mem_setup)(struct pil_desc *pil, phys_addr_t addr, size_t size);
 	int (*verify_blob)(struct pil_desc *pil, phys_addr_t phy_addr,
 			   size_t size);
