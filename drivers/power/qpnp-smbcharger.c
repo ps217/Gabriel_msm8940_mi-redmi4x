@@ -462,7 +462,7 @@ module_param_named(
 	int, S_IRUSR | S_IWUSR
 );
 
-static int smbchg_default_hvdcp3_icl_ma = 2500; //Special curent for High Power Buck Mode at 6VDC Supply
+static int smbchg_default_hvdcp3_icl_ma = 2400; //Special curent for High Power Buck Mode at 6VDC Supply
 module_param_named(
 	default_hvdcp3_icl_ma, smbchg_default_hvdcp3_icl_ma,
 	int, S_IRUSR | S_IWUSR
@@ -7760,7 +7760,7 @@ static struct of_device_id smbchg_match_table[] = {
 };
 
 #define DC_MA_MIN 300
-#define DC_MA_MAX 2500
+#define DC_MA_MAX 2400
 #define OF_PROP_READ(chip, prop, dt_property, retval, optional)		\
 do {									\
 	if (retval)							\
@@ -7875,7 +7875,7 @@ err:
 }
 
 #define DEFAULT_VLED_MAX_UV		3500000
-#define DEFAULT_FCC_MA			2500 //Set default maximum current, can be set up to 3000mA
+#define DEFAULT_FCC_MA			2400 //Set default maximum current, can be set up to 3000mA
 static int smb_parse_dt(struct smbchg_chip *chip)
 {
 	int rc = 0, ocp_thresh = -EINVAL;
