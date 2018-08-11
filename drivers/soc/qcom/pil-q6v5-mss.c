@@ -328,7 +328,7 @@ static int pil_mss_loadable_init(struct modem_data *drv,
 			dev_err(&pdev->dev, "Failed to set vreg voltage(rc:%d)\n",
 									ret);
 
-		ret = regulator_set_optimum_mode(q6->vreg, 100000);
+		ret = regulator_set_load(q6->vreg, 100000);
 		if (ret < 0) {
 			dev_err(&pdev->dev, "Failed to set vreg mode(rc:%d)\n",
 									ret);
@@ -442,7 +442,7 @@ static int pil_mba_mem_driver_probe(struct platform_device *pdev)
 	return 0;
 }
 
-static struct of_device_id mba_mem_match_table[] = {
+static const struct of_device_id mba_mem_match_table[] = {
 	{ .compatible = "qcom,pil-mba-mem" },
 	{}
 };
