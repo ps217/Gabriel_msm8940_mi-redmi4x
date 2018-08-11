@@ -49,15 +49,25 @@ if [ "a$2" != "a" ]; then
 			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
 		;;
+		2100)
+			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
 		2200)
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
 		;;
-		2500)
-			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
-			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
-			echo 2500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		2300)
+			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+		;;
+		2400)
+			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
+			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
+			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
 		;;
 		*)
 			charger_current_limiter=1800;
