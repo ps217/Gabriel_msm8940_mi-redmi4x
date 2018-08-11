@@ -129,9 +129,23 @@ static struct msg_desc mem_share_svc_size_query_resp_desc = {
 static int mem_share_configure_ramdump(void)
 {
 	char client_name[18] = "memshare_";
-	char *clnt;
+	char *clnt = NULL;
 
-	clnt = ((!num_clients) ? "GPS" : ((num_clients == 1) ? "FTM" : "DIAG"));
+	switch (num_clients) {
+	case 0:
+		clnt = "GPS";
+		break;
+	case 1:
+		clnt = "FTM";
+		break;
+	case 2:
+		clnt = "DIAG";
+		break;
+	default:
+		pr_info("memshare: no memshare clients registered\n");
+		return -EINVAL;
+	}
+
 	snprintf(client_name, 18, "memshare_%s", clnt);
 	if (memshare_dev[num_clients]) {
 		memshare_ramdump_dev[num_clients] =
@@ -254,14 +268,26 @@ void initialize_client(void)
 static int mem_share_do_ramdump(void)
 {
 	int i = 0, ret;
-	char *client_name;
+	char *client_name = NULL;
 
 	for (i = 0; i < num_clients; i++) {
 
 		struct ramdump_segment *ramdump_segments_tmp = NULL;
 
-		client_name = (i == 0) ? "GPS" :
-			((i == 1) ? "FTM" : ((i == 2) ? "DIAG" : "NULL"));
+		switch (i) {
+		case 0:
+			client_name = "GPS";
+			break;
+		case 1:
+			client_name = "FTM";
+			break;
+		case 2:
+			client_name = "DIAG";
+			break;
+		default:
+			pr_info("memshare: no memshare clients registered\n");
+			break;
+		}
 
 		if (!memblock[i].alloted) {
 			pr_err("memshare:%s memblock is not alloted\n",
