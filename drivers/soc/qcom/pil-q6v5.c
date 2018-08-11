@@ -753,7 +753,7 @@ struct q6v5_data *pil_q6v5_init(struct platform_device *pdev)
 
 		ret = regulator_set_optimum_mode(drv->vreg_pll, 10000);
 		if (ret < 0) {
-			dev_err(pil->dev, "Failed to request vreg_mx voltage(rc:%d)\n",
+			dev_err(&pdev->dev, "Failed to request vreg_mx voltage(rc:%d)\n",
 												ret);
 			return ERR_PTR(ret);
 		}
