@@ -110,17 +110,7 @@ done;
 SYSTEM_TUNING()
 {
 echo 1 > /sys/module/msm_thermal/core_control/enabled;
-echo 45 > /cputemp/core_control_mask;
-echo 60 > /cputemp/core_limit_temp_degC;
-
-echo 1 > /cputemp/enabled;
-echo 1 > /cputemp/intelli_user_control;
-echo 1000000 > /cputemp/intelli_user_freq;
-echo 70 > /cputemp/limit_temp_degC;
-echo 250 > /cputemp/poll_ms;
-
-echo 0 > /cputemp/thermal_limit_high;
-echo 0 > /cputemp/thermal_limit_low;
+echo 0 > /cputemp/enabled;
 
 # cpuset tuning
 echo "$(cat /dev/cpuset/foreground/cpus)" > /cache/fore_cpu;
@@ -157,7 +147,7 @@ SYSTEM_TUNING;
 # just set numer $RESET_MAGIC + 1 and profiles will be reset one time on next boot with new kernel.
 # incase that ADMIN feel that something wrong with global STweaks config and profiles, then ADMIN can add +1 to CLEAN_gabriel_DIR
 # to clean all files on first boot from /data/.gabriel/ folder.
-RESET_MAGIC=7;
+RESET_MAGIC=8;
 CLEAN_gabriel_DIR=1;
 
 if [ ! -e /data/.gabriel/reset_profiles ]; then
@@ -392,9 +382,6 @@ if [ "$stweaks_boot_control" == "no" ]; then
 		fi;
 	done;
 fi;
-
-	# stop core control if need to
-	echo "$core_control" > /sys/module/msm_thermal/core_control/enabled;
 
 	# script finish here, so let me know when
 	TIME_NOW=$(date)
