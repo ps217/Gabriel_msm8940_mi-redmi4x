@@ -18,56 +18,67 @@ if [ "a$2" != "a" ]; then
 			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 500000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		700)
 			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 700 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 700000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		1000)
 			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 1000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 1000000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		1200)
 			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 1200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 1200000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		1500)
 			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 1500 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 1500000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		1800)
 			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 1800 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 1800000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		2000)
 			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2000 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 2000000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		2100)
 			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2100 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 2100000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		2200)
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2200 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 2200000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		2300)
 			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2300 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 2300000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		2400)
 			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_dcp_icl_ma;
 			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp3_icl_ma;
 			echo 2400 > /sys/module/qpnp_smbcharger/parameters/default_hvdcp_icl_ma;
+			echo 2400000 > /sys/class/power_supply/battery/constant_charge_current_max;
 		;;
 		*)
 			charger_current_limiter=1800;
