@@ -41,8 +41,8 @@
 #define STOP_ACK_TIMEOUT_MS	1000
 #define CRASH_STOP_ACK_TO_MS	200
 
-#define ERR_READY	1
-#define PBL_DONE	2
+#define ERR_READY	0
+#define PBL_DONE	1
 
 #define desc_to_data(d) container_of(d, struct pil_tz_data, desc)
 #define subsys_to_data(d) container_of(d, struct pil_tz_data, subsys_desc)
@@ -432,7 +432,7 @@ static int enable_regulators(struct pil_tz_data *d, struct device *dev,
 		}
 
 		if (regs[i].uA > 0) {
-			rc = regulator_set_optimum_mode(regs[i].reg,
+			rc = regulator_set_load(regs[i].reg,
 						regs[i].uA);
 			if (rc < 0) {
 				dev_err(dev, "Failed to set regulator mode(rc:%d)\n",
@@ -455,7 +455,7 @@ static int enable_regulators(struct pil_tz_data *d, struct device *dev,
 err_enable:
 	if (regs[i].uA > 0) {
 		regulator_set_voltage(regs[i].reg, 0, INT_MAX);
-		regulator_set_optimum_mode(regs[i].reg, 0);
+		regulator_set_load(regs[i].reg, 0);
 	}
 err_mode:
 	if (regs[i].uV > 0)
@@ -466,7 +466,7 @@ err_voltage:
 			regulator_set_voltage(regs[i].reg, 0, INT_MAX);
 
 		if (regs[i].uA > 0)
-			regulator_set_optimum_mode(regs[i].reg, 0);
+			regulator_set_load(regs[i].reg, 0);
 
 		if (d->keep_proxy_regs_on && reg_no_enable)
 			continue;
@@ -486,7 +486,7 @@ static void disable_regulators(struct pil_tz_data *d, struct reg_info *regs,
 			regulator_set_voltage(regs[i].reg, 0, INT_MAX);
 
 		if (regs[i].uA > 0)
-			regulator_set_optimum_mode(regs[i].reg, 0);
+			regulator_set_load(regs[i].reg, 0);
 
 		if (d->keep_proxy_regs_on && reg_no_disable)
 			continue;
@@ -519,8 +519,7 @@ err:
 static void disable_unprepare_clocks(struct clk **clks, int clk_count)
 {
 	int i;
-
-	for (i = 0; i < clk_count; i++)
+	for (i = --clk_count; i >= 0; i--)
 		clk_disable_unprepare(clks[i]);
 }
 
@@ -581,8 +580,7 @@ static void pil_remove_proxy_vote(struct pil_desc *pil)
 }
 
 static int pil_init_image_trusted(struct pil_desc *pil,
-		const u8 *metadata, size_t size,
-		 phys_addr_t addr, size_t sz)
+		const u8 *metadata, size_t size)
 {
 	struct pil_tz_data *d = desc_to_data(pil);
 	struct pas_init_image_req {
@@ -852,7 +850,7 @@ static int subsys_ramdump(int enable, const struct subsys_desc *subsys)
 	if (!enable)
 		return 0;
 
-	return pil_do_ramdump(&d->desc, d->ramdump_dev);
+	return pil_do_ramdump(&d->desc, d->ramdump_dev, NULL);
 }
 
 static void subsys_free_memory(const struct subsys_desc *subsys)
@@ -1046,7 +1044,7 @@ static int pil_tz_driver_probe(struct platform_device *pdev)
 	if (!d->subsys_desc.no_auth) {
 		rc = piltz_resc_init(pdev, d);
 		if (rc)
-			return -ENOENT;
+			return rc;
 
 		rc = of_property_read_u32(pdev->dev.of_node, "qcom,pas-id",
 								&d->pas_id);
