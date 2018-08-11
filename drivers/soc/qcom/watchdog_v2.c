@@ -121,8 +121,8 @@ module_param(ipi_opt_en, int, 0);
 static void dump_cpu_alive_mask(struct msm_watchdog_data *wdog_dd)
 {
 	static char alive_mask_buf[MASK_SIZE];
-	cpulist_scnprintf(alive_mask_buf, MASK_SIZE,
-						&wdog_dd->alive_mask);
+	scnprintf(alive_mask_buf, MASK_SIZE, "%*pb1", cpumask_pr_args(
+				&wdog_dd->alive_mask));
 	printk(KERN_INFO "cpu alive mask from last pet %s\n", alive_mask_buf);
 }
 
@@ -599,7 +599,7 @@ static void configure_bark_dump(struct msm_watchdog_data *wdog_dd)
 			 * without saving registers.
 			 */
 		}
-	} else if (IS_ENABLED(CONFIG_MSM_MEMORY_DUMP_V2)) {
+	} else {
 		cpu_data = kzalloc(sizeof(struct msm_dump_data) *
 				   num_present_cpus(), GFP_KERNEL);
 		if (!cpu_data) {
