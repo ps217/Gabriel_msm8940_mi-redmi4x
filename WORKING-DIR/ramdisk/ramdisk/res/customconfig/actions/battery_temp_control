@@ -1,0 +1,41 @@
+#!/sbin/busybox sh
+
+# $1 - "battery_temp_control"
+# $2 - value=
+# Created By Dorimanx
+
+BB=/gabriel/busybox
+
+# get values from profile
+PROFILE=$(cat /data/.gabriel/.active.profile);
+. /data/.gabriel/"$PROFILE".profile;
+
+if [ "a$2" != "a" ]; then
+	battery_temp_control=$2;
+
+	case "${battery_temp_control}" in
+		45)
+			echo 450 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		46)
+			echo 460 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		47)
+			echo 470 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		48)
+			echo 480 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		49)
+			echo 490 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		50)
+			echo 500 > /sys/class/power_supply/bms/temp_warm;
+		;;
+		*)
+			battery_temp_control=50;
+		;;
+	esac;
+fi;
+
+echo ${battery_temp_control};
