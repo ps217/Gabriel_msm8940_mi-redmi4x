@@ -138,6 +138,7 @@ max_cpu_percentage=10
 max_cpu_percentage_sleep=1
 force_fast_charge=1
 charger_current_limiter=2000
+battery_temp_control=50
 printk_mode=on
 debug_level=on
 backlight_min=0

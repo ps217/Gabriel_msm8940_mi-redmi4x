@@ -1220,6 +1220,16 @@
 			<spinnerItem name="500" value="500"/>
 		</spinner>
 
+		<spinner description="This Battery Temperature control is a Threshold to limit maximum charging rate. The higher value is set, then Higher current you get. (default 50° C)." name="Battery Temperature Control"
+			action="battery_temp_control">
+			<spinnerItem name="45" value="45"/>
+			<spinnerItem name="46" value="46"/>
+			<spinnerItem name="47 Safe Limit" value="47"/>
+			<spinnerItem name="48" value="48"/>
+			<spinnerItem name="49" value="49"/>
+			<spinnerItem name="50 Default" value="50"/>
+		</spinner>
+
 	</settingsPane>
 
 	<settingsPane description="Here you can set Driver Message logging options for kernel debugging." name="Drivers Logging">
