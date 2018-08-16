@@ -10,6 +10,9 @@ else
 	echo "$oom_config_screen_on";
 fi;
 
+stweak_pid="$(pgrep -f stweak)";
+echo "-1000" > /proc/$stweak_pid/oom_score_adj;
+
 PROFILE=`cat /data/.gabriel/.active.profile`;
 
 case "${oom_config_screen_on}" in
