@@ -37,15 +37,11 @@ void register_misc_dump(void)
 
 	if (MSM_DUMP_MAJOR(msm_dump_table_version()) > 1) {
 		misc_data = kzalloc(sizeof(struct msm_dump_data), GFP_KERNEL);
-		if (!misc_data) {
-			pr_err("misc dump data structure allocation failed\n");
+		if (!misc_data)
 			return;
-		}
 		misc_buf = kzalloc(MISC_DUMP_DATA_LEN, GFP_KERNEL);
-		if (!misc_buf) {
-			pr_err("misc buffer space allocation failed\n");
+		if (!misc_buf)
 			goto err0;
-		}
 
 		strlcpy(misc_data->name, "KMISC", sizeof(misc_data->name));
 		misc_data->addr = virt_to_phys(misc_buf);
@@ -53,10 +49,8 @@ void register_misc_dump(void)
 		dump_entry.id = MSM_DUMP_DATA_MISC;
 		dump_entry.addr = virt_to_phys(misc_data);
 		ret = msm_dump_data_register(MSM_DUMP_TABLE_APPS, &dump_entry);
-		if (ret) {
-			pr_err("Registering misc dump region failed\n");
+		if (ret)
 			goto err1;
-		}
 		return;
 err1:
 		kfree(misc_buf);
@@ -79,10 +73,8 @@ static void register_pmic_dump(void)
 			return;
 		}
 		dump_addr = kzalloc(PMIC_DUMP_DATA_LEN, GFP_KERNEL);
-		if (!dump_addr) {
-			pr_err("buffer space allocation failed\n");
+		if (!dump_addr)
 			goto err0;
-		}
 
 		strlcpy(dump_data->name, "KPMIC", sizeof(dump_data->name));
 		dump_data->addr = virt_to_phys(dump_addr);
@@ -116,10 +108,8 @@ static void register_vsense_dump(void)
 			return;
 		}
 		dump_addr = kzalloc(VSENSE_DUMP_DATA_LEN, GFP_KERNEL);
-		if (!dump_addr) {
-			pr_err("buffer space allocation failed for vsense data\n");
+		if (!dump_addr)
 			goto err0;
-		}
 
 		strlcpy(dump_data->name, "KVSENSE",
 				sizeof(dump_data->name));
@@ -152,10 +142,8 @@ void register_rpm_dump(void)
 		if (!dump_data)
 			return;
 		dump_addr = kzalloc(RPM_DUMP_DATA_LEN, GFP_KERNEL);
-		if (!dump_addr) {
-			pr_err("rpm dump buffer space allocation failed\n");
+		if (!dump_addr)
 			goto err0;
-		}
 
 		strlcpy(dump_data->name, "KRPM", sizeof(dump_data->name));
 		dump_data->addr = virt_to_phys(dump_addr);
@@ -207,10 +195,8 @@ static void __init common_log_register_log_buf(void)
 	} else {
 		dump_data = kzalloc(sizeof(struct msm_dump_data),
 						GFP_KERNEL);
-		if (!dump_data) {
-			pr_err("Unable to alloc data space.\n");
+		if (!dump_data)
 			return;
-		}
 		dump_data->len = *log_buf_lenp;
 		dump_data->addr = virt_to_phys(*log_bufp);
 		entry_log_buf.id = MSM_DUMP_DATA_LOG_BUF;
@@ -225,10 +211,8 @@ static void __init common_log_register_log_buf(void)
 		if (fist_idxp) {
 			dump_data = kzalloc(sizeof(struct msm_dump_data),
 							GFP_KERNEL);
-			if (!dump_data) {
-				pr_err("Unable to alloc data space.\n");
+			if (!dump_data)
 				return;
-			}
 			dump_data->addr = virt_to_phys(fist_idxp);
 			entry_first_idx.id = MSM_DUMP_DATA_LOG_BUF_FIRST_IDX;
 			entry_first_idx.addr = virt_to_phys(dump_data);
