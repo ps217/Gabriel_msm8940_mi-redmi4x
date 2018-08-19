@@ -4398,7 +4398,7 @@ CONFIG_ENCRYPTED_KEYS=y
 #
 # Qualcomm Technologies, Inc Per File Encryption security device drivers
 #
-# CONFIG_PFK is not set
+CONFIG_PFK=y
 # CONFIG_SECURITY_DMESG_RESTRICT is not set
 CONFIG_SECURITY=y
 # CONFIG_SECURITYFS is not set
