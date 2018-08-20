@@ -509,6 +509,11 @@ module_param_named(
 			pr_debug_ratelimited(fmt, ##__VA_ARGS__);	\
 	} while (0)
 
+#define pr_dbg(reason, fmt, ...)				\
+	do {							\
+		pr_debug(fmt, ##__VA_ARGS__);		\
+	} while (0)
+
 static int smbchg_read(struct smbchg_chip *chip, u8 *val,
 			u16 addr, int count)
 {
@@ -3255,7 +3260,7 @@ static int smbchg_calc_max_flash_current(struct smbchg_chip *chip)
 	 * before collapsing the battery. (available power/ flash input voltage)
 	 */
 	avail_flash_ua = div64_s64(avail_flash_power_fw, vin_flash_uv * MCONV);
-	pr_smb(PR_MISC,
+	pr_dbg(PR_MISC,
 		"avail_iflash=%lld, ocv=%d, ibat=%d, rbatt=%d\n",
 		avail_flash_ua, ocv_uv, ibat_now, rbatt_uohm);
 	return (int)avail_flash_ua;
@@ -3575,7 +3580,7 @@ static void smbchg_vfloat_adjust_check(struct smbchg_chip *chip)
 		return;
 
 	smbchg_stay_awake(chip, PM_REASON_VFLOAT_ADJUST);
-	pr_smb(PR_STATUS, "Starting vfloat adjustments\n");
+	pr_dbg(PR_STATUS, "Starting vfloat adjustments\n");
 	schedule_delayed_work(&chip->vfloat_adjust_work, 0);
 }
 
@@ -4602,7 +4607,7 @@ static void smbchg_vfloat_adjust_work(struct work_struct *work)
 	enable = taper && (chip->parallel.current_max_ma == 0);
 
 	if (!enable) {
-		pr_smb(PR_MISC,
+		pr_dbg(PR_MISC,
 			"Stopping vfloat adj taper=%d parallel_ma = %d\n",
 			taper, chip->parallel.current_max_ma);
 		goto stop;
@@ -8563,7 +8568,7 @@ static void period_update(struct work_struct *work)
 		pr_info("***temp=%d,vol=%d,cap=%d,status=%d,chg_state=%d,current=%d,present=%d,usb_present=%d\n",
 				temp, voltage, cap, status, charge_type, chg_current, present, usb_present);
 
-		pr_info("***present=%d,usb_present=%d,usb_current=%d, Vbus=%d\n",
+		pr_debug("***present=%d,usb_present=%d,usb_current=%d, Vbus=%d\n",
 				present, usb_present, usb_current, vbus);
 
 		old_temp = temp;
