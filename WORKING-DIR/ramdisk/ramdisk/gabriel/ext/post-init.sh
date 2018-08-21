@@ -381,6 +381,11 @@ if [ "$stweaks_boot_control" == "no" ]; then
 			fi;
 		fi;
 	done;
+
+	echo "0" > /proc/sys/vm/oom_kill_allocating_task;
+	echo "0" > /proc/sys/vm/panic_on_oom;
+	echo "30" > /proc/sys/kernel/panic;
+	echo "0" > /proc/sys/kernel/panic_on_oops;
 fi;
 
 	# script finish here, so let me know when
