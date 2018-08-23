@@ -107,6 +107,12 @@ $BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/cpuinfo_cur_freq
 $BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/stats/*
 done;
 
+if [ -d /system/lib/modules ] &&
+   [ "$(grep 'ro.miui*' /system/build.prop | wc -l)" -gt "0" ]; then
+	cp /gabriel/modules/* /system/lib/modules/;
+	echo "[Gabriel-Kernel] Modules have been copied to system" > /dev/kmsg;
+fi;
+
 SYSTEM_TUNING()
 {
 echo 1 > /sys/module/msm_thermal/core_control/enabled;
