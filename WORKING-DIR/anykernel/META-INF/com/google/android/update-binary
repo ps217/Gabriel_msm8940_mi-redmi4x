@@ -99,7 +99,13 @@ fi;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.osversion)" == 1 ]; then
 	mount -o rw,remount -t auto /system;
-		if [ "$(grep 'ro.build.version.sdk=27' /system/build.prop | wc -l)" -eq "1" ]; then
+		if [ "$(grep 'ro.build.version.sdk=29' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Pie 9.1.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=28' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Pie 9.0.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=27' /system/build.prop | wc -l)" -eq "1" ]; then
 			ui_print "Android Oreo 8.1.X detected";
 			ui_print " ";
 		elif [ "$(grep 'ro.build.version.sdk=26' /system/build.prop | wc -l)" -eq "1" ]; then
