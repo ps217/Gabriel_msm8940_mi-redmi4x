@@ -98,22 +98,24 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.devicecheck)" == 1 ]; then
 fi;
 
 if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.osversion)" == 1 ]; then
-	if [ "$(grep 'ro.build.version.sdk=27' /system/build.prop | wc -l)" -eq "1" ]; then
-		ui_print "Android Oreo 8.1.X detected";
-		ui_print " ";
-	elif [ "$(grep 'ro.build.version.sdk=26' /system/build.prop | wc -l)" -eq "1" ]; then
-		ui_print "Android Oreo 8.0.X detected";
-		ui_print " ";
-	elif [ "$(grep 'ro.build.version.sdk=25' /system/build.prop | wc -l)" -eq "1" ]; then
-		ui_print "Android Nougat 7.1.X detected";
-		ui_print " ";
-	elif [ "$(grep 'ro.build.version.sdk=24' /system/build.prop | wc -l)" -eq "1" ]; then
-		ui_print "Android Nougat 7.0.X detected";
-		ui_print " ";
-	elif [ "$(grep 'ro.build.version.sdk=23' /system/build.prop | wc -l)" -eq "1" ]; then
-		ui_print "Android Marshmallow 6.0.1 detected";
-		ui_print " ";
-	fi;
+	mount -o rw,remount -t auto /system;
+		if [ "$(grep 'ro.build.version.sdk=27' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Oreo 8.1.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=26' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Oreo 8.0.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=25' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Nougat 7.1.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=24' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Nougat 7.0.X detected";
+			ui_print " ";
+		elif [ "$(grep 'ro.build.version.sdk=23' /system/build.prop | wc -l)" -eq "1" ]; then
+			ui_print "Android Marshmallow 6.0.1 detected";
+			ui_print " ";
+		fi;
+	mount -o ro,remount -t auto /system;
 fi;
 
 if [ "$(file_getprop /system/build.prop ro.treble.enabled)" == "true" ]; then
@@ -199,9 +201,11 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
 	if [ "$(find "/tmp/anykernel/modules/" -name "*ko")" ]; then
 		ui_print " ";
 		ui_print "Pushing modules...";
+		mount -o rw,remount -t auto /system;
 		$bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
 		set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
 		chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
+		mount -o ro,remount -t auto /system;
 	fi;
 fi;
 
@@ -209,7 +213,9 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.system)" == 1 ] &&
    [ ! -e /system/xbin/zip ]; then
   ui_print " ";
   ui_print "Pushing system...";
+  mount -o rw,remount -t auto /system;
   $bb cp -rLf /tmp/anykernel/ramdisk/system/* $root/system/;
+  mount -o ro,remount -t auto /system;
 fi;
 
 if [ "$(file_getprop /tmp/anykernel/fstab.patch do.fstab)" == 1 ]; then
@@ -219,6 +225,7 @@ if [ "$(file_getprop /tmp/anykernel/fstab.patch do.fstab)" == 1 ]; then
 # anykernel run this if fstab has been patched
 fi;
 
+mount -o rw,remount -t auto /system;
 if [ "$(cat /system/usr/keylayout/Generic.kl | grep "key 139   MENU" | wc -l)" -gt 0 ]; then
   ui_print " ";
   ui_print "Patching key layout...";
@@ -226,6 +233,7 @@ if [ "$(cat /system/usr/keylayout/Generic.kl | grep "key 139   MENU" | wc -l)" -
   sed -i 's/key 139   MENU/key 139   APP_SWITCH/g' /system/usr/keylayout/Generic.kl;
   sed -i 's/key 580   APP_SWITCH/key 580   MENU/g' /system/usr/keylayout/Generic.kl;
 fi;
+mount -o ro,remount -t auto /system;
 
 debugging;
 
