@@ -211,6 +211,17 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.modules)" == 1 ]; then
 		$bb cp -rLf /tmp/anykernel/modules/* $root/system/lib/modules/;
 		set_perm_recursive 0 0 0755 0644 $root/system/lib/modules;
 		chcon -R 'u:object_r:system_file:s0' $root/system/lib/modules;
+
+		if [ ! -d $root/gabriel/modules ]; then
+		  $bb mkdir -p $root/gabriel/modules/
+		else
+		  $bb rm $root/gabriel/modules/*;
+		fi;
+
+		$bb cp -rLf /tmp/anykernel/modules/* $root/gabriel/modules/;
+		set_perm_recursive 0 0 0755 0644 $root/gabriel/modules;
+		chcon -R 'u:object_r:system_file:s0' $root/gabriel/modules;
+
 		mount -o ro,remount -t auto /system;
 	fi;
 fi;
