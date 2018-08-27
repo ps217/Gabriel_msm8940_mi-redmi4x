@@ -113,6 +113,13 @@ if [ -d /system/lib/modules ] &&
 	echo "[Gabriel-Kernel] Modules have been copied to system" > /dev/kmsg;
 fi;
 
+# fix mtp, 4*4096=16384 length limitation in usb driver
+# define CI13XXX_PAGE_SIZE  4096ul /* page size for TD's */
+# credits to xpsviewer@git
+if [ "$(cat /sys/module/g_android/parameters/mtp_tx_req_len)" -gt 16384 ]; then
+	echo 16384 > /sys/module/g_android/parameters/mtp_tx_req_len;
+fi;
+
 SYSTEM_TUNING()
 {
 echo 1 > /sys/module/msm_thermal/core_control/enabled;
