@@ -29,8 +29,8 @@ export WD=$RDIR/WORKING-DIR
 export RK=$RDIR/READY-KERNEL
 
 export CC=android-toolchain-arm64/clang/bin/clang
+export CLANG_VERSION=$($CC --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//' | sed 's:.*) ::' | sed 's; (.*;;')
 export CLANG_TRIPLE=aarch64-linux-gnu-
-export CLANG_VERSION="$(${CC} --version | head -n 1)"
 KBUILD_LOUP_CFLAGS="-Wno-unknown-warning-option -Wno-sometimes-uninitialized -Wno-vectorizer-no-neon -Wno-pointer-sign -Wno-sometimes-uninitialized -Wno-tautological-constant-out-of-range-compare -Wno-literal-conversion -Wno-enum-conversion -Wno-parentheses-equality -Wno-typedef-redefinition -Wno-constant-logical-operand -Wno-array-bounds -Wno-empty-body -Wno-non-literal-null-conversion -O2"
 
 function echo() {
@@ -114,6 +114,7 @@ function build_kernel() {
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CROSS_COMPILE="$BUILD_CROSS_COMPILE" \
 			CC="ccache $CC" CLANG_TRIPLE="$CLANG_TRIPLE" \
+			KBUILD_COMPILER_STRING="$CLANG_VERSION" \
 			KBUILD_LOUP_CFLAGS="$KBUILD_LOUP_CFLAGS" | grep :
 
 if [ "$(grep "=m" .config | wc -l)" -gt 0 ];then
