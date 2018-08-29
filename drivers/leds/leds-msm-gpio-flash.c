@@ -277,7 +277,7 @@ static int led_gpio_flash_probe(struct platform_device *pdev)
 	rc = led_classdev_register(&pdev->dev, &flash_led->cdev);
 	if (rc) {
 		dev_err(&pdev->dev, "%s: Failed to register led dev. rc = %d\n",
-				__func__, rc);
+			__func__, rc);
 		goto error;
 	}
 	pr_err("%s:probe successfully!\n", __func__);

@@ -117,7 +117,7 @@ alternative_else_nop_endif
 	.if	\el == 0
 	mrs	x21, sp_el0
 #ifdef CONFIG_THREAD_INFO_IN_TASK
-	ldr_this_cpu	tsk, __entry_task, x20  // Ensure MDSCR_EL1.SS is clear,
+	ldr_this_cpu	tsk, __entry_task, x20	// Ensure MDSCR_EL1.SS is clear,
 	ldr	x19, [tsk, #TSK_TI_FLAGS]	// since we can unmask debug
 #else
 	mov	tsk, sp
@@ -135,7 +135,7 @@ alternative_else_nop_endif
 	ldr	x20, [tsk, #TI_ADDR_LIMIT]
 #endif
 	str	x20, [sp, #S_ORIG_ADDR_LIMIT]
-	mov	x20, #USER_DS
+	mov	x20, #TASK_SIZE_64
 #ifdef CONFIG_THREAD_INFO_IN_TASK
 	str	x20, [tsk, #TSK_TI_ADDR_LIMIT]
 #else

@@ -47,6 +47,9 @@
 #include <linux/percpu.h>
 #endif
 
+#ifdef CONFIG_THREAD_INFO_IN_TASK
+#include <linux/percpu.h>
+#endif
 #include <asm/alternative.h>
 #include <asm/compat.h>
 #include <asm/cacheflush.h>
