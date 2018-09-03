@@ -17,6 +17,7 @@ export BUILD_CROSS_COMPILE=$TOOLCHAIN_FOLDER/gcc/bin/aarch64-linux-gnu-
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
+export GIT_BRANCH=`git branch | grep \* | cut -d ' ' -f2`
 export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-34)
 export DATE=$(date +"[%Y-%m-%d]");
 
@@ -258,7 +259,7 @@ FUNC_BUILD_ZIP_STK()
 	fi;
 
 #	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
-	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH-$DRIVER-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 	\cp -r $WD/package/* $WD/temp
@@ -317,7 +318,7 @@ fi;
 FUNC_BUILD_ZIP_ANY()
 {
 #	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
-	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH-$DRIVER-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 if [ "$BUILD_PROCESS" = "1" ]; then
@@ -338,6 +339,12 @@ fi;
 
 	FUNC_ADB
 }
+
+if [ $GIT_BRANCH == master-santoni-cpu8998 ]; then
+    export BRANCH="CPU8998"
+else
+    export BRANCH="CPU8940"
+fi
 
 FUNC_MULTI_BUILD()
 {
@@ -463,7 +470,7 @@ done;
 if [ "$BUILD_PROCESS" = "0" ]; then
 DATE_START=$(date +"%s")
 
-	BRANCH=CPU8998-Intelli-
+	DRIVER=INTELLI
 	FUNC_THERMAL "intelli";
 	FUNC_MULTI_BUILD "gcc" "miui";
 	FUNC_MULTI_BUILD "gcc" "aosp";
@@ -472,7 +479,7 @@ DATE_START=$(date +"%s")
 	FUNC_MULTI_BUILD "clang" "miui";
 	FUNC_MULTI_BUILD "clang" "aosp";
 
-	BRANCH=CPU8998-Stock-
+	DRIVER=STOCK
 	FUNC_THERMAL "stock";
 	FUNC_MULTI_BUILD "gcc" "miui";
 	FUNC_MULTI_BUILD "gcc" "aosp";
@@ -568,11 +575,11 @@ echo -e "${restore}"
 select CHOICE in intelli stock; do
 	case "$CHOICE" in
 		"intelli")
-			BRANCH=CPU8998-Intelli-
+			DRIVER=INTELLI
 			FUNC_THERMAL "intelli";
 			break;;
 		"stock")
-			BRANCH=CPU8998-Stock-
+			DRIVER=STOCK
 			FUNC_THERMAL "stock";
 			break;;
 	esac;
@@ -592,7 +599,7 @@ rm -rf ./build.log
 	FUNC_BUILD_ZIP_$RAMDTYPE
 
 	git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
-	[[ ${BRANCH} = "CPU8998-Intelli-" ]] && FUNC_THERMAL "stock";
+	[[ ${DRIVER} = "INTELLI" ]] && FUNC_THERMAL "stock";
 
 	DATE_END=$(date +"%s")
 
