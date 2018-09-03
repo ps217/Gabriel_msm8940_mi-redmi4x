@@ -1,0 +1,350 @@
+diff --git a/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh b/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
+index 681ec7bba66e..3fca1b3935b1 100755
+--- a/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
++++ b/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
+@@ -123,7 +123,17 @@ fi;
+ SYSTEM_TUNING()
+ {
+ echo 1 > /sys/module/msm_thermal/core_control/enabled;
+-echo 0 > /cputemp/enabled;
++echo 45 > /cputemp/core_control_mask;
++echo 60 > /cputemp/core_limit_temp_degC;
++
++echo 1 > /cputemp/enabled;
++echo 1 > /cputemp/intelli_user_control;
++echo 1000000 > /cputemp/intelli_user_freq;
++echo 70 > /cputemp/limit_temp_degC;
++echo 250 > /cputemp/poll_ms;
++
++echo 0 > /cputemp/thermal_limit_high;
++echo 0 > /cputemp/thermal_limit_low;
+ 
+ # cpuset tuning
+ echo "$(cat /dev/cpuset/foreground/cpus)" > /cache/fore_cpu;
+@@ -401,6 +411,9 @@ if [ "$stweaks_boot_control" == "no" ]; then
+ 	echo "0" > /proc/sys/kernel/panic_on_oops;
+ fi;
+ 
++	# stop core control if need to
++	echo "$core_control" > /sys/module/msm_thermal/core_control/enabled;
++
+ 	# script finish here, so let me know when
+ 	TIME_NOW=$(date)
+ 	echo "$TIME_NOW" > /data/.gabriel/boot_log
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/misc/disabled-scripts/core_control b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/core_control
+similarity index 100%
+rename from WORKING-DIR/ramdisk/ramdisk/res/misc/disabled-scripts/core_control
+rename to WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/core_control
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/misc/disabled-scripts/core_mask b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/core_mask
+similarity index 100%
+rename from WORKING-DIR/ramdisk/ramdisk/res/misc/disabled-scripts/core_mask
+rename to WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/core_mask
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/msm_thermal b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/msm_thermal
+new file mode 100644
+index 000000000000..5bb9e3cf1596
+--- /dev/null
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/actions/msm_thermal
+@@ -0,0 +1,57 @@
++#!/sbin/busybox sh
++
++# $1 - "msm_thermal"
++# $2 - value=
++# Created By Dorimanx
++
++BB=/sbin/busybox
++
++# get values from profile
++PROFILE=$(cat /data/.gabriel/.active.profile);
++. /data/.gabriel/"$PROFILE".profile;
++
++if [ "a$2" != "a" ]; then
++	msm_thermal=$2;
++
++	case "${msm_thermal}" in
++		msm_temp)
++			if [ "$(pgrep -f "/system/bin/thermal-engine" | wc -l)" -eq "0" ] || [ "$(pgrep -f "/system/vendor/bin/thermal-engine" | wc -l)" -ge "1" ]; then
++				/system/bin/start thermal-engine;
++			fi;
++			if [ "$(cat /sys/module/msm_thermal/parameters/intelli_enabled)" == "Y" ]; then
++				echo "N" > /sys/module/msm_thermal/parameters/intelli_enabled;
++			fi;
++			$BB renice -n -17 -p "$(pgrep -f "/system/bin/thermal-engine")";
++			$BB renice -n -17 -p "$(pgrep -f "/system/vendor/bin/thermal-engine")";
++		;;
++		intelli_temp)
++			if [ "$(pgrep -f "/system/bin/thermal-engine" | wc -l)" -eq "0" ] || [ "$(pgrep -f "/system/vendor/bin/thermal-engine" | wc -l)" -ge "1" ]; then
++				/system/bin/start thermal-engine;
++			fi;
++			if [ "$(cat /sys/module/msm_thermal/parameters/intelli_enabled)" == "N" ]; then
++				echo "Y" > /sys/module/msm_thermal/parameters/intelli_enabled;
++				echo "$limit_temp_degC" > /sys/module/msm_thermal/parameters/limit_temp_degC;
++				echo "$core_limit_temp_degC" > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
++			fi;
++			$BB renice -n -17 -p "$(pgrep -f "/system/bin/thermal-engine")";
++			$BB renice -n -17 -p "$(pgrep -f "/system/vendor/bin/thermal-engine")";
++		;;
++		intelli_temp_only)
++			if [ "$(cat /sys/module/msm_thermal/parameters/intelli_enabled)" == "N" ]; then
++				echo "Y" > /sys/module/msm_thermal/parameters/intelli_enabled;
++				echo "$limit_temp_degC" > /sys/module/msm_thermal/parameters/limit_temp_degC;
++				echo "$core_limit_temp_degC" > /sys/module/msm_thermal/parameters/core_limit_temp_degC;
++			fi;
++			if [ "$(pgrep -f "/system/bin/thermal-engine" | wc -l)" -ge "1" ] || [ "$(pgrep -f "/system/vendor/bin/thermal-engine" | wc -l)" -ge "1" ]; then
++				/system/bin/stop thermal-engine;
++				/system/bin/stop thermal-engine;
++				/system/bin/stop thermal-engine;
++			fi;
++		;;
++		*)
++			msm_thermal=intelli_temp;
++		;;
++	esac;
++fi;
++
++echo ${msm_thermal};
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
+index 73070fec5895..9ebcd242403f 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=800000
++limit_temp_degC=52
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=7
++core_limit_temp_degC=48
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=375
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
+index 7fc8d5d69390..bb01f0f0e2cb 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
+@@ -844,6 +844,73 @@
+ 
+ </settingsTab>
+ 
++<settingsTab name="CPU Thermal">
++
++	<settingsPane description="Kernel ROM Thermal Service and Intelligent Thermal driver can be enabled together in this section. It protects device from overheating and breaking down components. Controls below are active for Dual Intelligent Temp Control in case of ROM service die. Kernel will protect phone components from any damage only if Dual Intelligent Temp Control is in use. It's better to leave it as is." name="CPU Thermal Protection">
++
++		<spinner description="Select CPU Temp Control driver. Dual Intelligent Thermal driver with controls below and ROM thermal control. It'll limit CPU frequency when CPU reaches Maximum set temperature and wait until the temperature decreases below specified level for restoring Maximum frequency. By using Only Intelligent Temp Control you'll have only one overheat protection, so if Driver stuck and performs hot boot, there is no protection from overheating and breaking your device! On the other hand you'll get better game performance by using ONE protection (high freq lasts longer on high temp), so keep that in mind!" name="CPU Temp Control"
++			action="msm_thermal">
++			<spinnerItem name="Dual Intelligent Temp Control" value="intelli_temp"/>
++		</spinner>
++
++		<spinner description="By enabling this setting, kernel will obey Minimum CPU frequency defined by user in CPU Tuning Tab, not Minimum Available CPU frequency (249 MHz). It will prevent CPU to get 249 MHz as Maximum frequency at High Heat mitigation. below control is the threshold of this tunable." name="Min Frequency Override"
++			action="generic /sys/module/msm_thermal/parameters/intelli_user_control">
++			<spinnerItem name="Disable" value="0"/>
++			<spinnerItem name="Enable" value="1"/>
++		</spinner>
++
++		<spinner description="Kernel will not set Minimum Available CPU frequency (249 MHz) if Minimum CPU frequency defined by user is Lower than this threshold, for example 768 MHz for little cluster is lower than 800 MHz (in this threshold) so it will not mitigate to under 768 MHz in high temp mitigation, but 960 MHz for big cluster will mitigate to 249 MHz because 960 MHz is higher than this threshold (800 MHz). Depends on Min Frequency Override." name="Min Frequency Threshold"
++			action="generic /sys/module/msm_thermal/parameters/intelli_user_freq">
++			<spinnerItem name="400 MHz" value="400000"/>
++			<spinnerItem name="500 MHz" value="500000"/>
++			<spinnerItem name="600 MHz" value="600000"/>
++			<spinnerItem name="700 MHz" value="700000"/>
++			<spinnerItem name="800 MHz" value="800000"/>
++			<spinnerItem name="900 MHz" value="900000"/>
++			<spinnerItem name="1000 MHz" value="1000000"/>
++			<spinnerItem name="1100 MHz" value="1100000"/>
++		</spinner>
++
++		<seekBar description="Set the Max Allowed CPU Temperature before throttling down in order to cool down the device (Default: 50°C)." name="CPU Max Heat"
++			action="generic /sys/module/msm_thermal/parameters/limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="60"/>
++
++		<seekBar description="Set the Temp Pull Timer intervals. The lower value, the more often kernel will check up the CPU temp (Default: 250 ms)." name="Temp Pull Timer"
++			action="generic /sys/module/msm_thermal/parameters/poll_ms" unit="ms" min="100" reversed="false" step="50" max="500"/>
++
++		<seekBar description="Set the Temperature Hysteresis for driver. It calculates temp differences for adjusting the best CPU frequency, when CPU is in stress too often. Driver will wait until Temp goes down by this step to Unlimit the max frequency. Do NOT reduce below 10°C! (Default: 10°C)." name="Temperature Hysteresis"
++			action="generic /sys/module/msm_thermal/parameters/temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
++
++	</settingsPane>
++
++	<settingsPane description="Setup HotPlug CPU Thermal Controls by deciding how many cores remains ON when they're overheated. It reduces performance, by getting less cores enabled on higher freq. Others will keep waiting until CPU cools down." name="HotPlug CPU Thermal Control">
++
++		<spinner description="HotPlug CPU Thermal Control Main Switch allows to shutdown cores and operate on it's frequency range. If this option is disabled, all CPU cores will be online and operate at lower frequencies on high temperature. It will not let you to Disable it if Temperature is Above 49°C. Increase core max heat threshold or wait until CPU Temperature goes down to switch Disabled cores online again." name="HotPlug Thermal CPU Control"
++			action="core_control">
++			<spinnerItem name="Enabled" value="1"/>
++			<spinnerItem name="Disabled" value="0"/>
++		</spinner>
++
++		<spinner description="Set how many cores will stay active on high temp. The more cores is OFF, the higher frequencies you'll get on the other cores. Disabled Cores will switch online, when temperature is back to normal. This option depends on HotPlug Thermal CPU Control (must be Enabled above)!" name="Max Online CPUs"
++			action="core_mask">
++			<spinnerItem name="1 Core Big" value="1"/>
++			<spinnerItem name="2 Core Big,Little Combo" value="2"/>
++			<spinnerItem name="4 Core Big" value="3"/>
++			<spinnerItem name="2 Core Big" value="4"/>
++			<spinnerItem name="4 Core Little" value="5"/>
++			<spinnerItem name="4 Core Little,Big Combo" value="6"/>
++			<spinnerItem name="6 Core Little,Big Combo" value="7"/>
++		</spinner>
++
++		<seekBar description="Set the HotPlug Maximum Core Temperature. When temperature reaches defined value, it turns cores OFF in order to cool down the device. It can't be higher than CPU Max HEAT Control. This option works only with Intelli CPU Cores Control (Default: 45°C)." name="Intelli CORE Max Heat"
++			action="generic /sys/module/msm_thermal/parameters/core_limit_temp_degC" unit="°C" min="40" reversed="false" step="1" max="60"/>
++
++		<seekBar description="Adjust the Core HotPlug Temperature Hysteresis Driver by calculating temperature differences and switching cores ON/OFF. Cores can be brought online if needed. Works only with Intelli CPU Cores Control (Default: 10°C)." name="Core Temperature Hysteresis"
++			action="generic /sys/module/msm_thermal/parameters/core_temp_hysteresis_degC" unit="°C" min="5" reversed="false" step="1" max="20"/>
++
++	</settingsPane>
++
++</settingsTab>
++
+ <settingsTab name="GPU CORE">
+ 
+ 	<settingsPane description="Select the GPU Governor. After doing some changes, hit button to update GPU Governor." name="GPU Governors And Settings">
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
+index 0858c914d615..5708b0a8161f 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=1000000
++limit_temp_degC=53
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=7
++core_limit_temp_degC=49
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=425
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
+index bff6b1aa6d90..c0df4df61287 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=800000
++limit_temp_degC=52
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=0
++core_mask=5
++core_limit_temp_degC=48
++core_temp_hysteresis_degC=5
+ gpu_governor=powersave
+ gpu_governor_suspend=powersave
+ gpu_max_freq=375
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
+index bd74af1a05f4..11a2df0f0487 100755
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=1000000
++limit_temp_degC=55
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=7
++core_limit_temp_degC=52
++core_temp_hysteresis_degC=5
+ gpu_governor=performance
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=575
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
+index 6752dca21f1c..add0e3e8d3eb 100755
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=800000
++limit_temp_degC=50
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=0
++core_mask=7
++core_limit_temp_degC=48
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=375
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
+index 6ee2f3164e92..8840d7001da6 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=1000000
++limit_temp_degC=54
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=7
++core_limit_temp_degC=50
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=425
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
+index 05862f49392f..80c0ee0a0113 100644
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
+@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=1000000
++limit_temp_degC=53
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=7
++core_limit_temp_degC=48
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=575
+diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
+index e1e67de5624a..7db0fef36aa5 100755
+--- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
++++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
+@@ -94,6 +94,16 @@ core_ctrl_l_off_delay_suspend=100
+ core_ctrl_b_off_delay_suspend=100
+ core_ctrl_l_task_thres_suspend=4
+ core_ctrl_b_task_thres_suspend=8
++msm_thermal=intelli_temp
++intelli_user_control=1
++intelli_user_freq=1100000
++limit_temp_degC=52
++poll_ms=250
++temp_hysteresis_degC=5
++core_control=1
++core_mask=4
++core_limit_temp_degC=49
++core_temp_hysteresis_degC=5
+ gpu_governor=msm-adreno-tz
+ gpu_governor_suspend=msm-adreno-tz
+ gpu_max_freq=375
