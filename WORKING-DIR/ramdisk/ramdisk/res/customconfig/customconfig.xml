@@ -442,31 +442,31 @@
 		</spinner>
 
 		<spinner description="Set the Maximum CPU Boost frequency for Little Cluster. When touch is being detected, CPU frequency will be locked to selected frequency for the defined CPU Touch Boost duration." name="Little Cluster Boost Frequency"
-			action="generic /sys/module/cpu_boost/parameters/input_boost_freq_lc">
-			<spinnerItem name="1.20 GHz" value="4:1209600"/>
-			<spinnerItem name="1.09 GHz" value="4:1094400"/>
-			<spinnerItem name="998 MHz" value="4:998400"/>
-			<spinnerItem name="902 MHz" value="4:902400"/>
-			<spinnerItem name="768 MHz" value="4:768000"/>
-			<spinnerItem name="518 MHz" value="4:518400"/>
-			<spinnerItem name="345 MHz" value="4:345600"/>
-			<spinnerItem name="Disable" value="4:0"/>
+			action="input_boost_freq_lc">
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="998 MHz" value="998400"/>
+			<spinnerItem name="902 MHz" value="902400"/>
+			<spinnerItem name="768 MHz" value="768000"/>
+			<spinnerItem name="518 MHz" value="518400"/>
+			<spinnerItem name="345 MHz" value="345600"/>
+			<spinnerItem name="Disable" value="0"/>
 		</spinner>
 
 		<spinner description="Set the Maximum CPU Boost frequency for big Cluster." name="big Cluster Boost Frequency"
-			action="generic /sys/module/cpu_boost/parameters/input_boost_freq">
-			<spinnerItem name="1.53 GHz" value="0:1536000"/>
-			<spinnerItem name="1.49 GHz" value="0:1497600"/>
-			<spinnerItem name="1.40 GHz" value="0:1401000"/>
-			<spinnerItem name="1.34 GHz" value="0:1344000"/>
-			<spinnerItem name="1.24 GHz" value="0:1248000"/>
-			<spinnerItem name="1.20 GHz" value="0:1209600"/>
-			<spinnerItem name="1.09 GHz" value="0:1094400"/>
-			<spinnerItem name="960 MHz" value="0:960000"/>
-			<spinnerItem name="806 MHz" value="0:806400"/>
-			<spinnerItem name="652 MHz" value="0:652800"/>
-			<spinnerItem name="422 MHz" value="0:422400"/>
-			<spinnerItem name="Disable" value="0:0"/>
+			action="input_boost_freq_bc">
+			<spinnerItem name="1.53 GHz" value="1536000"/>
+			<spinnerItem name="1.49 GHz" value="1497600"/>
+			<spinnerItem name="1.40 GHz" value="1401000"/>
+			<spinnerItem name="1.34 GHz" value="1344000"/>
+			<spinnerItem name="1.24 GHz" value="1248000"/>
+			<spinnerItem name="1.20 GHz" value="1209600"/>
+			<spinnerItem name="1.09 GHz" value="1094400"/>
+			<spinnerItem name="960 MHz" value="960000"/>
+			<spinnerItem name="806 MHz" value="806400"/>
+			<spinnerItem name="652 MHz" value="652800"/>
+			<spinnerItem name="422 MHz" value="422400"/>
+			<spinnerItem name="Disable" value="0"/>
 		</spinner>
 
 		<seekBar description="Set the time that core is locked on Maximum Boost frequency. 10 ms is equal to 0.01 sec (Default: 500 ms)." name="CPU Touch Boost duration"
