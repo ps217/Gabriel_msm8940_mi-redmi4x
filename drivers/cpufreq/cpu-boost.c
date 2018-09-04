@@ -33,7 +33,6 @@ struct cpu_sync {
 	int cpu;
 	unsigned int input_boost_min;
 	unsigned int input_boost_freq;
-	unsigned int input_boost_freq_lc;
 };
 
 static DEFINE_PER_CPU(struct cpu_sync, sync_info);
@@ -72,7 +71,6 @@ static int set_input_boost_freq(const char *buf, const struct kernel_param *kp)
 			return -EINVAL;
 		for_each_possible_cpu(i)
 			per_cpu(sync_info, i).input_boost_freq = val;
-			per_cpu(sync_info, i).input_boost_freq_lc = val;
 		goto out;
 	}
 
@@ -88,47 +86,6 @@ static int set_input_boost_freq(const char *buf, const struct kernel_param *kp)
 			return -EINVAL;
 
 		per_cpu(sync_info, cpu).input_boost_freq = val;
-		per_cpu(sync_info, cpu).input_boost_freq_lc = val;
-		cp = strchr(cp, ' ');
-		cp++;
-	}
-
-out:
-	return 0;
-}
-
-static int set_input_boost_freq_lc(const char *buf, const struct kernel_param *kp)
-{
-	int i, ntokens = 0;
-	unsigned int val, cpu;
-	const char *cp = buf;
-
-	while ((cp = strpbrk(cp + 1, " :")))
-		ntokens++;
-
-	/* single number: apply to all CPUs */
-	if (!ntokens) {
-		if (sscanf(buf, "%u\n", &val) != 1)
-			return -EINVAL;
-		for_each_possible_cpu(i)
-			per_cpu(sync_info, i).input_boost_freq = val;
-			per_cpu(sync_info, i).input_boost_freq_lc = val;
-		goto out;
-	}
-
-	/* CPU:value pair */
-	if (!(ntokens % 2))
-		return -EINVAL;
-
-	cp = buf;
-	for (i = 0; i < ntokens; i += 2) {
-		if (sscanf(cp, "%u:%u", &cpu, &val) != 2)
-			return -EINVAL;
-		if (cpu > num_possible_cpus())
-			return -EINVAL;
-
-		per_cpu(sync_info, cpu).input_boost_freq = val;
-		per_cpu(sync_info, cpu).input_boost_freq_lc = val;
 		cp = strchr(cp, ' ');
 		cp++;
 	}
@@ -151,31 +108,11 @@ static int get_input_boost_freq(char *buf, const struct kernel_param *kp)
 	return cnt;
 }
 
-static int get_input_boost_freq_lc(char *buf, const struct kernel_param *kp)
-{
-	int cnt = 0, cpu;
-	struct cpu_sync *s;
-
-	for_each_possible_cpu(cpu) {
-		s = &per_cpu(sync_info, cpu);
-		cnt += snprintf(buf + cnt, PAGE_SIZE - cnt,
-				"%d:%u ", cpu, s->input_boost_freq_lc);
-	}
-	cnt += snprintf(buf + cnt, PAGE_SIZE - cnt, "\n");
-	return cnt;
-}
-
 static const struct kernel_param_ops param_ops_input_boost_freq = {
 	.set = set_input_boost_freq,
 	.get = get_input_boost_freq,
 };
 module_param_cb(input_boost_freq, &param_ops_input_boost_freq, NULL, 0644);
-
-static const struct kernel_param_ops param_ops_input_boost_freq_lc = {
-	.set = set_input_boost_freq_lc,
-	.get = get_input_boost_freq_lc,
-};
-module_param_cb(input_boost_freq_lc, &param_ops_input_boost_freq_lc, NULL, 0644);
 
 /*
  * The CPUFREQ_ADJUST notifier is used to override the current policy min to
@@ -296,7 +233,6 @@ static void do_input_boost(struct kthread_work *work)
 			continue;
 
 		i_sync_info->input_boost_min = i_sync_info->input_boost_freq;
-		i_sync_info->input_boost_min = i_sync_info->input_boost_freq_lc;
 	}
 
 	/* Update policies for all online CPUs */
