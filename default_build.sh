@@ -17,6 +17,7 @@ export BUILD_CROSS_COMPILE=$TOOLCHAIN_FOLDER/gcc/bin/aarch64-linux-gnu-
 export TS=TOOLSET/
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 export GIT_LOG1=`git log --oneline --decorate -n 1`
+export GIT_BRANCH=`git branch | grep \* | cut -d ' ' -f2`
 export VER=$(grep Gabriel arch/arm64/configs/gabriel_defconfig | cut -c 31-34)
 export DATE=$(date +"[%Y-%m-%d]");
 
@@ -195,6 +196,29 @@ if [ ! -f $RDIR/arch/$ARCH/boot/Image.gz ]; then
 fi;
 }
 
+FUNC_THERMAL()
+{
+	local driver="$1";
+
+	if [ "$driver" == "intelli" ]; then
+		if [ ! -e $WD/ramdisk/ramdisk/res/customconfig/actions/msm_thermal ]; then
+			patch -p1 --ignore-whitespace < patch/intelli_ramdisk.patch
+		fi;
+
+		if [ "$(cat drivers/thermal/msm_thermal.c | grep "intelli_enabled" | wc -l)" -eq "0" ]; then
+			patch -p1 --ignore-whitespace < patch/intelli_driver.patch
+		fi;
+	elif [ "$driver" == "stock" ]; then
+		if [ -e $WD/ramdisk/ramdisk/res/customconfig/actions/msm_thermal ]; then
+			patch -p1 -R --ignore-whitespace < patch/intelli_ramdisk.patch
+		fi;
+
+		if [ "$(cat drivers/thermal/msm_thermal.c | grep "intelli_enabled" | wc -l)" -gt "0" ]; then
+			patch -p1 -R --ignore-whitespace < patch/intelli_driver.patch
+		fi;
+	fi;
+}
+
 # Export version variable
 function evv() {
     FILE=$RDIR/include/generated/compile.h
@@ -235,7 +259,7 @@ FUNC_BUILD_ZIP_STK()
 	fi;
 
 #	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
-	FILENAME=$KERNEL_NAME-$TARGET-$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH-$DRIVER-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 	\cp -r $WD/package/* $WD/temp
@@ -294,7 +318,7 @@ fi;
 FUNC_BUILD_ZIP_ANY()
 {
 #	FILENAME=$KERNEL_NAME-$TARGET-$KSCHED-$TWEAKER-$COMPILER-$VER-$DATE
-	FILENAME=$KERNEL_NAME-$TARGET-$COMPILER-$VER-$DATE
+	FILENAME=$KERNEL_NAME-$TARGET-$BRANCH-$DRIVER-$COMPILER-$VER-$DATE
 	FUNC_ZIP_NAME
 
 if [ "$BUILD_PROCESS" = "1" ]; then
@@ -314,6 +338,110 @@ fi;
 	md5sum $RK/$FILENAME.zip > $RK/$FILENAME.zip.md5
 
 	FUNC_ADB
+}
+
+if [ $GIT_BRANCH == master-santoni-cpu8998 ]; then
+    export BRANCH="CPU8998"
+else
+    export BRANCH="CPU8940"
+fi
+
+FUNC_MULTI_BUILD()
+{
+	local compiler="$1";
+	local target="$2";
+	KERNEL_DEFCONFIG=gabriel_defconfig
+	RAMDTYPE=ANY
+
+	if [ "$compiler" == "gcc" ]; then
+		if [ "$target" == "miui" ]; then
+			#gcc
+			ccache -c -C
+			#miui
+			CLANG=0
+			COMPILER=GCC
+			TARGET=MIUI
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			echo "$(parse_version)"
+			echo " "
+		elif [ "$target" == "aosp" ]; then
+			#aosp
+			CLANG=0
+			COMPILER=GCC
+			TARGET=AOSP
+			FUNC_BUILTIN
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+			echo "$(parse_version)"
+			echo " "
+		fi;
+	elif [ "$compiler" == "dtc" ]; then
+		if [ "$target" == "miui" ]; then
+			#dragontc
+			ccache -c -C
+			#miui
+			CLANG=1
+			COMPILER=DTC
+			FUNC_DTC_COMM
+			TARGET=MIUI
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			echo "$(parse_version)"
+			echo " "
+		elif [ "$target" == "aosp" ]; then
+			#aosp
+			CLANG=1
+			COMPILER=DTC
+			FUNC_DTC_COMM
+			TARGET=AOSP
+			FUNC_BUILTIN
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+			echo "$(parse_version)"
+			echo " "
+		fi;
+	elif [ "$compiler" == "clang" ]; then
+		if [ "$target" == "miui" ]; then
+			#clang
+			ccache -c -C
+			#miui
+			CLANG=1
+			COMPILER=CLANG
+			FUNC_CLANG_COMM
+			TARGET=MIUI
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			echo "$(parse_version)"
+			echo " "
+		elif [ "$target" == "aosp" ]; then
+			#aosp
+			CLANG=1
+			COMPILER=CLANG
+			FUNC_CLANG_COMM
+			TARGET=AOSP
+			FUNC_BUILTIN
+			FUNC_BUILD_PROC_INFO
+			FUNC_BUILD_KERNEL
+			FUNC_BUILD_RAMDISK_$RAMDTYPE
+			FUNC_BUILD_ZIP_$RAMDTYPE
+			git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+			echo "$(parse_version)"
+			echo " "
+		fi;
+	fi;
 }
 
 FUNC_BUILD_PROC_INFO()
@@ -342,99 +470,23 @@ done;
 if [ "$BUILD_PROCESS" = "0" ]; then
 DATE_START=$(date +"%s")
 
-#gcc
-ccache -c -C
-#miui
-CLANG=0
-COMPILER=GCC
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=MIUI
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-echo "$(parse_version)"
-echo " "
+	DRIVER=INTELLI
+	FUNC_THERMAL "intelli";
+	FUNC_MULTI_BUILD "gcc" "miui";
+	FUNC_MULTI_BUILD "gcc" "aosp";
+	FUNC_MULTI_BUILD "dtc" "miui";
+	FUNC_MULTI_BUILD "dtc" "aosp";
+	FUNC_MULTI_BUILD "clang" "miui";
+	FUNC_MULTI_BUILD "clang" "aosp";
 
-#aosp
-CLANG=0
-COMPILER=GCC
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=AOSP
-FUNC_BUILTIN
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
-echo "$(parse_version)"
-echo " "
-
-#dragontc
-ccache -c -C
-#miui
-CLANG=1
-COMPILER=DTC
-FUNC_DTC_COMM
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=MIUI
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-echo "$(parse_version)"
-echo " "
-
-#aosp
-CLANG=1
-COMPILER=DTC
-FUNC_DTC_COMM
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=AOSP
-FUNC_BUILTIN
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
-echo "$(parse_version)"
-echo " "
-
-#clang
-ccache -c -C
-#miui
-CLANG=1
-COMPILER=CLANG
-FUNC_CLANG_COMM
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=MIUI
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-echo "$(parse_version)"
-echo " "
-
-#aosp
-CLANG=1
-COMPILER=CLANG
-FUNC_CLANG_COMM
-RAMDTYPE=ANY
-KERNEL_DEFCONFIG=gabriel_defconfig
-TARGET=AOSP
-FUNC_BUILTIN
-FUNC_BUILD_PROC_INFO
-FUNC_BUILD_KERNEL
-FUNC_BUILD_RAMDISK_$RAMDTYPE
-FUNC_BUILD_ZIP_$RAMDTYPE
-git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
-echo "$(parse_version)"
-echo " "
+	DRIVER=STOCK
+	FUNC_THERMAL "stock";
+	FUNC_MULTI_BUILD "gcc" "miui";
+	FUNC_MULTI_BUILD "gcc" "aosp";
+	FUNC_MULTI_BUILD "dtc" "miui";
+	FUNC_MULTI_BUILD "dtc" "aosp";
+	FUNC_MULTI_BUILD "clang" "miui";
+	FUNC_MULTI_BUILD "clang" "aosp";
 
 DATE_END=$(date +"%s")
 DIFF=$(($DATE_END - $DATE_START))
@@ -514,6 +566,24 @@ select CHOICE in module built-in; do
 			break;;
 	esac;
 done;
+
+echo -e "${green}"
+echo "-------------------------"
+echo "Intelli-Thermal driver ?!";
+echo "-------------------------"
+echo -e "${restore}"
+select CHOICE in intelli stock; do
+	case "$CHOICE" in
+		"intelli")
+			DRIVER=INTELLI
+			FUNC_THERMAL "intelli";
+			break;;
+		"stock")
+			DRIVER=STOCK
+			FUNC_THERMAL "stock";
+			break;;
+	esac;
+done;
 #end of custom build process
 fi;
 
@@ -529,6 +599,7 @@ rm -rf ./build.log
 	FUNC_BUILD_ZIP_$RAMDTYPE
 
 	git checkout arch/$ARCH/configs/$KERNEL_DEFCONFIG
+	[[ ${DRIVER} = "INTELLI" ]] && FUNC_THERMAL "stock";
 
 	DATE_END=$(date +"%s")
 
