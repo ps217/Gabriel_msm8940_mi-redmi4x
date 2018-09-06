@@ -92,6 +92,9 @@ int backlight_max = 255;
 module_param(backlight_min, int, 0755);
 module_param(backlight_max, int, 0755);
 
+static unsigned int devfreq_cpubw_mdss_render = 0;
+module_param_named(devfreq_cpubw_mdss_render, devfreq_cpubw_mdss_render, uint, 0644);
+
 static struct fb_info *fbi_list[MAX_FBI_LIST];
 static int fbi_list_index;
 
@@ -4934,7 +4937,8 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 		ret = mdss_fb_mode_switch(mfd, dsi_mode);
 		break;
 	case MSMFB_ATOMIC_COMMIT:
-		devfreq_boost_kick(DEVFREQ_MSM_CPUBW);
+		if (devfreq_cpubw_mdss_render > 0)
+			devfreq_boost_kick(DEVFREQ_MSM_CPUBW);
 		ret = mdss_fb_atomic_commit_ioctl(info, argp, file);
 		break;
 
