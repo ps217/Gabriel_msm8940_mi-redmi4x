@@ -67,7 +67,7 @@ enum irqchip_irq_state;
  *				  request/setup_irq()
  * IRQ_NO_BALANCING		- Interrupt cannot be balanced (affinity set)
  * IRQ_MOVE_PCNTXT		- Interrupt can be migrated from process context
- * IRQ_NESTED_TRHEAD		- Interrupt nests into another thread
+ * IRQ_NESTED_THREAD		- Interrupt nests into another thread
  * IRQ_PER_CPU_DEVID		- Dev_id is a per-cpu variable
  * IRQ_IS_POLLED		- Always polled by another interrupt. Exclude
  *				  it from the spurious interrupt detection
@@ -161,11 +161,6 @@ struct irq_common_data {
  *			irq_domain
  * @chip_data:		platform-specific per-chip private data for the chip
  *			methods, to allow shared chip implementations
- * @msi_desc:		MSI descriptor
- *
- * The fields here need to overlay the ones in irq_desc until we
- * cleaned up the direct references and switched everything over to
- * irq_data.
  */
 struct irq_data {
 	u32			mask;
@@ -308,21 +303,6 @@ static inline void irqd_clr_forwarded_to_vcpu(struct irq_data *d)
 	__irqd_to_state(d) &= ~IRQD_FORWARDED_TO_VCPU;
 }
 
-/*
- * Functions for chained handlers which can be enabled/disabled by the
- * standard disable_irq/enable_irq calls. Must be called with
- * irq_desc->lock held.
- */
-static inline void irqd_set_chained_irq_inprogress(struct irq_data *d)
-{
-	__irqd_to_state(d) |= IRQD_IRQ_INPROGRESS;
-}
-
-static inline void irqd_clr_chained_irq_inprogress(struct irq_data *d)
-{
-	__irqd_to_state(d) &= ~IRQD_IRQ_INPROGRESS;
-}
-
 static inline bool irqd_affinity_is_managed(struct irq_data *d)
 {
 	return __irqd_to_state(d) & IRQD_AFFINITY_MANAGED;
@@ -441,7 +421,6 @@ enum {
 	IRQCHIP_EOI_THREADED		= (1 <<  6),
 };
 
-/* This include will go away once we isolated irq_desc usage to core code */
 #include <linux/irqdesc.h>
 
 /*
@@ -950,13 +929,6 @@ static inline void irq_gc_lock(struct irq_chip_generic *gc) { }
 static inline void irq_gc_unlock(struct irq_chip_generic *gc) { }
 #endif
 
-static inline void irq_reg_writel(struct irq_chip_generic *gc,
-				  u32 val, int reg_offset)
-{
-	if (gc->reg_writel)
-		gc->reg_writel(val, gc->reg_base + reg_offset);
-	else
-		writel(val, gc->reg_base + reg_offset);
 /*
  * The irqsave variants are for usage in non interrupt code. Do not use
  * them in irq_chip callbacks. Use irq_gc_lock() instead.
@@ -967,6 +939,13 @@ static inline void irq_reg_writel(struct irq_chip_generic *gc,
 #define irq_gc_unlock_irqrestore(gc, flags)	\
 	raw_spin_unlock_irqrestore(&(gc)->lock, flags)
 
+static inline void irq_reg_writel(struct irq_chip_generic *gc,
+				  u32 val, int reg_offset)
+{
+	if (gc->reg_writel)
+		gc->reg_writel(val, gc->reg_base + reg_offset);
+	else
+		writel(val, gc->reg_base + reg_offset);
 }
 
 static inline u32 irq_reg_readl(struct irq_chip_generic *gc,
