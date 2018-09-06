@@ -673,6 +673,9 @@ KBUILD_CFLAGS  += $(call cc-disable-warning, array-bounds)
 KBUILD_CFLAGS  += $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS  += $(call cc-disable-warning, stringop-overflow)
 
+# Disable CLANG 8.x warnings
+KBUILD_CFLAGS  += $(call cc-disable-warning, return-stack-address)
+
 ifneq ($(KBUILD_LOUP_CFLAGS),)
 $(info Using custom flags!!! [${KBUILD_LOUP_CFLAGS}])
 KBUILD_CFLAGS   += $(KBUILD_LOUP_CFLAGS)
