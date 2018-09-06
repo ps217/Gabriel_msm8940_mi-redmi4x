@@ -10,6 +10,7 @@ data_on_boot=yes
 allow_suspend=1
 bcl=disable
 bcl_suspend=enable
+devfreq_cpubw_boost_ms=1250
 devfreq_soc_cpubw=turbo
 devfreq_soc_cpubw_susp=turbo
 devfreq_soc_gpubw=default

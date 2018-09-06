@@ -134,6 +134,9 @@
 
 	<settingsPane description="Set Power Policy to allows devfreq governors to scale the frequency of a device clock. it can scale any devfreq device based on the current policy. It can be the Reason of HEAT-UP and Core Throttle with Performance Based Policies." name="Clock Frequency Scale Policy">
 
+		<seekBar description="Set the time for ms that CPUBW devfreq device boost to the max when userspace launches an app. CPUBW will last longer in max frequency if you set higher value (Default: 1250 ms)." name="CPUBW Boost time"
+			action="generic /sys/module/fork/parameters/devfreq_cpubw_boost_ms" unit="ms" min="0" reversed="false" step="250" max="1500"/>
+
 		<spinner description="Select cpubw (cpu bandwidth) Policy. Default means Kernel Stock Parameters." name="CPUBW Clock Frequency Scale Policy"
 			action="devfreq_soc_cpubw">
 			<spinnerItem name="Default" value="default"/>
