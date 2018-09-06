@@ -33,7 +33,6 @@ static irqreturn_t bad_chained_irq(int irq, void *dev_id)
  */
 struct irqaction chained_action = {
 	.handler = bad_chained_irq,
-	.name = "chained-irq",
 };
 
 /**
@@ -332,9 +331,7 @@ void handle_nested_irq(unsigned int irq)
 {
 	struct irq_desc *desc = irq_to_desc(irq);
 	struct irqaction *action;
-	int mask_this_irq = 0;
 	irqreturn_t action_ret;
-	bool handled = false;
 
 	might_sleep();
 
@@ -346,7 +343,6 @@ void handle_nested_irq(unsigned int irq)
 	action = desc->action;
 	if (unlikely(!action || irqd_irq_disabled(&desc->irq_data))) {
 		desc->istate |= IRQS_PENDING;
-		mask_this_irq = 1;
 		goto out_unlock;
 	}
 
@@ -360,15 +356,8 @@ void handle_nested_irq(unsigned int irq)
 	raw_spin_lock_irq(&desc->lock);
 	irqd_clear(&desc->irq_data, IRQD_IRQ_INPROGRESS);
 
-	handled = true;
-
 out_unlock:
 	raw_spin_unlock_irq(&desc->lock);
-	if (unlikely(mask_this_irq)) {
-		chip_bus_lock(desc);
-		mask_irq(desc);
-		chip_bus_sync_unlock(desc);
-	}
 }
 EXPORT_SYMBOL_GPL(handle_nested_irq);
 
@@ -417,8 +406,6 @@ static bool irq_may_run(struct irq_desc *desc)
  */
 void handle_simple_irq(struct irq_desc *desc)
 {
-	bool handled = false;
-
 	raw_spin_lock(&desc->lock);
 
 	if (!irq_may_run(desc))
@@ -433,8 +420,6 @@ void handle_simple_irq(struct irq_desc *desc)
 	}
 
 	handle_irq_event(desc);
-
-	handled = true;
 
 out_unlock:
 	raw_spin_unlock(&desc->lock);
@@ -470,8 +455,6 @@ static void cond_unmask_irq(struct irq_desc *desc)
  */
 void handle_level_irq(struct irq_desc *desc)
 {
-	bool handled = false;
-
 	raw_spin_lock(&desc->lock);
 	mask_ack_irq(desc);
 
@@ -493,8 +476,6 @@ void handle_level_irq(struct irq_desc *desc)
 	handle_irq_event(desc);
 
 	cond_unmask_irq(desc);
-
-	handled = true;
 
 out_unlock:
 	raw_spin_unlock(&desc->lock);
@@ -544,7 +525,6 @@ static void cond_unmask_eoi_irq(struct irq_desc *desc, struct irq_chip *chip)
 void handle_fasteoi_irq(struct irq_desc *desc)
 {
 	struct irq_chip *chip = desc->irq_data.chip;
-	bool handled = false;
 
 	raw_spin_lock(&desc->lock);
 
@@ -559,8 +539,7 @@ void handle_fasteoi_irq(struct irq_desc *desc)
 	 * then mask it and get out of here:
 	 */
 	if (unlikely(!desc->action || irqd_irq_disabled(&desc->irq_data))) {
-		if (!irq_settings_is_level(desc))
-			desc->istate |= IRQS_PENDING;
+		desc->istate |= IRQS_PENDING;
 		mask_irq(desc);
 		goto out;
 	}
@@ -573,9 +552,8 @@ void handle_fasteoi_irq(struct irq_desc *desc)
 
 	cond_unmask_eoi_irq(desc, chip);
 
-	handled = true;
-
 	raw_spin_unlock(&desc->lock);
+	return;
 out:
 	if (!(chip->flags & IRQCHIP_EOI_IF_HANDLED))
 		chip->irq_eoi(&desc->irq_data);
@@ -600,8 +578,6 @@ EXPORT_SYMBOL_GPL(handle_fasteoi_irq);
  */
 void handle_edge_irq(struct irq_desc *desc)
 {
-	bool handled = false;
-
 	raw_spin_lock(&desc->lock);
 
 	desc->istate &= ~(IRQS_REPLAY | IRQS_WAITING);
@@ -645,7 +621,6 @@ void handle_edge_irq(struct irq_desc *desc)
 		}
 
 		handle_irq_event(desc);
-		handled = true;
 
 	} while ((desc->istate & IRQS_PENDING) &&
 		 !irqd_irq_disabled(&desc->irq_data));
@@ -665,7 +640,6 @@ EXPORT_SYMBOL(handle_edge_irq);
  */
 void handle_edge_eoi_irq(struct irq_desc *desc)
 {
-	bool handled = false;
 	struct irq_chip *chip = irq_desc_get_chip(desc);
 
 	raw_spin_lock(&desc->lock);
@@ -693,7 +667,6 @@ void handle_edge_eoi_irq(struct irq_desc *desc)
 			goto out_eoi;
 
 		handle_irq_event(desc);
-		handled = true;
 
 	} while ((desc->istate & IRQS_PENDING) &&
 		 !irqd_irq_disabled(&desc->irq_data));
@@ -701,7 +674,6 @@ void handle_edge_eoi_irq(struct irq_desc *desc)
 out_eoi:
 	chip->irq_eoi(&desc->irq_data);
 	raw_spin_unlock(&desc->lock);
-	return handled;
 }
 #endif
 

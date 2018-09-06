@@ -87,7 +87,7 @@ irqreturn_t handle_irq_event_percpu(struct irq_desc *desc);
 irqreturn_t handle_irq_event(struct irq_desc *desc);
 
 /* Resending of interrupts :*/
-//void check_irq_resend(struct irq_desc *desc);
+void check_irq_resend(struct irq_desc *desc);
 bool irq_wait_for_poll(struct irq_desc *desc);
 void __irq_wake_thread(struct irq_desc *desc, struct irqaction *action);
 
@@ -196,14 +196,14 @@ static inline void kstat_incr_irqs_this_cpu(struct irq_desc *desc)
 	__this_cpu_inc(kstat.irqs_sum);
 }
 
-static inline int irq_desc_is_chained(struct irq_desc *desc)
-{
-	return (desc->action && desc->action == &chained_action);
-}
-
 static inline int irq_desc_get_node(struct irq_desc *desc)
 {
 	return irq_common_data_get_node(&desc->irq_common_data);
+}
+
+static inline int irq_desc_is_chained(struct irq_desc *desc)
+{
+	return (desc->action && desc->action == &chained_action);
 }
 
 #ifdef CONFIG_PM_SLEEP
