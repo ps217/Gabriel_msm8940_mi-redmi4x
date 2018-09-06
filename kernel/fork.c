@@ -15,6 +15,7 @@
 #include <linux/init.h>
 #include <linux/unistd.h>
 #include <linux/module.h>
+#include <linux/moduleparam.h>
 #include <linux/vmalloc.h>
 #include <linux/completion.h>
 #include <linux/personality.h>
@@ -89,6 +90,9 @@
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/task.h>
+
+static unsigned int devfreq_cpubw_boost_ms = 1250;
+module_param_named(devfreq_cpubw_boost_ms, devfreq_cpubw_boost_ms, uint, 0644);
 
 /*
  * Protected counters by write_lock_irq(&tasklist_lock)
@@ -1694,7 +1698,7 @@ long do_fork(unsigned long clone_flags,
 
 	/* Boost CPUBW to the max for 1250 ms when userspace launches an app */
 	if (is_zygote_pid(current->pid))
-		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, 1250);
+		devfreq_boost_kick_max(DEVFREQ_MSM_CPUBW, devfreq_cpubw_boost_ms);
 
 	/*
 	 * Determine whether and which event to report to ptracer.  When
