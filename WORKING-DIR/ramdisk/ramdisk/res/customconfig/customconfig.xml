@@ -134,6 +134,9 @@
 
 	<settingsPane description="Set Power Policy to allows devfreq governors to scale the frequency of a device clock. it can scale any devfreq device based on the current policy. It can be the Reason of HEAT-UP and Core Throttle with Performance Based Policies." name="Clock Frequency Scale Policy">
 
+		<checkbox description="The cpubw devfreq device delegates the speed of the DDR bus, so it's speed is directly correlated with frame drops. Boost it when a new frame is ready to be rendered to the display to reduce overall frame drops." name="CPUBW Boost on Rendering"
+			action="generic01 /sys/module/mdss_fb/parameters/devfreq_cpubw_mdss_render" label="Boost on new frame Render"/>
+
 		<seekBar description="Set the time for ms that CPUBW devfreq device boost to the max when userspace launches an app. CPUBW will last longer in max frequency if you set higher value (Default: 1250 ms)." name="CPUBW Boost time"
 			action="generic /sys/module/fork/parameters/devfreq_cpubw_boost_ms" unit="ms" min="0" reversed="false" step="250" max="1500"/>
 
