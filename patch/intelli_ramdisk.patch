@@ -1,5 +1,5 @@
 diff --git a/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh b/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
-index 681ec7bba66e..3fca1b3935b1 100755
+index 3326d70de187..06b3bbb04d1b 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
 +++ b/WORKING-DIR/ramdisk/ramdisk/gabriel/ext/post-init.sh
 @@ -123,7 +123,17 @@ fi;
@@ -103,10 +103,10 @@ index 000000000000..5bb9e3cf1596
 +
 +echo ${msm_thermal};
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
-index 73070fec5895..9ebcd242403f 100644
+index 4018dc6c92da..04d6ce64b9b7 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -124,10 +124,10 @@ index 73070fec5895..9ebcd242403f 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
-index 7fc8d5d69390..bb01f0f0e2cb 100644
+index 69b4754b6768..430c557214ce 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
-@@ -844,6 +844,73 @@
+@@ -850,6 +850,73 @@
  
  </settingsTab>
  
@@ -202,10 +202,10 @@ index 7fc8d5d69390..bb01f0f0e2cb 100644
  
  	<settingsPane description="Select the GPU Governor. After doing some changes, hit button to update GPU Governor." name="GPU Governors And Settings">
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
-index 0858c914d615..5708b0a8161f 100644
+index 3085168ca266..04fb5e5044ff 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -223,10 +223,10 @@ index 0858c914d615..5708b0a8161f 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=425
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
-index bff6b1aa6d90..c0df4df61287 100644
+index e168584a6f21..69d1b1ad1148 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -244,10 +244,10 @@ index bff6b1aa6d90..c0df4df61287 100644
  gpu_governor_suspend=powersave
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
-index bd74af1a05f4..11a2df0f0487 100755
+index 2952144cb7a8..037a8f4ac6cd 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -265,10 +265,10 @@ index bd74af1a05f4..11a2df0f0487 100755
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=575
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
-index 6752dca21f1c..add0e3e8d3eb 100755
+index bde1ccdf30c7..c193a0a7c275 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -286,10 +286,10 @@ index 6752dca21f1c..add0e3e8d3eb 100755
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
-index 6ee2f3164e92..8840d7001da6 100644
+index a76948590155..92260ac52d69 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -307,10 +307,10 @@ index 6ee2f3164e92..8840d7001da6 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=425
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
-index 05862f49392f..80c0ee0a0113 100644
+index dcd9361f69f8..a5775ca28ad5 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
-@@ -93,6 +93,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -328,10 +328,10 @@ index 05862f49392f..80c0ee0a0113 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=575
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
-index e1e67de5624a..7db0fef36aa5 100755
+index d8b4b5fa18a2..8882eb5e3d1e 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
-@@ -94,6 +94,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
