@@ -179,12 +179,6 @@ EXPORT_SYMBOL_GPL(cgrp_dfl_root);
  */
 static bool cgrp_dfl_root_visible;
 
-/*
- * Set by the boot param of the same name and makes subsystems with NULL
- * ->dfl_files to use ->legacy_files on the default hierarchy.
- */
-static bool cgroup_legacy_files_on_dfl;
-
 /* some controllers are not supported in the default hierarchy */
 static unsigned long cgrp_dfl_root_inhibit_ss_mask;
 
@@ -1598,7 +1592,7 @@ static int cgroup_show_options(struct seq_file *seq,
 	if (root != &cgrp_dfl_root)
 		for_each_subsys(ss, ssid)
 			if (root->subsys_mask & (1 << ssid))
-				seq_printf(seq, ",%s", ss->legacy_name);
+				seq_show_option(seq, ss->legacy_name, NULL);
 	if (root->flags & CGRP_ROOT_NOPREFIX)
 		seq_puts(seq, ",noprefix");
 	if (root->flags & CGRP_ROOT_XATTR)
@@ -1606,13 +1600,14 @@ static int cgroup_show_options(struct seq_file *seq,
 
 	spin_lock(&release_agent_path_lock);
 	if (strlen(root->release_agent_path))
-		seq_printf(seq, ",release_agent=%s", root->release_agent_path);
+		seq_show_option(seq, "release_agent",
+				root->release_agent_path);
 	spin_unlock(&release_agent_path_lock);
 
 	if (test_bit(CGRP_CPUSET_CLONE_CHILDREN, &root->cgrp.flags))
 		seq_puts(seq, ",clone_children");
 	if (strlen(root->name))
-		seq_printf(seq, ",name=%s", root->name);
+		seq_show_option(seq, "name", root->name);
 	return 0;
 }
 
@@ -2203,8 +2198,6 @@ static struct file_system_type cgroup2_fs_type = {
 	.kill_sb = cgroup_kill_sb,
 };
 
-static struct kobject *cgroup_kobj;
-
 /**
  * task_cgroup_path - cgroup path of a task in the first cgroup hierarchy
  * @task: target task
@@ -2756,7 +2749,7 @@ static ssize_t __cgroup_procs_write(struct kernfs_open_file *of, char *buf,
 			ret = -ESRCH;
 			goto out_unlock_rcu;
 		}
-		} else {
+	} else {
 		tsk = current;
 	}
 
@@ -2833,58 +2826,6 @@ static ssize_t cgroup_tasks_write(struct kernfs_open_file *of,
 {
 	return __cgroup_procs_write(of, buf, nbytes, off, false);
 }
-
-#ifdef CONFIG_CGROUP_SCHED
-int cgroup_attach_task_to_root(struct task_struct *tsk, int wait)
-{
-	int ret = 0;
-	struct cgroup *cgrp;
-	struct cgroup *root_cgrp = NULL;
-
-	if (!mutex_trylock(&cgroup_mutex)) {
-		/*This can be a case of recursion, so bail out */
-		if (!wait)
-			return -EBUSY;
-		mutex_lock(&cgroup_mutex);
-	}
-
-	cgrp = task_cgroup(tsk, cpu_cgrp_id);
-
-	if (cgrp && cgrp->root)
-		root_cgrp = &cgrp->root->cgrp;
-
-	if (root_cgrp && cgrp != root_cgrp)
-		cgrp = root_cgrp;
-	else
-		goto out_unlock_cgroup;
-
-	if (cgroup_is_dead(cgrp)) {
-		ret = -ENODEV;
-		goto out_unlock_cgroup;
-	}
-
-	rcu_read_lock();
-
-	get_task_struct(tsk);
-	rcu_read_unlock();
-
-	percpu_down_write(&cgroup_threadgroup_rwsem);
-
-	ret = cgroup_attach_task(cgrp, tsk, false);
-
-	percpu_up_write(&cgroup_threadgroup_rwsem);
-
-	put_task_struct(tsk);
-out_unlock_cgroup:
-	mutex_unlock(&cgroup_mutex);
-	return ret;
-}
-#else
-int cgroup_attach_task_to_root(struct task_struct *tsk, int wait)
-{
-	return 0;
-}
-#endif
 
 static ssize_t cgroup_procs_write(struct kernfs_open_file *of,
 				  char *buf, size_t nbytes, loff_t off)
@@ -3675,17 +3616,8 @@ int cgroup_add_legacy_cftypes(struct cgroup_subsys *ss, struct cftype *cfts)
 {
 	struct cftype *cft;
 
-	/*
-	 * If legacy_flies_on_dfl, we want to show the legacy files on the
-	 * dfl hierarchy but iff the target subsystem hasn't been updated
-	 * for the dfl hierarchy yet.
-	 */
-	if (!cgroup_legacy_files_on_dfl ||
-	    ss->dfl_cftypes != ss->legacy_cftypes) {
-		for (cft = cfts; cft && cft->name[0] != '\0'; cft++)
-			cft->flags |= __CFTYPE_NOT_ON_DFL;
-	}
-
+	for (cft = cfts; cft && cft->name[0] != '\0'; cft++)
+		cft->flags |= __CFTYPE_NOT_ON_DFL;
 	return cgroup_add_cftypes(ss, cfts);
 }
 
@@ -4961,7 +4893,7 @@ static int create_css(struct cgroup *cgrp, struct cgroup_subsys *ss,
 
 	err = cgroup_idr_alloc(&ss->css_idr, NULL, 2, 0, GFP_KERNEL);
 	if (err < 0)
-		goto err_free_css;
+		goto err_free_percpu_ref;
 	css->id = err;
 
 	if (visible) {
@@ -4993,6 +4925,9 @@ err_list_del:
 	list_del_rcu(&css->sibling);
 	css_clear_dir(css, NULL);
 err_free_id:
+	cgroup_idr_remove(&ss->css_idr, css->id);
+err_free_percpu_ref:
+	percpu_ref_exit(&css->refcnt);
 err_free_css:
 	call_rcu(&css->rcu_head, css_free_rcu_fn);
 	return err;
@@ -5449,9 +5384,6 @@ int __init cgroup_init(void)
 
 		cgrp_dfl_root.subsys_mask |= 1 << ss->id;
 
-		if (cgroup_legacy_files_on_dfl && !ss->dfl_cftypes)
-			ss->dfl_cftypes = ss->legacy_cftypes;
-
 		if (!ss->dfl_cftypes)
 			cgrp_dfl_root_inhibit_ss_mask |= 1 << ss->id;
 
@@ -5466,7 +5398,7 @@ int __init cgroup_init(void)
 			ss->bind(init_css_set.subsys[ssid]);
 	}
 
-//	WARN_ON(sysfs_create_mount_point(fs_kobj, "cgroup"));
+	WARN_ON(sysfs_create_mount_point(fs_kobj, "cgroup"));
 	WARN_ON(register_filesystem(&cgroup_fs_type));
 	WARN_ON(register_filesystem(&cgroup2_fs_type));
 	WARN_ON(!proc_create("cgroups", 0, NULL, &proc_cgroupstats_operations));
@@ -5897,14 +5829,6 @@ static int __init cgroup_disable(char *str)
 }
 __setup("cgroup_disable=", cgroup_disable);
 
-static int __init cgroup_set_legacy_files_on_dfl(char *str)
-{
-	printk("cgroup: using legacy files on the default hierarchy\n");
-	cgroup_legacy_files_on_dfl = true;
-	return 0;
-}
-__setup("cgroup__DEVEL__legacy_files_on_dfl", cgroup_set_legacy_files_on_dfl);
-
 /**
  * css_tryget_online_from_dir - get corresponding css from a cgroup dentry
  * @dentry: directory dentry of interest
@@ -5955,7 +5879,7 @@ struct cgroup_subsys_state *css_tryget_online_from_dir(struct dentry *dentry,
 struct cgroup_subsys_state *css_from_id(int id, struct cgroup_subsys *ss)
 {
 	WARN_ON_ONCE(!rcu_read_lock_held());
-	return idr_find(&ss->css_idr, id);
+	return id > 0 ? idr_find(&ss->css_idr, id) : NULL;
 }
 
 #ifdef CONFIG_CGROUP_DEBUG
