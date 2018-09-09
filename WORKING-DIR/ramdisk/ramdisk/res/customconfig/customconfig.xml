@@ -435,6 +435,9 @@
 
 	<settingsPane description="Customize the Touch Boost Control settings. Touch Boost means, the CPU frequency is boosted to a higher level when the touch screen is being used. It gives smoother UI but use slightly more power." name="Touch Boost Controls">
 
+		<checkbox description="Boost CPU when a new frame is ready to be rendered to the display to reduce overall frame drops." name="CPU Boost on Rendering"
+			action="generic01 /sys/module/mdss_fb/parameters/cpu_boost_mdss_render" label="Boost on new frame Render"/>
+
 		<spinner description="Boost the CPU when a touch is Detected." name="Main Cpu Boost Switch"
 			action="generic /sys/module/cpu_boost/parameters/input_boost_enabled">
 			<spinnerItem name="Disable" value="0"/>

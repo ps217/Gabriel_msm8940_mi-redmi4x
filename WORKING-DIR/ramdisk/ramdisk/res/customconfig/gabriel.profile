@@ -40,6 +40,7 @@ freq_calc_t_gabriel_l=1094400
 freq_calc_t_gabriel_b=1094400
 cpu_l_gov_profile=off
 cpu_b_gov_profile=relaxed_balance
+cpu_boost_mdss_render=off
 input_boost_enabled=0
 sched_boost_on_input=0
 input_boost_freq_lc=902400
