@@ -444,7 +444,7 @@
 			<spinnerItem name="Enable" value="1"/>
 		</spinner>
 
-		<spinner description="Boost HMP Scheduler on Touch event." name="HMP boost"
+		<spinner description="Enable scheduler boost to migrate tasks to big cluster." name="Scheduler boost"
 			action="generic /sys/module/cpu_boost/parameters/sched_boost_on_input">
 			<spinnerItem name="Disable" value="0"/>
 			<spinnerItem name="Enable" value="1"/>
