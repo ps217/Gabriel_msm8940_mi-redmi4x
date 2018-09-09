@@ -49,6 +49,7 @@
 #include <linux/kthread.h>
 #include <linux/dma-buf.h>
 #include <linux/devfreq_boost.h>
+#include <linux/cpu_boost.h>
 #include "mdss_fb.h"
 #include "mdss_mdp_splash_logo.h"
 #define CREATE_TRACE_POINTS
@@ -94,6 +95,9 @@ module_param(backlight_max, int, 0755);
 
 static unsigned int devfreq_cpubw_mdss_render = 0;
 module_param_named(devfreq_cpubw_mdss_render, devfreq_cpubw_mdss_render, uint, 0644);
+
+static unsigned int cpu_boost_mdss_render = 0;
+module_param_named(cpu_boost_mdss_render, cpu_boost_mdss_render, uint, 0644);
 
 static struct fb_info *fbi_list[MAX_FBI_LIST];
 static int fbi_list_index;
@@ -4939,6 +4943,10 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 	case MSMFB_ATOMIC_COMMIT:
 		if (devfreq_cpubw_mdss_render > 0)
 			devfreq_boost_kick(DEVFREQ_MSM_CPUBW);
+
+		if (cpu_boost_mdss_render > 0)
+			do_input_boost();
+
 		ret = mdss_fb_atomic_commit_ioctl(info, argp, file);
 		break;
 
