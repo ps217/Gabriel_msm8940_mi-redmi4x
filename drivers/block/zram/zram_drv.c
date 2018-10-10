@@ -30,7 +30,6 @@
 #include <linux/vmalloc.h>
 #include <linux/err.h>
 #include <linux/show_mem_notifier.h>
-#include <linux/ratelimit.h>
 #include <linux/idr.h>
 #include <linux/sysfs.h>
 #include <linux/debugfs.h>
@@ -52,21 +51,12 @@ static const char *default_compressor = "lz4";
 static const char *default_compressor = "lzo";
 #endif
 
-/*
- * We don't need to see memory allocation errors more than once every 1
- * second to know that a problem is occurring.
- */
-#define ALLOC_ERROR_LOG_RATE_MS 1000
-
-/*
- * We don't need to see memory allocation errors more than once every 1
- * second to know that a problem is occurring.
- */
-#define ALLOC_ERROR_LOG_RATE_MS 1000
-
-
 /* Module params (documentation at end) */
 static unsigned int num_devices = 1;
+
+#ifdef CONFIG_STATE_NOTIFIER
+static struct notifier_block notif;
+#endif
 
 static void zram_free_page(struct zram *zram, size_t index);
 
@@ -79,10 +69,6 @@ static void zram_slot_unlock(struct zram *zram, u32 index)
 {
 	bit_spin_unlock(ZRAM_LOCK, &zram->table[index].value);
 }
-
-#ifdef CONFIG_STATE_NOTIFIER
-static struct notifier_block notif;
-#endif
 
 static inline bool init_done(struct zram *zram)
 {
@@ -100,7 +86,6 @@ static int zram_show_mem_notifier(struct notifier_block *nb,
 
 	for (i = 0; i < num_devices; i++) {
 		struct zram *zram = &zram_devices[i];
-		struct zram_meta *meta = zram->meta;
 
 		if (!down_read_trylock(&zram->init_lock))
 			continue;
@@ -110,7 +95,7 @@ static int zram_show_mem_notifier(struct notifier_block *nb,
 			u64 data_size;
 			u64 orig_data_size;
 
-			val = zs_get_total_pages(meta->mem_pool);
+			val = zs_get_total_pages(zram->mem_pool);
 			data_size = atomic64_read(&zram->stats.compr_data_size);
 			orig_data_size = atomic64_read(
 						&zram->stats.pages_stored);
@@ -1561,12 +1546,11 @@ static void zram_compact(struct zram *zram)
 		return;
 
 	if (init_done(zram)) {
-		struct zram_meta *meta = zram->meta;
 		u64 data_size, new_size;
 
 		data_size = atomic64_read(&zram->stats.compr_data_size);
 
-		zs_compact(meta->mem_pool);
+		zs_compact(zram->mem_pool);
 
 		new_size = atomic64_read(&zram->stats.compr_data_size);
 		if (new_size < data_size)
@@ -1815,6 +1799,7 @@ static int zram_add(void)
 	blk_queue_io_min(zram->disk->queue, PAGE_SIZE);
 	blk_queue_io_opt(zram->disk->queue, PAGE_SIZE);
 	zram->disk->queue->limits.discard_granularity = PAGE_SIZE;
+	blk_queue_max_discard_sectors(zram->disk->queue, UINT_MAX);
 	/*
 	 * zram_bio_discard() will clear all logical blocks if logical block
 	 * size is identical with physical block size(PAGE_SIZE). But if it is
