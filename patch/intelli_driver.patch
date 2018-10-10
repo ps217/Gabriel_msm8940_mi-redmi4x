@@ -1,5 +1,5 @@
 diff --git a/drivers/thermal/msm_thermal.c b/drivers/thermal/msm_thermal.c
-index edbc1b736ba9..b975b3b17e6b 100644
+index 92c843135254..ab79c7c2dd16 100644
 --- a/drivers/thermal/msm_thermal.c
 +++ b/drivers/thermal/msm_thermal.c
 @@ -78,6 +78,7 @@
@@ -141,7 +141,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  			cpus[_cpu].limited_max_freq = min(
  				cluster_ptr->freq_table[freq_idx].frequency,
  				cpus[_cpu].vdd_max_freq);
-@@ -3017,8 +3094,7 @@ static int __ref update_offline_cores(int val)
+@@ -3027,8 +3104,7 @@ static int __ref update_offline_cores(int val)
  
  	if (pend_hotplug_req && !in_suspend && !retry_in_progress) {
  		retry_in_progress = true;
@@ -151,7 +151,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  			msecs_to_jiffies(HOTPLUG_RETRY_INTERVAL_MS));
  	}
  
-@@ -3487,6 +3563,8 @@ static void check_temp(struct work_struct *work)
+@@ -3497,6 +3573,8 @@ static void check_temp(struct work_struct *work)
  		return;
  
  	do_therm_reset();
@@ -160,7 +160,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  
  	ret = therm_get_temp(msm_thermal_info.sensor_id, THERM_TSENS_ID, &temp);
  	if (ret) {
-@@ -3513,10 +3591,9 @@ static void check_temp(struct work_struct *work)
+@@ -3523,10 +3601,9 @@ static void check_temp(struct work_struct *work)
  	do_freq_control(temp);
  
  reschedule:
@@ -174,7 +174,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  }
  
  static int __ref msm_thermal_cpu_callback(struct notifier_block *nfb,
-@@ -4795,8 +4872,8 @@ static void interrupt_mode_init(void)
+@@ -4807,8 +4884,8 @@ static void interrupt_mode_init(void)
  	if (!msm_thermal_probed)
  		return;
  
@@ -185,7 +185,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  		create_sensor_zone_id_map();
  		disable_msm_thermal();
  		hotplug_init();
-@@ -4811,46 +4888,33 @@ static int __ref set_enabled(const char *val, const struct kernel_param *kp)
+@@ -4823,46 +4900,33 @@ static int __ref set_enabled(const char *val, const struct kernel_param *kp)
  {
  	int ret = 0;
  
@@ -248,7 +248,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  
  static ssize_t show_cc_enabled(struct kobject *kobj,
  		struct kobj_attribute *attr, char *buf)
-@@ -4934,7 +4998,7 @@ static ssize_t __ref store_cpus_offlined(struct kobject *kobj,
+@@ -4946,7 +5010,7 @@ static ssize_t __ref store_cpus_offlined(struct kobject *kobj,
  		goto done_cc;
  	}
  
@@ -257,7 +257,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  		pr_err("Ignoring request; polling thread is enabled.\n");
  		goto done_cc;
  	}
-@@ -5005,6 +5069,83 @@ done_cc_nodes:
+@@ -5017,6 +5081,83 @@ done_cc_nodes:
  	return ret;
  }
  
@@ -341,7 +341,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  static ssize_t show_mx_enabled(struct kobject *kobj,
  		struct kobj_attribute *attr, char *buf)
  {
-@@ -5268,7 +5409,7 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
+@@ -5280,7 +5421,7 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
  	}
  
  	enabled = 1;
@@ -350,7 +350,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  	ret = cpufreq_register_notifier(&msm_thermal_cpufreq_notifier,
  			CPUFREQ_POLICY_NOTIFIER);
  	if (ret)
-@@ -5278,7 +5419,7 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
+@@ -5290,7 +5431,7 @@ int msm_thermal_init(struct msm_thermal_data *pdata)
  	pm_notifier(msm_thermal_suspend_callback, 0);
  	INIT_DELAYED_WORK(&retry_hotplug_work, retry_hotplug);
  	INIT_DELAYED_WORK(&check_temp_work, check_temp);
@@ -359,7 +359,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  
  	if (num_possible_cpus() > 1) {
  		cpus_previously_online_update();
-@@ -6635,10 +6776,8 @@ static int probe_cc(struct device_node *node, struct msm_thermal_data *data,
+@@ -6647,10 +6788,8 @@ static int probe_cc(struct device_node *node, struct msm_thermal_data *data,
  	char *key = NULL;
  	int ret = 0;
  
@@ -371,7 +371,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  
  	key = "qcom,core-limit-temp";
  	ret = of_property_read_u32(node, key, &data->core_limit_temp_degC);
-@@ -7269,7 +7408,7 @@ static int msm_thermal_dev_probe(struct platform_device *pdev)
+@@ -7281,7 +7420,7 @@ static int msm_thermal_dev_probe(struct platform_device *pdev)
  	char *key = NULL;
  	struct device_node *node = pdev->dev.of_node;
  	struct msm_thermal_data data;
@@ -380,7 +380,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  	if (!mitigation)
  		return ret;
  
-@@ -7376,12 +7515,23 @@ static int msm_thermal_dev_probe(struct platform_device *pdev)
+@@ -7388,12 +7527,23 @@ static int msm_thermal_dev_probe(struct platform_device *pdev)
  	msm_thermal_ioctl_init();
  	ret = msm_thermal_init(&data);
  	msm_thermal_probed = true;
@@ -404,7 +404,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  probe_exit:
  	return ret;
  }
-@@ -7399,6 +7549,7 @@ static int msm_thermal_dev_exit(struct platform_device *inp_dev)
+@@ -7411,6 +7561,7 @@ static int msm_thermal_dev_exit(struct platform_device *inp_dev)
  	if (msm_therm_debugfs && msm_therm_debugfs->parent)
  		debugfs_remove_recursive(msm_therm_debugfs->parent);
  	msm_thermal_ioctl_cleanup();
@@ -412,7 +412,7 @@ index edbc1b736ba9..b975b3b17e6b 100644
  	if (thresh) {
  		if (vdd_rstr_enabled) {
  			sensor_mgr_remove_threshold(
-@@ -7523,7 +7674,12 @@ int __init msm_thermal_late_init(void)
+@@ -7535,7 +7686,12 @@ int __init msm_thermal_late_init(void)
  	create_thermal_debugfs();
  	msm_thermal_add_bucket_info_nodes();
  	uio_init(msm_thermal_info.pdev);

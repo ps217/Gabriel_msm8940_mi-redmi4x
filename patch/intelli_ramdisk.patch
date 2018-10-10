@@ -103,10 +103,10 @@ index 000000000000..5bb9e3cf1596
 +
 +echo ${msm_thermal};
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
-index 4018dc6c92da..04d6ce64b9b7 100644
+index 5a2e9f14b174..4440deb4b4f6 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/battery.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -124,10 +124,10 @@ index 4018dc6c92da..04d6ce64b9b7 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
-index 69b4754b6768..430c557214ce 100644
+index bd7308082eea..8988710bef46 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/customconfig.xml
-@@ -850,6 +850,73 @@
+@@ -853,6 +853,73 @@
  
  </settingsTab>
  
@@ -202,10 +202,10 @@ index 69b4754b6768..430c557214ce 100644
  
  	<settingsPane description="Select the GPU Governor. After doing some changes, hit button to update GPU Governor." name="GPU Governors And Settings">
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
-index 3085168ca266..04fb5e5044ff 100644
+index 5fc37fadb2ea..f17e4bd1e019 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/default.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -223,10 +223,10 @@ index 3085168ca266..04fb5e5044ff 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=425
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
-index e168584a6f21..69d1b1ad1148 100644
+index 7eef499ad1d3..9641444dbe65 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_battery.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -244,10 +244,10 @@ index e168584a6f21..69d1b1ad1148 100644
  gpu_governor_suspend=powersave
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
-index 2952144cb7a8..037a8f4ac6cd 100755
+index 7125b0a6d2cc..1aac490ad903 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/extreme_performance.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -265,10 +265,10 @@ index 2952144cb7a8..037a8f4ac6cd 100755
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=575
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
-index bde1ccdf30c7..c193a0a7c275 100755
+index 6df8cbf68aaa..372b8d199828 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/gabriel.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -286,10 +286,10 @@ index bde1ccdf30c7..c193a0a7c275 100755
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=375
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
-index a76948590155..92260ac52d69 100644
+index 338ac08c33ca..649167307f1f 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/performance.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -307,10 +307,10 @@ index a76948590155..92260ac52d69 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=425
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
-index dcd9361f69f8..a5775ca28ad5 100644
+index e13df787bf77..ac326343d694 100644
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/ps217_mod.profile
-@@ -95,6 +95,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
@@ -328,10 +328,10 @@ index dcd9361f69f8..a5775ca28ad5 100644
  gpu_governor_suspend=msm-adreno-tz
  gpu_max_freq=575
 diff --git a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
-index d8b4b5fa18a2..8882eb5e3d1e 100755
+index 45a197a2ad4b..75fc4ce6079f 100755
 --- a/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
 +++ b/WORKING-DIR/ramdisk/ramdisk/res/customconfig/salvation.profile
-@@ -96,6 +96,16 @@ core_ctrl_l_off_delay_suspend=100
+@@ -97,6 +97,16 @@ core_ctrl_l_off_delay_suspend=100
  core_ctrl_b_off_delay_suspend=100
  core_ctrl_l_task_thres_suspend=4
  core_ctrl_b_task_thres_suspend=8
