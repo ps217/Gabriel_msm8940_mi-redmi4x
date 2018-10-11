@@ -131,6 +131,7 @@ vfs_cache_pressure=500
 oom_kill_allocating_task=off
 suspend_drop_cache=0
 swaptweaks=0
+zram_comp_algorithm=lz4
 zramtweaks=768
 swappiness=60
 run=0

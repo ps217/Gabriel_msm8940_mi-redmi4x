@@ -1,0 +1,16 @@
+#!/sbin/busybox sh
+
+BB=/gabriel/busybox
+
+if [ -e /dev/block/zram0 ]; then
+	disk_size=$(cat /sys/block/zram0/disksize);
+
+	$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+	echo "1" > /sys/block/zram0/reset;
+	echo $(cat /cache/comp_algorithm) > /sys/block/zram0/comp_algorithm;
+	echo $disk_size > /sys/block/zram0/disksize;
+	$BB mkswap /dev/block/zram0 >/dev/null;
+	$BB swapon /dev/block/zram0;
+
+	echo "ZRAM Initialized"
+fi;

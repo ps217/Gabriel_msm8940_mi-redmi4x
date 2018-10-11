@@ -1137,7 +1137,16 @@
 
 	</settingsPane>
 
-	<settingsPane description="ZRAM Control Module take real RAM and compress it by 35-40% to create more FREE RAM for apps. Compression method is LZ4. The more RAM is allocated in ZRAM, the more physical RAM is given to user at cost of CPU power and faster battery discharging. When switching ZRAM size from one to another, decompression and new compression will take some TIME. In some cases that will take more than 2 min. In that time, Stweak will FREEZE. DO NOT PANIC!. Do not kill the app." name="ZRAM">
+	<settingsPane description="ZRAM Control Module take real RAM and compress it by 35-40% to create more FREE RAM for apps. Compression method by default is LZ4. The more RAM is allocated in ZRAM, the more physical RAM is given to user at cost of CPU power and faster battery discharging. When switching ZRAM size from one to another, decompression and new compression will take some TIME. In some cases that will take more than some min. In that time, Stweak will FREEZE. DO NOT PANIC!. Do not kill the app." name="ZRAM">
+
+		<spinner description="ZRAM Compression/Decompressin Algorithm Selector. This is algorithm of Compressing/Decompressing the ZRAM by Crypto API which can be faster in Compression/Decompression or deliver smaller Compressed size but slower in Compression/Decompression. (Default: lz4)" name="ZRAM Compression Algorithm"
+			action="zram_comp_algorithm">
+			<spinnerItem name="LZO" value="lzo"/>
+			<spinnerItem name="LZ4" value="lz4"/>
+			<spinnerItem name="LZ4HC" value="lz4hc"/>
+			<spinnerItem name="Deflate" value="deflate"/>
+			<spinnerItem name="ZSTD" value="zstd"/>
+		</spinner>
 
 		<spinner description="ZRAM Size Controller. The more is set, the more free RAM you'll get in cost of CPU power. But it's really low usage and device is operating GREAT! This is memory based module, so storage is not killed over time. Before proceeding PLEASE read the instruction ABOVE! (Default: 512 MiB)" name="ZRAM Selector"
 			action="zramtweaks">
@@ -1147,6 +1156,8 @@
 			<spinnerItem name="256 MiB" value="256"/> 
 			<spinnerItem name="OFFLINE" value="0"/> 
 		</spinner>
+
+		<button description="Create ZRAM again in order of changed compression algorithm or flushing zram. This process needs zram to be initialising again and It will takes time to flush zram, so you can reboot the phone instead to speed it up or wait until zram flush." name="Initialise ZRAM" action="push-actions/init_zram" label="Initialise ZRAM"/>
 
 		<seekBar description="Controls ZRAM/SWAP allocation. The higher value is set, then ZRAM/SWAP will use more storage instead of real RAM, in order to give you more free RAM. The only cost is slight performance drop. If you have enabled swap, then the higher a number set here, the more the system will swap. It is not recommended to enable swap as it is very resource heavy. Use ZRAM instead!. By setting it to the maximum of 100 the kernel will swap very aggressively. By setting it to 0 the kernel will only swap to protect against an Out-Of-Memory condition." name="Swappiness"
 			action="generic /proc/sys/vm/swappiness" unit="%" min="0" reversed="false" step="5" max="100"/>

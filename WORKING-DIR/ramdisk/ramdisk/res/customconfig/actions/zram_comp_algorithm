@@ -1,0 +1,35 @@
+#!/sbin/busybox sh
+
+# ZRAM Compression Algorithm
+# Created by Dorimanx
+
+# $1 - "zram_comp_algorithm"
+# $2 - value=
+
+BB=/gabriel/busybox
+
+if [ "a$2" != "a" ]; then
+	zram_comp_algorithm=$2;
+
+	case "${zram_comp_algorithm}" in
+		lzo)
+			echo lzo > /cache/comp_algorithm;
+		;;
+		lz4)
+			echo lz4 > /cache/comp_algorithm;
+		;;
+		lz4hc)
+			echo lz4hc > /cache/comp_algorithm;
+		;;
+		deflate)
+			echo deflate > /cache/comp_algorithm;
+		;;
+		zstd)
+			echo zstd > /cache/comp_algorithm;
+		;;
+		*)
+			zram_comp_algorithm=lz4;
+		;;
+	esac;
+fi;
+echo ${zram_comp_algorithm};
