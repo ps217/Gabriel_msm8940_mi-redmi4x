@@ -165,6 +165,20 @@ else
   ui_print " ";
 fi;
 
+ui_print "Rom info";
+username="$(file_getprop /system/build.prop "ro.build.user")";
+ui_print "- User: $username";
+
+hostname="$(file_getprop /system/build.prop "ro.build.host")";
+ui_print "- Host: $hostname";
+
+productname="$(file_getprop /system/build.prop "ro.product.name")";
+ui_print "- Product name: $productname";
+
+date_flag="$(date +%Y-%m-%d)";
+ui_print "- Current system date: $date_flag";
+ui_print " ";
+
 if [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
   ui_print "F2FS file system detected";
   ui_print " ";
@@ -185,9 +199,7 @@ else
   gabriel_kernel=0;
 fi;
 
-name_flag=$(file_getprop /system/build.prop ro.product.name);
-date_flag=$(date +%Y-%m-%d);
-dir_flag=$date_flag-$name_flag;
+dir_flag=$date_flag-$productname-$username;
 
 if [ ! -e /sdcard/gabriel/backup/$dir_flag/boot_backup.img ] && [ "$gabriel_kernel" == "0" ]; then
   mkdir /sdcard/gabriel/backup/$dir_flag/;
