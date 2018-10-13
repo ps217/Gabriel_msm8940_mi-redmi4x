@@ -179,11 +179,6 @@ date_flag="$(date +%Y-%m-%d)";
 ui_print "- Current system date: $date_flag";
 ui_print " ";
 
-if [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
-  ui_print "F2FS file system detected";
-  ui_print " ";
-fi;
-
 ui_print "Looking for installed kernel...";
 ui_print " ";
 
@@ -270,13 +265,6 @@ if [ "$(file_getprop /tmp/anykernel/anykernel.sh do.system)" == 1 ] &&
   mount -o rw,remount -t auto /system;
   $bb cp -rLf /tmp/anykernel/ramdisk/system/* $root/system/;
   mount -o ro,remount -t auto /system;
-fi;
-
-if [ "$(file_getprop /tmp/anykernel/fstab.patch do.fstab)" == 1 ]; then
-  ui_print " ";
-  ui_print "Patching fstab...";
-# anykernel.sh doing the fstab patch
-# anykernel run this if fstab has been patched
 fi;
 
 mount -o rw,remount -t auto /system;
