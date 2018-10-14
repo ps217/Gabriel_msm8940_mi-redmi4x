@@ -40,16 +40,30 @@ dump_boot;
 # begin ramdisk changes
 
 # fstab.qcom
-if [ -e fstab.qcom ] || [ -e /system/vendor/etc/fstab.qcom ] && [ $(mount | grep f2fs | wc -l) -gt "0" ]; then
-touch /tmp/anykernel/fstab.patch
-echo "do.fstab=1" > /tmp/anykernel/fstab.patch
 if [ -e fstab.qcom ]; then
-insert_line fstab.qcom "data        f2fs" before "data        ext4" "/dev/block/bootdevice/by-name/userdata     /data        f2fs    nosuid,nodev,noatime,inline_xattr,data_flush      wait,check,encryptable=footer,formattable,length=-16384";
-insert_line fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
+	fstab=fstab.qcom;
 elif [ -e /system/vendor/etc/fstab.qcom ]; then
-insert_line /system/vendor/etc/fstab.qcom "data        f2fs" before "data        ext4" "/dev/block/bootdevice/by-name/userdata     /data        f2fs    nosuid,nodev,noatime,inline_xattr,data_flush      wait,check,encryptable=footer,formattable,length=-16384";
-insert_line /system/vendor/etc/fstab.qcom "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
+	fstab=/system/vendor/etc/fstab.qcom;
+elif [ -e /system/etc/fstab.qcom ]; then
+	fstab=/system/etc/fstab.qcom;
 fi;
+
+if [ $(mount | grep f2fs | wc -l) -gt "0" ] &&
+   [ $(cat $fstab | grep f2fs | wc -l) -eq "0" ]; then
+ui_print " "; ui_print "Found fstab: $fstab";
+ui_print "Adding f2fs support to fstab...";
+
+insert_line $fstab "data        f2fs" before "data        ext4" "/dev/block/bootdevice/by-name/userdata     /data        f2fs    nosuid,nodev,noatime,inline_xattr,data_flush      wait,check,encryptable=footer,formattable,length=-16384";
+insert_line $fstab "cache        f2fs" after "data        ext4" "/dev/block/bootdevice/by-name/cache     /cache        f2fs    nosuid,nodev,noatime,inline_xattr,flush_merge,data_flush wait,formattable,check";
+
+	if [ $(cat $fstab | grep f2fs | wc -l) -eq "0" ]; then
+		ui_print "Failed to add f2fs support!";
+		exit 1;
+	fi;
+elif [ $(mount | grep f2fs | wc -l) -gt "0" ] &&
+     [ $(cat $fstab | grep f2fs | wc -l) -gt "0" ]; then
+	ui_print " "; ui_print "Found fstab: $fstab";
+	ui_print "F2FS supported!";
 fi;
 
 if [ -e init.qcom.rc ]; then
