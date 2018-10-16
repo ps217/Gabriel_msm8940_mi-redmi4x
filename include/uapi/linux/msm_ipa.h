@@ -424,8 +424,6 @@ enum ipa_wlan_fw_ssr_event {
 #define IPA_WLAN_FW_SSR_EVENT_MAX IPA_WLAN_FW_SSR_EVENT_MAX
 };
 
-#define IPA_EVENT_MAX_NUM (IPA_WLAN_FW_SSR_EVENT_MAX)
-
 /**
  * enum ipa_rm_resource_name - IPA RM clients identification names
  *
