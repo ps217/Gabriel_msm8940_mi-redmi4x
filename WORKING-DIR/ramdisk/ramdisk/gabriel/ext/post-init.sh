@@ -341,6 +341,11 @@ CRITICAL_PERM_FIX;
 	pm enable com.google.android.gsf/.update.SystemUpdateService$Receiver
 	pm enable com.google.android.gsf/.update.SystemUpdateService$SecretCodeReceiver
 
+	# user setup automatically sets to 0 after a random reboot
+	# thanks to stephen
+	pm enable com.google.android.setupwizard/com.google.android.setupwizard.SetupWizardActivity
+	settings put secure user_setup_complete 1
+
 OPEN_RW;
 
 if [ "$stweaks_init_proc_fixer" == "yes" ]; then
