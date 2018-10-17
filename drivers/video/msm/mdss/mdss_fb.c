@@ -334,6 +334,8 @@ static void mdss_fb_set_bl_brightness(struct led_classdev *led_cdev,
 		bl_lvl = 1;
 			pr_debug("bl_lvl is %d, value is %d\n", bl_lvl, value);	
 
+	pr_debug("bl_lvl is %d, value is %d\n", bl_lvl, value);
+
 	if (!IS_CALIB_MODE_BL(mfd) && (!mfd->ext_bl_ctrl || !value ||
 							!mfd->bl_level)) {
 		mutex_lock(&mfd->bl_lock);
@@ -4865,7 +4867,7 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 	unsigned int dsi_mode = 0;
 	struct mdss_panel_data *pdata = NULL;
 	unsigned int Color_mode = 0;
-	unsigned int CE_mode = 0;	
+	unsigned int CE_mode = 0;
 
 	if (!info || !info->par)
 		return -EINVAL;
@@ -4964,6 +4966,7 @@ int mdss_fb_do_ioctl(struct fb_info *info, unsigned int cmd,
 		}
 		ret = mdss_panel_set_ce(pdata, CE_mode);
 		break;
+
 	default:
 		if (mfd->mdp.ioctl_handler)
 			ret = mfd->mdp.ioctl_handler(mfd, cmd, argp);
