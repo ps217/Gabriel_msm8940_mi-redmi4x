@@ -217,6 +217,7 @@ CRITICAL_PERM_FIX;
 [ ! -f /data/.gabriel/extreme_performance.profile ] && cp -a /res/customconfig/extreme_performance.profile /data/.gabriel/extreme_performance.profile;
 [ ! -f /data/.gabriel/gabriel.profile ] && cp -a /res/customconfig/gabriel.profile /data/.gabriel/gabriel.profile;
 [ ! -f /data/.gabriel/salvation.profile ] && cp -a /res/customconfig/salvation.profile /data/.gabriel/salvation.profile;
+[ ! -f /data/.gabriel/ps217_mod.profile ] && cp -a /res/customconfig/salvation.profile /data/.gabriel/ps217_mod.profile;
 
 $BB chmod -R 0777 /data/.gabriel/;
 
