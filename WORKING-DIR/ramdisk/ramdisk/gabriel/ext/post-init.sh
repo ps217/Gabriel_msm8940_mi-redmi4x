@@ -210,6 +210,16 @@ fi;
 # Fix critical perms again after init.d mess
 CRITICAL_PERM_FIX;
 
+if [ $MEM_ALL -gt 3000000000 ]; then
+	ZRAM_SIZE=0;
+elif [ $MEM_ALL -lt 2900000000 ]; then
+	ZRAM_SIZE=1024;
+else
+	ZRAM_SIZE=512;
+fi;
+
+sed -i "s/zramtweaks=[0-9]*/zramtweaks=$ZRAM_SIZE/g" /res/customconfig/*.profile;
+
 [ ! -f /data/.gabriel/default.profile ] && cp -a /res/customconfig/default.profile /data/.gabriel/default.profile;
 [ ! -f /data/.gabriel/battery.profile ] && cp -a /res/customconfig/battery.profile /data/.gabriel/battery.profile;
 [ ! -f /data/.gabriel/extreme_battery.profile ] && cp -a /res/customconfig/extreme_battery.profile /data/.gabriel/extreme_battery.profile;
