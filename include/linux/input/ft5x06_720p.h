@@ -305,10 +305,10 @@ struct ft5x06_ts_data {
 
 #define CTP_SYS_APK_UPDATE 0
 
-#define TPD_AUTO_UPGRADE 1
-#define FTS_PROC_APK_DEBUG 1
+#define TPD_AUTO_UPGRADE 0
+#define FTS_PROC_APK_DEBUG 0
 
-#define CTP_CHARGER_DETECT 1
+#define CTP_CHARGER_DETECT 0
 
 #define CTP_PROC_INTERFACE 1
 #define CTP_LOCKDOWN_INFO  1
@@ -316,7 +316,7 @@ struct ft5x06_ts_data {
 
 #define WT_ADD_CTP_INFO   1
 
-#define CTP_DEBUG_ON 1
+#define CTP_DEBUG_ON 0
 #define CTP_DEBUG_FUNC_ON 0
 #define CTP_INFO(fmt, arg...)           printk("FT5X06-TP-TAG INFO:"fmt"\n", ##arg)
 
