@@ -9,6 +9,7 @@ fi
 
 # Permissions,etc
 BB=/gabriel/busybox
+MEM_ALL=`free | grep Mem | $BB awk '{ print $2 }'`;
 
 # protect init from oom
 if [ -f /system/xbin/su ]; then
@@ -84,6 +85,28 @@ $BB chmod 0664 /sys/devices/system/cpu/$i/cpufreq/scaling_min_freq;
 $BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/cpuinfo_cur_freq;
 $BB chmod 0444 /sys/devices/system/cpu/$i/cpufreq/stats/*
 done;
+
+if [ $MEM_ALL -gt 3000000000 ]; then
+	ZRAM_SIZE=0;
+elif [ $MEM_ALL -lt 2900000000 ]; then
+	ZRAM_SIZE=1GB;
+else
+	ZRAM_SIZE=512MB;
+fi;
+
+if [ -e /dev/block/zram0 ]; then
+	if [ $MEM_ALL -gt 3000000000 ]; then
+		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+		echo "1" > /sys/block/zram0/reset;
+	else
+		$BB swapoff /dev/block/zram0 >/dev/null 2>&1;
+		echo "1" > /sys/block/zram0/reset;
+		echo "lz4" > /sys/block/zram0/comp_algorithm;
+		echo $ZRAM_SIZE > /sys/block/zram0/disksize;
+		$BB mkswap /dev/block/zram0 >/dev/null;
+		$BB swapon /dev/block/zram0;
+	fi;
+fi;
 
 # Miscellaneous configs
 echo -n disable > /sys/devices/soc/soc:qcom,bcl/mode;
