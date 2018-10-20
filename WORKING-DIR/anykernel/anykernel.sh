@@ -15,6 +15,7 @@ do.cleanuponabort=1
 do.osversion=1
 do.f2fs_patch=1
 do.rem_encryption=0
+do.force_encryption=0
 device.name1=santoni
 device.name2=Xiaomi
 device.name3=Redmi 4X
@@ -79,6 +80,13 @@ if [ $(cat $fstab | grep forceencypt | wc -l) -gt "0" ]; then
 	else
 		ui_print "- Force encryption removal is on!";
 	fi;
+elif [ $(cat $fstab | grep encryptable | wc -l) -gt "0" ]; then
+	ui_print " "; ui_print "Force encryption is not enabled";
+	if [ "$(file_getprop $script do.force_encryption)" == 0 ]; then
+		ui_print "- Force encryption is off!";
+	else
+		ui_print "- Force encryption is on!";
+	fi;
 fi;
 
 if [ "$(file_getprop $script do.rem_encryption)" == 1 ] &&
@@ -88,6 +96,15 @@ if [ "$(file_getprop $script do.rem_encryption)" == 1 ] &&
 		ui_print "- Removed force encryption flag!";
 	else
 		ui_print "- Failed to remove force encryption!";
+		exit 1;
+	fi;
+elif [ "$(file_getprop $script do.force_encryption)" == 1 ] &&
+     [ $(cat $fstab | grep encryptable | wc -l) -gt "0" ]; then
+	sed -i 's/encryptable/forceencrypt/g' $fstab
+	if [ $(cat $fstab | grep encryptable | wc -l) -eq "0" ]; then
+		ui_print "- Added force encryption flag!";
+	else
+		ui_print "- Failed to add force encryption!";
 		exit 1;
 	fi;
 fi;
