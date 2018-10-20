@@ -2,6 +2,8 @@
 # osm0sis @ xda-developers
 
 ## AnyKernel setup
+script="$0"
+
 # begin properties
 properties() { '
 kernel.string=Gabriel Kernel by mostafaz @ xda-developers
@@ -11,6 +13,7 @@ do.cleanup=1
 do.system=1
 do.cleanuponabort=1
 do.osversion=1
+do.f2fs_patch=1
 device.name1=santoni
 device.name2=Xiaomi
 device.name3=Redmi 4X
@@ -48,6 +51,7 @@ elif [ -e /system/etc/fstab.qcom ]; then
 	fstab=/system/etc/fstab.qcom;
 fi;
 
+if [ "$(file_getprop $script do.f2fs_patch)" == 1 ]; then
 if [ $(mount | grep f2fs | wc -l) -gt "0" ] &&
    [ $(cat $fstab | grep f2fs | wc -l) -eq "0" ]; then
 ui_print " "; ui_print "Found fstab: $fstab";
@@ -65,6 +69,7 @@ elif [ $(mount | grep f2fs | wc -l) -gt "0" ] &&
 	ui_print " "; ui_print "Found fstab: $fstab";
 	ui_print "F2FS supported!";
 fi;
+fi; #f2fs_patch
 
 # init.qcom.rc
 if [ -e init.qcom.rc ]; then
