@@ -14,6 +14,7 @@ do.system=1
 do.cleanuponabort=1
 do.osversion=1
 do.f2fs_patch=1
+do.rem_encryption=0
 device.name1=santoni
 device.name2=Xiaomi
 device.name3=Redmi 4X
@@ -70,6 +71,26 @@ elif [ $(mount | grep f2fs | wc -l) -gt "0" ] &&
 	ui_print "F2FS supported!";
 fi;
 fi; #f2fs_patch
+
+if [ $(cat $fstab | grep forceencypt | wc -l) -gt "0" ]; then
+	ui_print " "; ui_print "Force encryption is enabled";
+	if [ "$(file_getprop $script do.rem_encryption)" == 0 ]; then
+		ui_print "- Force encryption removal is off!";
+	else
+		ui_print "- Force encryption removal is on!";
+	fi;
+fi;
+
+if [ "$(file_getprop $script do.rem_encryption)" == 1 ] &&
+   [ $(cat $fstab | grep forceencypt | wc -l) -gt "0" ]; then
+	sed -i 's/forceencrypt/encryptable/g' $fstab
+	if [ $(cat $fstab | grep forceencrypt | wc -l) -eq "0" ]; then
+		ui_print "- Removed force encryption flag!";
+	else
+		ui_print "- Failed to remove force encryption!";
+		exit 1;
+	fi;
+fi;
 
 if [ -e init.qcom.rc ]; then
 if [ -e init.qcom.rc~ ]; then
