@@ -1414,19 +1414,19 @@
 
 	<settingsPane description="Choose kernel profiles." name="Kernel Profiles">
 
-		<button description="Extreme Battery Save" name="Extreme Battery Save Profile" action="push-actions/config_backup_restore 3" label="Extreme Battery"/>
+		<button description="an Aggressive Battery Saving Profile with least resources" name="Extreme Battery Save Profile" action="push-actions/config_backup_restore 3" label="Extreme Battery"/>
 
-		<button description="Battery Save" name="Battery Save Profile" action="push-actions/config_backup_restore 4" label="Battery"/>
+		<button description="a Battery Saving Profile with less resources than default profile" name="Battery Save Profile" action="push-actions/config_backup_restore 4" label="Battery"/>
 
-		<button description="Default" name="Default Profile" action="push-actions/config_backup_restore 5" label="Default"/>
+		<button description="Default Profile, a safe and stable profile" name="Default Profile" action="push-actions/config_backup_restore 5" label="Default"/>
 
-		<button description="Performance" name="Performance Profile" action="push-actions/config_backup_restore 6" label="Performance"/>
+		<button description="a modified version of default profile with faster cpu response" name="Performance Profile" action="push-actions/config_backup_restore 6" label="Performance"/>
 
-		<button description="Extreme Performance" name="extreme performance Profile" action="push-actions/config_backup_restore 7" label="Extreme Performance"/>
+		<button description="a gaming profile with extreme power" name="Extreme performance Profile" action="push-actions/config_backup_restore 7" label="Extreme Performance"/>
 
-		<button description="Gabriel" name="gabriel Profile" action="push-actions/config_backup_restore 8" label="Gabriel"/>
+		<button description="a balanced profile" name="Gabriel Profile" action="push-actions/config_backup_restore 8" label="Gabriel"/>
 
-		<button description="Salvation" name="salvation Profile" action="push-actions/config_backup_restore 9" label="Salvation"/>
+		<button description="a battery oriented profile for light usage patterns with less cpu and gpu resources" name="Salvation Profile" action="push-actions/config_backup_restore 9" label="Salvation"/>
 
 		<button description="I'm feeling lucky" name="ps217 modified Profile" action="push-actions/config_backup_restore 10" label="PS217 mod"/>
 
