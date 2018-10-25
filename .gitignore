@@ -103,3 +103,6 @@ all.config
 READY-KERNEL/*
 WORKING-DIR/temp/*
 build.log
+
+arch/arm64/crypto/sha256-core.S
+arch/arm64/crypto/sha512-core.S
