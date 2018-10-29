@@ -676,6 +676,8 @@ KBUILD_CFLAGS  += $(call cc-disable-warning, stringop-overflow)
 # Disable CLANG 8.x warnings
 KBUILD_CFLAGS  += $(call cc-disable-warning, return-stack-address)
 
+KBUILD_LOUP_CFLAGS += -Wno-unknown-warning-option -Wno-sometimes-uninitialized -Wno-vectorizer-no-neon -Wno-pointer-sign -Wno-sometimes-uninitialized -Wno-tautological-constant-out-of-range-compare -Wno-literal-conversion -Wno-enum-conversion -Wno-parentheses-equality -Wno-typedef-redefinition -Wno-constant-logical-operand -Wno-array-bounds -Wno-empty-body -Wno-non-literal-null-conversion -Wno-shift-overflow -Wno-logical-not-parentheses -Wno-strlcpy-strlcat-size -Wno-section -Wno-stringop-truncation -Wno-return-stack-address -mtune=cortex-a53 -march=armv8-a+crc+simd+crypto -mcpu=cortex-a53
+
 ifneq ($(KBUILD_LOUP_CFLAGS),)
 $(info Using custom flags!!! [${KBUILD_LOUP_CFLAGS}])
 KBUILD_CFLAGS   += $(KBUILD_LOUP_CFLAGS)
