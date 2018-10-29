@@ -11656,7 +11656,7 @@
 	};
 
 	chosen {
-		bootargs = "sched_enable_hmp=1 kernel_name=gabriel";
+		bootargs = "sched_enable_hmp=1";
 	};
 
 	aliases {
