@@ -615,7 +615,7 @@ error:
 }
 
 /* A comparator to compare loads (needed later on) */
-int cmp(const void *a, const void *b)
+static int cmp_load_freq_table(const void *a, const void *b)
 {
 	/* want to sort in reverse so flip the comparison */
 	return ((struct load_freq_table *)b)->load -
@@ -667,10 +667,9 @@ static int msm_vidc_load_freq_table(struct msm_vidc_platform_resources *res)
 	 * logic to work, just sort it ourselves
 	 */
 	sort(res->load_freq_tbl, res->load_freq_tbl_size,
-			sizeof(*res->load_freq_tbl), cmp, NULL);
+			sizeof(*res->load_freq_tbl), cmp_load_freq_table, NULL);
 	return rc;
 }
-
 static int msm_vidc_load_dcvs_table(struct msm_vidc_platform_resources *res)
 {
 	int rc = 0;
@@ -1181,6 +1180,13 @@ int read_platform_resources_from_dt(
 		dprintk(VIDC_ERR,
 			"Failed to determine max load supported: %d\n", rc);
 		goto err_load_max_hw_load;
+	}
+
+	rc = of_property_read_u32(pdev->dev.of_node, "qcom,power-conf",
+			&res->power_conf);
+	if (rc) {
+		dprintk(VIDC_DBG,
+			"Failed to read power configuration: %d\n", rc);
 	}
 
 	rc = msm_vidc_populate_legacy_context_bank(res);
